@@ -47,6 +47,6 @@ Exemplo:
 4. Abra o frontend:
    cd frontend
    abrir index.html
-### Backend
 
 
+## 6. SQL(Br modelo)
