@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Importar Alunos</title>
+</head>
+<body>
+  <button id="IncluirAlunos" onclick="Inclusao()">Incluir um aluno</button>
+  <button id="ExcluirAlunos" onclick="Exclusao()">Excluir um aluno</button>
+  <button id="EditarAlunos" onclick="Edicao()">Editar um aluno</button>
+
+  <h1>Importar arquivos CSV</h1>
+  <input type="file" id="arquivoCSV" accept=".csv">
+  <button onclick="enviarArquivo('csv')">Enviar CSV</button>
+  <!--TABELa SE ESCOLHER CSV-->
+  <table id="CSVtabela" border="1">
+    <tr>
+      <td>RA</td>
+      <td>Nome Completo</td>
+    </tr>
+  </table>
+  <!--TABELA SE ESCOLHER JSON-->
+
+  <h2>Importar arquivos JSON</h2>
+  <input type="file" id="arquivoJSON" accept=".json">
+  <button onclick="enviarArquivo('json')">Enviar JSON</button>
+
+  <table id="JSONtabela" border="1">
+    <tr>
+      <td>Identificador (RA, matrícula, código, id)</td>
+      <td>Nome (nome, fullName, completeName, name)</td>
+    </tr>
+  </table>
+
+
+  <div id="resultado"></div>
+
+  <script>
+   
+  </script>
+</body>
+</html>
