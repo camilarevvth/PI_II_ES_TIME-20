@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>Cadastro de Disciplinas e Turmas</title>
+</head>
+<body>
+
+  <h2>Cadastro de Instituição e Curso</h2>
+  <input type="text" placeholder="Instituição" required><br>
+  <input type="text" placeholder="Curso" required><br><br>
+
+  <h2>Cadastro de Disciplina</h2>
+  <input type="text" placeholder="Nome da disciplina" required><br>
+  <input type="text" placeholder="Sigla" required><br>
+  <input type="text" placeholder="Código do curso" required><br>
+  <input type="text" placeholder="Período do curso (ex: 1º semestre)" required><br><br>
+
+  <h2>Cadastro de Turmas</h2>
+  <div id="turmas">
+    <div class="turma">
+      <input type="text" placeholder="Horário da turma (ex: 14:00-16:00)" required><br>
+      <input type="text" placeholder="Dia da turma (ex: Segunda-feira)" required><br>
+      <input type="text" placeholder="Local da turma (ex: Sala 204)" required><br>
+      <button type="button" onclick="removerTurma()">Excluir turma</button>
+      <br><br>
+    </div>
+  </div>
+
+  <button type="button" onclick="adicionarTurma()">Adicionar nova turma</button><br><br>
+
+  <script>
+    
+  </script>
+
+</body>
+</html>
