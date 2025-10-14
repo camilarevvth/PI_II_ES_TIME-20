@@ -18,85 +18,230 @@
 <input type="text" id="compDesc" placeholder="Descrição">
 <button onclick="adicionarComponente()">Adicionar Componente</button>
 
+<h2>Fórmula de Cálculo da Nota Final</h2>
+<input type="text" id="formulaInput" placeholder="(P1 + P2 + P3) / 3" size="50">
+<button onclick="salvarFormula()">Salvar Fórmula</button>
+
+
 <label>
-  <input type="checkbox" id="modoCompleto"> Modo Edição Completa
+  <input type="checkbox" id="modoCompleto" onchange="alternarModoEdicao()"> Modo Edição Completa
 </label>
+<button onclick="alternarPainelAuditoria()">Ocultar / Exibir Auditoria</button>
+<p>Status Edição: <span id="statusEdicao">Modo de Visualização (Seguro)</span></p>
+
 
 <h2>Quadro de Notas</h2>
-<table id="tabela">
-  
-    <tr id="header">
-      <th>Matrícula</th>
-      <th>Nome</th>
-    </tr>
+<table border="1" id="tabela">
+  
+    <tr id="header">
+      <th>Matrícula</th>
+      <th>Nome</th>
+            <th id="colunaNF">Nota Final</th> 
+    </tr>
 
 </table>
 
+<div id="painel-auditoria">
+    <h3>Painel de Auditoria de Notas (LOG)</h3>
+    <ul id="painel-auditoria-notas">
+        <li>Logs de operações aparecerão aqui...</li>
+    </ul>
+</div>
+
 <script>
 let componentes = [];
+// INJEÇÃO: Variáveis para controle de dados e fórmula
+let alunosData = {}; // Para rastrear notas por aluno e simular o estado do BD
+let formula = "NF"; // Placeholder da fórmula
+let logCounter = 0; // Contador para logs
+
+// Inicializa a tabela no modo seguro (Visualização)
+window.onload = function() {
+    alternarModoEdicao();
+    console.log("[RF032] Simulando carregamento de logs de auditoria do servidor...");
+}
+
+// =============================================
+// INJEÇÃO: Lógica de FÓRMULA
+// =============================================
+function salvarFormula() {
+    const novaFormula = document.getElementById('formulaInput').value.trim();
+    if (novaFormula) {
+        formula = novaFormula;
+        document.getElementById('formulaExibida').innerText = novaFormula;
+        console.log(`[AÇÃO CRÍTICA] Fórmula salva: ${formula}.`);
+        // O Backend fará o recalculo aqui.
+    }
+}
+
+// =============================================
+// INJEÇÃO: Lógica de AUDITORIA VISUAL
+// =============================================
+
+function alternarPainelAuditoria() {
+    const painel = document.getElementById('painel-auditoria-notas-container');
+    // Usando display:none para ocultar (sem mexer em outras divs)
+    painel.style.display = painel.style.display === 'none' ? 'block' : 'none';
+}
+
+function adicionarLogAoPainel(mensagem) {
+    const painel = document.getElementById('painel-auditoria-notas');
+    const novoLog = document.createElement('li');
+    novoLog.innerText = mensagem;
+    
+    // Adiciona o novo log no topo (ordem decrescente de tempo)
+    if (painel.firstChild && painel.firstChild.tagName === 'LI' && painel.firstChild.innerText.includes('Logs de operações')) {
+        painel.removeChild(painel.firstChild); // Remove a mensagem inicial
+    }
+    painel.insertBefore(novoLog, painel.firstChild);
+}
+
+// =============================================
+// AJUSTES: LÓGICA DE EDIÇÃO E CADASTROS
+// =============================================
+
+// CORREÇÃO E REFORÇO: Lógica de Modo de Edição
+function alternarModoEdicao() {
+    // Se o checkbox está marcado, Edição está Habilitada.
+    const isEdicaoHabilitada = document.getElementById('modoCompleto').checked; 
+    const inputs = document.querySelectorAll('#tabela input[type="number"]');
+    
+    inputs.forEach(input => {
+        // Desabilita por padrão (modo visualização)
+        input.disabled = !isEdicaoHabilitada;
+        if (isEdicaoHabilitada) {
+            // Adiciona o evento de salvamento CRÍTICO
+            input.setAttribute('onchange', 'updateNota(this)');
+        } else {
+            input.removeAttribute('onchange');
+        }
+    });
+
+    document.getElementById('statusEdicao').innerText = isEdicaoHabilitada ? "Modo de Edição Completa (Ativo)" : "Modo de Visualização (Seguro)";
+}
+
 
 function adicionarAluno() {
-  const matricula = document.getElementById('matricula').value;
-  const nome = document.getElementById('nome').value;
+    const matricula = document.getElementById('matricula').value;
+    const nome = document.getElementById('nome').value;
 
-  if (!matricula || !nome) {
-    alert("Preencha matrícula e nome!");
-    return;
-  }
+    if (!matricula || !nome) {
+        alert("Preencha matrícula e nome!");
+        return;
+    }
+    
+    // INJEÇÃO: Inicializa dados do aluno
+    alunosData[matricula] = { nome: nome, notas: {}, notaFinal: '0.00' };
 
-  const tabela = document.getElementById('tabela').getElementsByTagName('tbody')[0];
-  const novaLinha = tabela.insertRow();
+    // Seu código original
+    const tabela = document.getElementById('tabela').getElementsByTagName('tbody')[0] || document.getElementById('tabela').appendChild(document.createElement('tbody'));
+    const novaLinha = tabela.insertRow();
+    // INJEÇÃO: Adiciona ID para rastreamento
+    novaLinha.setAttribute('data-matricula', matricula);
 
-  const celulaMatricula = novaLinha.insertCell(0);
-  const celulaNome = novaLinha.insertCell(1);
-  celulaMatricula.innerText = matricula;
-  celulaNome.innerText = nome;
+    const celulaMatricula = novaLinha.insertCell(0);
+    const celulaNome = novaLinha.insertCell(1);
+    celulaMatricula.innerText = matricula;
+    celulaNome.innerText = nome;
 
-  // Adiciona células de notas de acordo com os componentes cadastrados
-  componentes.forEach(comp => {
-    const celulaNota = novaLinha.insertCell();
-    celulaNota.innerHTML = `<input type="number" min="0" max="10" step="0.01" placeholder="-" ${document.getElementById('modoCompleto').checked ? '' : 'onchange="updateNota(this)"'}>`;
-  });
+    // Adiciona células de notas de acordo com os componentes cadastrados
+    componentes.forEach(comp => {
+        const celulaNota = novaLinha.insertCell(novaLinha.cells.length - 1); // Insere antes da NF
+        // INJEÇÃO: Adiciona data-sigla para rastreamento e desabilita por padrão
+        celulaNota.innerHTML = `<input type="number" data-sigla="${comp.sigla}" min="0" max="10" step="0.01" placeholder="-" disabled>`;
+    });
+    
+    // INJEÇÃO: Adiciona célula da Nota Final no final
+    const celulaNF = novaLinha.insertCell();
+    celulaNF.setAttribute('data-coluna', 'NotaFinal');
+    celulaNF.innerText = '0.00';
 
-  document.getElementById('matricula').value = "";
-  document.getElementById('nome').value = "";
+    // Seu código original
+    document.getElementById('matricula').value = "";
+    document.getElementById('nome').value = "";
+    
+    // INJEÇÃO: Aplica o modo de edição à nova linha
+    alternarModoEdicao();
 }
 
 function adicionarComponente() {
-  const nome = document.getElementById('compNome').value;
-  const sigla = document.getElementById('compSigla').value;
-  const desc = document.getElementById('compDesc').value;
+    const nome = document.getElementById('compNome').value;
+    const sigla = document.getElementById('compSigla').value.toUpperCase().trim();
+    const desc = document.getElementById('compDesc').value;
 
-  if (!nome || !sigla || !desc) {
-    alert("Preencha nome, sigla e descrição!");
-    return;
-  }
+    if (!nome || !sigla || !desc) {
+        alert("Preencha nome, sigla e descrição!");
+        return;
+    }
+    
+    if (componentes.some(c => c.sigla === sigla)) {
+        alert(`O componente com sigla '${sigla}' já existe.`);
+        return;
+    }
 
-  componentes.push({nome, sigla, desc});
+    componentes.push({nome, sigla, desc});
 
-  // Atualiza o header da tabela
-  const header = document.getElementById('header');
-  const novaColuna = document.createElement('th');
-  novaColuna.innerText = sigla;
-  header.appendChild(novaColuna);
+    // Atualiza o header da tabela (Seu código, mas ajustado para inserir antes da NF)
+    const header = document.getElementById('header');
+    const colunaNF = document.getElementById('colunaNF'); // Coluna Nota Final
+    const novaColuna = document.createElement('th');
+    novaColuna.innerText = sigla;
+    header.insertBefore(novaColuna, colunaNF); // Insere antes da NF
 
-  // Adiciona células para os alunos existentes
-  const tabela = document.getElementById('tabela').getElementsByTagName('tbody')[0];
-  for (let i = 0; i < tabela.rows.length; i++) {
-    const celulaNota = tabela.rows[i].insertCell();
-    celulaNota.innerHTML = `<input type="number" min="0" max="10" step="0.01" placeholder="-" ${document.getElementById('modoCompleto').checked ? '' : 'onchange="updateNota(this)"'}>`;
-  }
+    // Adiciona células para os alunos existentes (Seu código, mas ajustado)
+    const tabelaBody = document.getElementById('tabela').getElementsByTagName('tbody')[0];
+    if(tabelaBody) {
+        for (let i = 0; i < tabelaBody.rows.length; i++) {
+            const linha = tabelaBody.rows[i];
+            // Insere a nova célula ANTES da última (Nota Final)
+            const celulaNota = linha.insertCell(linha.cells.length - 1); 
+            // INJEÇÃO: Adiciona data-sigla e desabilita por padrão
+            celulaNota.innerHTML = `<input type="number" data-sigla="${sigla}" min="0" max="10" step="0.01" placeholder="-" disabled>`;
+        }
+    }
 
-  document.getElementById('compNome').value = "";
-  document.getElementById('compSigla').value = "";
-  document.getElementById('compDesc').value = "";
+    // Seu código original
+    document.getElementById('compNome').value = "";
+    document.getElementById('compSigla').value = "";
+    document.getElementById('compDesc').value = "";
+    
+    // INJEÇÃO: Aplica o modo de edição aos novos inputs
+    alternarModoEdicao();
 }
 
-function updateNota(input) {
-  let val = parseFloat(input.value);
-  if (isNaN(val) || val < 0) val = 0;
-  if (val > 10) val = 10;
-  input.value = val.toFixed(2);
+// CORREÇÃO E INJEÇÃO: Função de Atualização de Nota (CRÍTICA)
+function updateNota(inputElement) {
+    // SEU CÓDIGO ORIGINAL (validação)
+    let val = parseFloat(inputElement.value);
+    if (isNaN(val) || val < 0) val = 0;
+    if (val > 10) val = 10;
+    const valorAntigo = inputElement.value ? parseFloat(inputElement.value).toFixed(2) : '0.00'; // Valor antigo
+    const valorCorrigido = val.toFixed(2);
+    inputElement.value = valorCorrigido;
+    
+    // INJEÇÃO: Coleta de dados para Back-end
+    const linha = inputElement.closest('tr');
+    const matricula = linha.getAttribute('data-matricula');
+    const sigla = inputElement.getAttribute('data-sigla');
+    
+    // 1. INJEÇÃO: SIMULAÇÃO de checagem de valor antigo no modelo
+    const valorAntigoModelo = alunosData[matricula].notas[sigla] ? alunosData[matricula].notas[sigla].toFixed(2) : '0.00';
+    
+    // 2. INJEÇÃO: CHAMADA CRÍTICA AO BACKEND (TypeScript)
+    console.log(`[AÇÃO CRÍTICA] Enviando ao Backend: Aluno ${matricula}, Componente ${sigla}, Novo Valor: ${valorCorrigido}.`);
+
+    // 3. INJEÇÃO: ATUALIZAÇÃO DO MODELO E LOG (SIMULAÇÃO)
+    alunosData[matricula].notas[sigla] = parseFloat(valorCorrigido); // Atualiza dados
+    
+    // Simulação do Recálculo de Nota Final
+    const soma = componentes.reduce((acc, comp) => acc + (alunosData[matricula].notas[comp.sigla] || 0), 0);
+    const notaFinal = componentes.length > 0 ? (soma / componentes.length).toFixed(2) : '0.00';
+    document.querySelector(`tr[data-matricula="${matricula}"] [data-coluna="NotaFinal"]`).innerText = notaFinal;
+
+
+    // 4. INJEÇÃO: Feedback Visual de Auditoria (RF032)
+    const logMessage = `[${new Date().toLocaleTimeString()}] - Aluno ${matricula} (${alunosData[matricula].nome}) - Nota ${sigla} alterada de ${valorAntigoModelo} para ${valorCorrigido}.`;
+    adicionarLogAoPainel(logMessage);
 }
 </script>
 
