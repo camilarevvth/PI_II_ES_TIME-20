@@ -3,296 +3,193 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Quadro de Notas</title>
+<title>Quadro de Notas Simplificado</title>
 
 </head>
 <body>
+
 <div id="alunos">
-<h2>Cadastro de Alunos</h2>
-<input type="text" id="matricula" placeholder="Matrícula">
-<input type="text" id="nome" placeholder="Nome">
-<button onclick="adicionarAluno()">Adicionar Aluno</button>
-</div>
-<div id="componente">
-<h2>Cadastro de Componentes de Nota</h2>
-<input type="text" id="compNome" placeholder="Nome">
-<input type="text" id="compSigla" placeholder="Sigla (ex: P1)">
-<input type="text" id="compDesc" placeholder="Descrição">
-<button onclick="adicionarComponente()">Adicionar Componente</button>
-</div>
-<div id="calculo">
-<h2>Fórmula de Cálculo da Nota Final</h2>
-<input type="text" id="formulaInput" placeholder="(P1 + P2 + P3) / 3" size="50">
-<button onclick="salvarFormula()">Salvar Fórmula</button>
+  <h2>Cadastro de Alunos</h2>
+  <input type="text" id="matricula" placeholder="Matrícula">
+  <input type="text" id="nome" placeholder="Nome">
+  <button onclick="adicionarAluno()">Adicionar Aluno</button>
 </div>
 
-<div id="quadro">
+<div id="notas">
+  <h2>Cadastro de Componentes de Nota</h2>
+  <input type="text" id="compNome" placeholder="Nome">
+  <input type="text" id="compSigla" placeholder="Sigla (ex: P1)">
+  <input type="text" id="compDesc" placeholder="Descrição">
+  <button onclick="adicionarComponente()">Adicionar Componente</button>
+</div>
+
+<div id="formula">
+  <h2>Fórmula de Cálculo da Nota Final</h2>
+  <input type="text" id="formulaInput" placeholder="(P1 + P2 + P3) / 3" size="50">
+  <button onclick="salvarFormula()">Salvar Fórmula</button>
+</div>
+
+<button onclick="alternarPainelAuditoria()">Ocultar / Exibir Auditoria</button>
+<p>Status Edição: <span id="statusEdicao">Edição Habilitada</span></p>
+
 <h2>Quadro de Notas</h2>
-<table border="1" id="tabela">
-
- <th>Matrícula</th>
- <th>Nome</th>
- <th>Nota Final</th> 
-</div>
-
+<table id="tabela">
+  <thead>
+    <tr>
+      <th>Matrícula</th>
+      <th>Nome</th>
+      <th>Nota Final</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
 </table>
 
-<div id="painel-auditoria">
-    <h3>Painel de Auditoria de Notas (LOG)</h3>
-    <ul id="painel-auditoria-notas">
-        <li>Logs de operações aparecerão aqui...</li>
-    </ul>
+<div id="painel-auditoria" style="display: block;">
+  <h3>Painel de Auditoria de Notas (LOG)</h3>
+  <ul id="painel-auditoria-notas">
+    <li>Logs de operações aparecerão aqui...</li>
+  </ul>
 </div>
 
 <script>
 let componentes = [];
 let alunosData = {};
-let formula = "(P1 + P2 + P3) / 3"; // Fórmula padrão para o exemplo
-
-
-
-// Função para iniciar a página (chama o modo de visualização)
-window.onload = function() {
-    alternarModoEdicao();
-    // Adiciona alguns dados para você testar
-    simularDadosIniciais(); 
-    console.log("[AUDITORIA] Simulação: Logs de auditoria seriam carregados aqui do servidor.");
-}
-
-
-
+let formula = "(P1 + P2 + P3) / 3";
 
 function adicionarAluno() {
-    const matricula = document.getElementById('matricula').value;
-    const nome = document.getElementById('nome').value;
+  const matricula = document.getElementById('matricula').value.trim();
+  const nome = document.getElementById('nome').value.trim();
 
-    if (!matricula || !nome) {
-        alert("Preencha matrícula e nome!");
-        return;
-    }
-    
-    // 1. Atualiza o modelo de dados
-    alunosData[matricula] = { nome: nome, notas: {}, notaFinal: '0.00' };
+  if (!matricula || !nome) {
+    alert("Preencha matrícula e nome!");
+    return;
+  }
 
-    // 2. Adiciona a linha na tabela
-    const tabelaBody = document.getElementById('tabela').getElementsByTagName('tbody')[0] || document.getElementById('tabela').appendChild(document.createElement('tbody'));
-    const novaLinha = tabelaBody.insertRow();
-    novaLinha.setAttribute('data-matricula', matricula);
+  alunosData[matricula] = { nome, notas: {}, notaFinal: '0.00' };
 
-    const celulaMatricula = novaLinha.insertCell(0);
-    const celulaNome = novaLinha.insertCell(1);
-    celulaMatricula.innerText = matricula;
-    celulaNome.innerText = nome;
+  const tabelaBody = document.querySelector('#tabela tbody');
+  const novaLinha = tabelaBody.insertRow();
+  novaLinha.setAttribute('data-matricula', matricula);
 
-    // Adiciona células de notas de componentes
-    componentes.forEach(comp => {
-        // Insere antes da Nota Final (que está no final)
-        const celulaNota = novaLinha.insertCell(novaLinha.cells.length - 1); 
-        // Adiciona data-sigla e desabilita por padrão
-        celulaNota.innerHTML = `<input type="number" data-sigla="${comp.sigla}" min="0" max="10" step="0.01" placeholder="-" disabled>`;
-    });
-    
-    // Adiciona célula da Nota Final no final
-    const celulaNF = novaLinha.insertCell();
-    celulaNF.setAttribute('data-coluna', 'NotaFinal');
-    celulaNF.innerText = '0.00';
+  const celMat = novaLinha.insertCell();
+  celMat.textContent = matricula;
 
-    document.getElementById('matricula').value = "";
-    document.getElementById('nome').value = "";
-    
-    // Aplica o modo de edição à nova linha
-    alternarModoEdicao();
+  const celNome = novaLinha.insertCell();
+  celNome.textContent = nome;
+
+  // Inserir colunas de notas antes da nota final
+  componentes.forEach(comp => {
+    const cel = novaLinha.insertCell();
+    cel.classList.add("celula-nota");
+    cel.innerHTML = `
+      <input type="number" data-sigla="${comp.sigla}" min="0" max="10" step="0.01"
+             placeholder="-" onchange="updateNota(this)">
+      <span class="valor-baixo">0.00</span>
+    `;
+  });
+
+  const celNF = novaLinha.insertCell();
+  celNF.setAttribute("data-coluna", "NotaFinal");
+  celNF.textContent = "0.00";
+
+  document.getElementById('matricula').value = "";
+  document.getElementById('nome').value = "";
 }
 
 function adicionarComponente() {
-    const nome = document.getElementById('compNome').value;
-    const sigla = document.getElementById('compSigla').value.toUpperCase().trim();
-    const desc = document.getElementById('compDesc').value;
+  const nome = document.getElementById('compNome').value.trim();
+  const sigla = document.getElementById('compSigla').value.toUpperCase().trim();
+  const desc = document.getElementById('compDesc').value.trim();
 
-    if (!nome || !sigla || !desc) {
-        alert("Preencha nome, sigla e descrição!");
-        return;
-    }
-    
-    if (componentes.some(c => c.sigla === sigla)) {
-        alert(`O componente com sigla '${sigla}' já existe.`);
-        return;
-    }
+  if (!nome || !sigla || !desc) {
+    alert("Preencha nome, sigla e descrição!");
+    return;
+  }
 
-    componentes.push({nome, sigla, desc});
+  if (componentes.some(c => c.sigla === sigla)) {
+    alert(`O componente com sigla '${sigla}' já existe.`);
+    return;
+  }
 
-    // 1. Atualiza o header da tabela (insere antes da Nota Final)
-    const headerRow = document.querySelector('#tabela tr'); 
-    const colunaNF = headerRow.lastElementChild; // A Nota Final é o último TH
+  componentes.push({ nome, sigla, desc });
 
-    const novaColuna = document.createElement('th');
-    novaColuna.innerText = sigla;
-    headerRow.insertBefore(novaColuna, colunaNF); // Insere antes da NF
+  const header = document.querySelector('#tabela thead tr');
+  const thNF = header.lastElementChild;
+  const novaTh = document.createElement('th');
+  novaTh.textContent = sigla;
+  header.insertBefore(novaTh, thNF);
 
-    // 2. Adiciona células para os alunos existentes
-    const tabelaBody = document.querySelector('#tabela tbody');
-    if(tabelaBody) {
-        for (let i = 0; i < tabelaBody.rows.length; i++) {
-            const linha = tabelaBody.rows[i];
-            // Insere a nova célula ANTES da última (Nota Final)
-            const celulaNota = linha.insertCell(linha.cells.length - 1); 
-            // Adiciona data-sigla e desabilita por padrão
-            celulaNota.innerHTML = `<input type="number" data-sigla="${sigla}" min="0" max="10" step="0.01" placeholder="-" disabled>`;
-        }
-    }
+  const tabelaBody = document.querySelector('#tabela tbody');
+  for (const linha of tabelaBody.rows) {
+    const cel = linha.insertCell(linha.cells.length - 1);
+    cel.classList.add("celula-nota");
+    cel.innerHTML = `
+      <input type="number" data-sigla="${sigla}" min="0" max="10" step="0.01"
+             placeholder="-" onchange="updateNota(this)">
+      <span class="valor-baixo">0.00</span>
+    `;
+  }
 
-    document.getElementById('compNome').value = "";
-    document.getElementById('compSigla').value = "";
-    document.getElementById('compDesc').value = "";
-    
-    // Aplica o modo de edição aos novos inputs
-    alternarModoEdicao();
+  document.getElementById('compNome').value = "";
+  document.getElementById('compSigla').value = "";
+  document.getElementById('compDesc').value = "";
 }
 
-// =========================================================
-// 3. LÓGICA CRÍTICA DE NOTA (SIMULAÇÃO DO BACKEND)
-// =========================================================
+function salvarFormula() {
+  const nova = document.getElementById('formulaInput').value.trim();
+  if (nova) {
+    formula = nova;
+    alert("Fórmula salva: " + formula);
+  }
+}
 
-// Função de Recálculo (Simulação Front-end)
+function updateNota(input) {
+  let val = parseFloat(input.value);
+  if (isNaN(val) || val < 0) val = 0;
+  if (val > 10) val = 10;
+  const valorCorrigido = val.toFixed(2);
+
+  input.value = valorCorrigido;
+  input.parentElement.querySelector('.valor-baixo').innerText = valorCorrigido;
+
+  const linha = input.closest('tr');
+  const matricula = linha.dataset.matricula;
+  const sigla = input.dataset.sigla;
+  const valorAntigo = alunosData[matricula].notas[sigla] || 0;
+
+  alunosData[matricula].notas[sigla] = val;
+  recalcularNotaFinal(matricula);
+
+  const nomeAluno = alunosData[matricula].nome;
+  adicionarLogAoPainel(`[${new Date().toLocaleTimeString('pt-BR')}] - (Aluno ${nomeAluno}) - Nota ${sigla} alterada de ${valorAntigo.toFixed(2)} para ${valorCorrigido}.`);
+}
+
 function recalcularNotaFinal(matricula) {
-    let soma = 0;
-    let count = 0;
-    
-    // Itera sobre os componentes para calcular a soma
-    componentes.forEach(comp => {
-        // Usa a nota do modelo de dados, se existir, senão usa 0
-        const nota = alunosData[matricula].notas[comp.sigla] || 0;
-        soma += nota;
-        count++;
-    });
-    
-    // Simplesmente mostra a média P1, P2, P3. O Backend usaria a 'formula'
-    const notaFinal = count > 0 ? (soma / count).toFixed(2) : '0.00';
-    
-    // Atualiza a célula NF na tabela
-    document.querySelector(`tr[data-matricula="${matricula}"] [data-coluna="NotaFinal"]`).innerText = notaFinal;
-    alunosData[matricula].notaFinal = notaFinal;
+  const aluno = alunosData[matricula];
+  let soma = 0, count = 0;
+  componentes.forEach(c => {
+    soma += aluno.notas[c.sigla] || 0;
+    count++;
+  });
+  const nf = count ? (soma / count).toFixed(2) : "0.00";
+  aluno.notaFinal = nf;
+  document.querySelector(`tr[data-matricula="${matricula}"] [data-coluna="NotaFinal"]`).textContent = nf;
 }
-
-
-// Função de Atualização de Nota (CRÍTICA)
-function updateNota(inputElement) {
-    // 1. VALIDAÇÃO E ARREDONDAMENTO (Seu código)
-    let val = parseFloat(inputElement.value);
-    if (isNaN(val) || val < 0) val = 0;
-    if (val > 10) val = 10;
-    
-    const valorCorrigido = val.toFixed(2);
-    
-    // 2. COLETAR DADOS E VALOR ANTIGO
-    const linha = inputElement.closest('tr');
-    const matricula = linha.getAttribute('data-matricula');
-    const sigla = inputElement.getAttribute('data-sigla');
-    
-    // Valor antigo do nosso modelo de dados (simulação)
-    const valorAntigoModelo = alunosData[matricula].notas[sigla] ? alunosData[matricula].notas[sigla].toFixed(2) : '0.00';
-    
-    // Se o valor não mudou, não faz nada
-    if (valorAntigoModelo === valorCorrigido) {
-        inputElement.value = valorCorrigido; // Garante o formato
-        return; 
-    }
-    
-    // 3. CHAMADA CRÍTICA AO BACKEND (Simulação de envio)
-    console.log(`[AÇÃO CRÍTICA] Enviando ao Backend: Aluno ${matricula}, Componente ${sigla}, Novo Valor: ${valorCorrigido}.`);
-
-    // 4. ATUALIZAÇÃO DO MODELO DE DADOS (Simulação de sucesso do Backend)
-    inputElement.value = valorCorrigido; // Atualiza o campo com o valor formatado
-    alunosData[matricula].notas[sigla] = parseFloat(valorCorrigido); 
-    
-    // 5. RECÁLCULO DA NOTA FINAL
-    recalcularNotaFinal(matricula); 
-
-
-    // 6. FEEDBACK VISUAL DE AUDITORIA (RF032)
-    const nomeAluno = alunosData[matricula].nome;
-    const logMessage = `[${new Date().toLocaleTimeString()}] - (Aluno ${nomeAluno}) - Nota ${sigla} alterada de ${valorAntigoModelo} para ${valorCorrigido}.`;
-    adicionarLogAoPainel(logMessage);
-}
-
-
-// =========================================================
-// 4. LÓGICA DO PAINEL DE AUDITORIA
-// =========================================================
 
 function alternarPainelAuditoria() {
-    // O ID da div container precisa ser ajustado no HTML para 'painel-auditoria'
-    const painel = document.getElementById('painel-auditoria');
-    painel.style.display = painel.style.display === 'none' ? 'block' : 'none';
+  const painel = document.getElementById("painel-auditoria");
+  painel.style.display = painel.style.display === "none" ? "block" : "none";
 }
 
-function adicionarLogAoPainel(mensagem) {
-    const painel = document.getElementById('painel-auditoria-notas');
-    const novoLog = document.createElement('li');
-    novoLog.innerText = mensagem;
-    
-    // Adiciona o novo log no topo (ordem decrescente de tempo)
-    const primeiroLog = painel.firstChild;
-    if (primeiroLog && primeiroLog.tagName === 'LI' && primeiroLog.innerText.includes('Logs de operações')) {
-        painel.removeChild(primeiroLog); 
-    }
-    painel.insertBefore(novoLog, painel.firstChild);
-}
-
-// =========================================================
-// 5. DADOS DE INICIALIZAÇÃO PARA TESTE
-// =========================================================
-
-function simularDadosIniciais() {
-    // Simula a criação de componentes
-    componentes.push({nome: 'Prova 1', sigla: 'P1', desc: 'Primeira avaliação'});
-    componentes.push({nome: 'Trabalho', sigla: 'T1', desc: 'Trabalho em grupo'});
-
-    // Simula a adição do cabeçalho
-    const headerRow = document.querySelector('#tabela tr'); 
-    const colunaNF = headerRow.lastElementChild;
-    let novaColunaP1 = document.createElement('th');
-    novaColunaP1.innerText = 'P1';
-    headerRow.insertBefore(novaColunaP1, colunaNF);
-    let novaColunaT1 = document.createElement('th');
-    novaColunaT1.innerText = 'T1';
-    headerRow.insertBefore(novaColunaT1, colunaNF);
-
-    // Simula a adição de alunos
-    adicionarAlunoComNotas('11111', 'Abel Antimônio', { P1: 7.5, T1: 8.0 });
-    adicionarAlunoComNotas('11112', 'Bianca Nióbio', { P1: 9.0, T1: 6.5 });
-    
-    // Exibe a fórmula no placeholder
-    document.querySelector('input#formulaInput').value = formula;
-}
-
-// Função auxiliar para inicializar com notas (para o teste)
-function adicionarAlunoComNotas(matricula, nome, notasIniciais) {
-    alunosData[matricula] = { nome: nome, notas: notasIniciais, notaFinal: '0.00' };
-
-    const tabelaBody = document.getElementById('tabela').getElementsByTagName('tbody')[0] || document.getElementById('tabela').appendChild(document.createElement('tbody'));
-    const novaLinha = tabelaBody.insertRow();
-    novaLinha.setAttribute('data-matricula', matricula);
-
-    novaLinha.insertCell(0).innerText = matricula;
-    novaLinha.insertCell(1).innerText = nome;
-
-    componentes.forEach(comp => {
-        const celulaNota = novaLinha.insertCell(novaLinha.cells.length - 1); 
-        const nota = notasIniciais[comp.sigla] ? notasIniciais[comp.sigla].toFixed(2) : '-';
-        celulaNota.innerHTML = `<input type="number" data-sigla="${comp.sigla}" min="0" max="10" step="0.01" placeholder="-" value="${nota}" disabled>`;
-    });
-    
-    const celulaNF = novaLinha.insertCell();
-    celulaNF.setAttribute('data-coluna', 'NotaFinal');
-    
-    // Recalcula a nota final para exibir o valor inicial
-    recalcularNotaFinal(matricula); 
-    
-    // Garante que o modo de edição se aplique
-    alternarModoEdicao();
+function adicionarLogAoPainel(msg) {
+  const painel = document.getElementById("painel-auditoria-notas");
+  const li = document.createElement("li");
+  li.textContent = msg;
+  if (painel.firstChild && painel.firstChild.textContent.includes("Logs de operações")) {
+    painel.firstChild.remove();
+  }
+  painel.prepend(li);
 }
 </script>
-
 </body>
 </html>
