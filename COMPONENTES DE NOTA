@@ -6,22 +6,24 @@
 
 </head>
 <body>
-
+<div id="alunos">
 <h2>Cadastro de Alunos</h2>
 <input type="text" id="matricula" placeholder="Matrícula">
 <input type="text" id="nome" placeholder="Nome">
 <button onclick="adicionarAluno()">Adicionar Aluno</button>
-
+</div>
+<div id="componente">
 <h2>Cadastro de Componentes de Nota</h2>
 <input type="text" id="compNome" placeholder="Nome">
 <input type="text" id="compSigla" placeholder="Sigla (ex: P1)">
 <input type="text" id="compDesc" placeholder="Descrição">
 <button onclick="adicionarComponente()">Adicionar Componente</button>
-
+</div>
+<div id="calculo">
 <h2>Fórmula de Cálculo da Nota Final</h2>
 <input type="text" id="formulaInput" placeholder="(P1 + P2 + P3) / 3" size="50">
 <button onclick="salvarFormula()">Salvar Fórmula</button>
-
+</div>
 
 <label>
  <input type="checkbox" id="modoCompleto" onchange="alternarModoEdicao()"> Modo Edição Completa
@@ -29,14 +31,14 @@
 <button onclick="alternarPainelAuditoria()">Ocultar / Exibir Auditoria</button>
 <p>Status Edição: <span id="statusEdicao">Modo de Visualização (Seguro)</span></p>
 
-
+<div id="quadro">
 <h2>Quadro de Notas</h2>
 <table border="1" id="tabela">
 
  <th>Matrícula</th>
  <th>Nome</th>
  <th>Nota Final</th> 
-
+</div>
 
 </table>
 
