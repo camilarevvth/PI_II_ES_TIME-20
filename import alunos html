@@ -19,19 +19,9 @@
       <td>Nome Completo</td>
     </tr>
   </table>
-  <!--TABELA SE ESCOLHER JSON-->
+  
 
-  <h2>Importar arquivos JSON</h2>
-  <input type="file" id="arquivoJSON" accept=".json">
-  <button onclick="enviarArquivo('json')">Enviar JSON</button>
-
-  <table id="JSONtabela" border="1">
-    <tr>
-      <td>Identificador (RA, matrícula, código, id)</td>
-      <td>Nome (nome, fullName, completeName, name)</td>
-    </tr>
-  </table>
-
+  
 
   <div id="resultado"></div>
 
