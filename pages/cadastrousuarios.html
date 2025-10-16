@@ -1,22 +1,55 @@
 <!DOCTYPE html>
-    <html lang="pt">
-        <head>
-            <meta charset="utf-8">
-            <title>Cadastro de usuario</title>
-        
-        </head>
-        <body>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <title>Cadastro de usuário</title>
+</head>
+<body>
 
-            <div>
-                <h2>Cadastro de Usuário</h2>
-                <form id="cadastro">
-                    <input type="text" placeholder="Nome completo"><br>
-                    <input type="email" placeholder="E-mail"><br>
-                    <input type="text" placeholder="Telefone celular"><br>
-                    <input type="password" placeholder="Senha"><br>
-                    <input type="submit" value="Cadastrar">
-                </form>
-            </div>
+  <div id="cadastro>
+    <h2>Cadastro de Usuário</h2>
+    <form id="cadastro">
+      <input type="text" id="nome" placeholder="Nome completo"><br>
+      <input type="email" id="email" placeholder="E-mail"><br>
+      <input type="text" id="telefone" placeholder="Telefone celular"><br>
+      <input type="password" id="senha" placeholder="Senha"><br>
+      <input type="submit" value="Cadastrar">
+    </form>
+  </div>
+
+  <script>
+    const form = document.querySelector('#cadastro');
+    const nome = document.querySelector('#nome');
+    const email = document.querySelector('#email');
+    const telefone = document.querySelector('#telefone');
+    const senha = document.querySelector('#senha');
+
+    form.addEventListener('submit', function(evento) {
+      evento.preventDefault(); // impede o envio automático
+
+      // valida se todos estão preenchidos
+      if (nome.value === '' || email.value === '' || telefone.value === '' || senha.value === '') {
+        alert('Preencha todos os campos!');
+        return;
+      }
+
+      // valida o e-mail (tem que ter @)
+      if (!email.value.includes('@')) {
+        alert('E-mail inválido! Deve conter "@"');
+        return;
+      }
+
+      // valida o telefone (só números)
+      if (isNaN(telefone.value)) {
+        alert('O telefone deve conter apenas números!');
+        return;
+      }
+
+      alert('Cadastro realizado com sucesso!');
+      form.reset(); // limpa os campos
+    });
+  </script>
 
 </body>
 </html>
+
