@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Exportação CSV</title>
+</head>
+<body>
+  <div id="exportacao">
+    <button onclick="exportarNotas()">Exportar Notas (CSV)</button>
+  </div>
+
+  <script>
+    function exportarNotas() {
+      fetch("http://localhost:3000/exportar", {
+        method: "GET"
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("Erro ao exportar!");
+        return res.blob(); // recebe o arquivo CSV do backend
+      })
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "notas.csv";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      })
+      .catch(err => console.error(err));
+    }
+  </script>
+</body>
+</html>
