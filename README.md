@@ -49,7 +49,7 @@ Exemplo:
    cd frontend
    abrir index.html
 ´´´
-## 3. Banco de Dados
+## 6. Banco de Dados
 ### Modelos SQL (BR Modelo)
 Modelo Conceitual: <img width="1187" height="473" alt="Captura de tela 2025-10-18 180321" src="https://github.com/user-attachments/assets/029dea23-7e0c-4a5a-a9ee-9344b1a722fe" />
 Modelo Logico: <img width="854" height="478" alt="Captura de tela 2025-10-18 184956" src="https://github.com/user-attachments/assets/4403e3ff-3b0b-427e-8f1c-2586e1211096" />
