@@ -11,19 +11,21 @@ NotaDez
 ## 1. Objetivo
  plataforma web para professores gerenciarem turmas, alunos e nota.
 
-## 2. Tecnologias
+## 2. Requisitos
+
+## 3. Tecnologias
 - **Backend**: Node.js + TypeScript  
 - **Frontend**: HTML5, CSS3 (opcional: Bootstrap)  
 - **Banco de Dados**: PostgreSQL ou MySQL  
 
-## 3. Como executar
+## 4. Como executar
 ### Backend
-```bash
+
 cd backend
 npm install
 npm run dev
 
-## 4. Branches
+## 5. Branches
 Cada funcionalidade será desenvolvida em uma branch separada.  
 Exemplos:  
 - `feature/autenticacao`  
