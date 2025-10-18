@@ -4,7 +4,7 @@ NotaDez
 
 ## Integrantes
 - **Camila Fernandes Costacurta** — RA: 25012949  
-- **Bernardo Castro Brandao de Oliveira** RA: 25014953
+- **Bernardo Castro Brandao de Oliveira** - RA: 25014953
 - **Nome3** — RA: 000000
 - **Gustavo Santos de Oliveira** — RA: 25004239
 
