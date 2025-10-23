@@ -24,7 +24,7 @@
     const telefone = document.querySelector('#telefone');
     const senha = document.querySelector('#senha');
 
-    form.addEventListener('submit', function(evento) {
+    form.addEventListener('submit', async function(evento) {
       evento.preventDefault(); // impede o envio automático
 
       // valida se todos estão preenchidos
@@ -39,14 +39,32 @@
         return;
       }
 
-      // valida o telefone (só números)
-      if (isNaN(telefone.value)) {
-        alert('O telefone deve conter apenas números!');
+        // valida o telefone (só números)
+        if (isNaN(telefone.value)) {
+            alert('O telefone deve conter apenas números!');
         return;
-      }
+        }
 
-      alert('Cadastro realizado com sucesso!');
-      form.reset(); // limpa os campos
+        alert('Cadastro realizado com sucesso!');
+
+        const cadastro = {
+            nome : nome.value,
+            email : email.value,
+            celular : telefone.value,
+            senha : senha.value
+        };
+
+        const res = await fetch('/cadastrausuario', {
+            method : "POST",
+            headers: {"content-type" : "aplication/json" },
+            body: JSON.stringify(cadastro)
+        });
+
+        const data = res.json();
+
+        console.log(data.body.mesage);
+
+        form.reset(); // limpa os campos
     });
   </script>
 
