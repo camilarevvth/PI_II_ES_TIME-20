@@ -4,7 +4,6 @@
 <head>
 <meta charset="UTF-8">
 <title>Quadro de Notas Simplificado</title>
-
 </head>
 <body>
 
@@ -27,6 +26,8 @@
   <h2>Fórmula de Cálculo da Nota Final</h2>
   <input type="text" id="formulaInput" placeholder="(P1 + P2 + P3) / 3" size="50">
   <button onclick="salvarFormula()">Salvar Fórmula</button>
+  <button onclick="definirFormulaPadrao()">Usar Média Aritmética (P1 + P2 + P3) / 3</button>
+  <button onclick="definirFormulaPonderada()">Usar Média Ponderada (P1*0.3 + P2*0.3 + P3*0.4)</button>
 </div>
 
 <button onclick="alternarPainelAuditoria()">Ocultar / Exibir Auditoria</button>
@@ -59,12 +60,10 @@ let formula = "(P1 + P2 + P3) / 3";
 function adicionarAluno() {
   const matricula = document.getElementById('matricula').value.trim();
   const nome = document.getElementById('nome').value.trim();
-
   if (!matricula || !nome) {
     alert("Preencha matrícula e nome!");
     return;
   }
-
   alunosData[matricula] = { nome, notas: {}, notaFinal: '0.00' };
 
   const tabelaBody = document.querySelector('#tabela tbody');
@@ -77,7 +76,7 @@ function adicionarAluno() {
   const celNome = novaLinha.insertCell();
   celNome.textContent = nome;
 
-  // Inserir colunas de notas antes da nota final
+  // Colunas de notas
   componentes.forEach(comp => {
     const cel = novaLinha.insertCell();
     cel.classList.add("celula-nota");
@@ -100,17 +99,14 @@ function adicionarComponente() {
   const nome = document.getElementById('compNome').value.trim();
   const sigla = document.getElementById('compSigla').value.toUpperCase().trim();
   const desc = document.getElementById('compDesc').value.trim();
-
   if (!nome || !sigla || !desc) {
     alert("Preencha nome, sigla e descrição!");
     return;
   }
-
   if (componentes.some(c => c.sigla === sigla)) {
     alert(`O componente com sigla '${sigla}' já existe.`);
     return;
   }
-
   componentes.push({ nome, sigla, desc });
 
   const header = document.querySelector('#tabela thead tr');
@@ -135,11 +131,23 @@ function adicionarComponente() {
   document.getElementById('compDesc').value = "";
 }
 
+function definirFormulaPadrao() {
+  formula = "(P1 + P2 + P3) / 3";
+  document.getElementById('formulaInput').value = formula;
+  alert("Fórmula padrão de média aritmética selecionada!");
+}
+
+function definirFormulaPonderada() {
+  formula = "(P1 * 0.3 + P2 * 0.3 + P3 * 0.4)";
+  document.getElementById('formulaInput').value = formula;
+  alert("Fórmula ponderada selecionada!");
+}
+
 function salvarFormula() {
   const nova = document.getElementById('formulaInput').value.trim();
   if (nova) {
     formula = nova;
-    alert("Fórmula salva: " + formula);
+    alert("Fórmula salva manualmente: " + formula);
   }
 }
 
@@ -171,7 +179,7 @@ function recalcularNotaFinal(matricula) {
     soma += aluno.notas[c.sigla] || 0;
     count++;
   });
-  const nf = count ? (soma / count).toFixed(2) : "0.00";
+  const nf = count ? (soma / count).toFixed(2) : "0.00"; // Mantém média simples, mas você pode adaptar a fórmula aqui para ponderada se quiser.
   aluno.notaFinal = nf;
   document.querySelector(`tr[data-matricula="${matricula}"] [data-coluna="NotaFinal"]`).textContent = nf;
 }
