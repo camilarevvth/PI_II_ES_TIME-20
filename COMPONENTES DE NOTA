@@ -4,37 +4,34 @@
 <head>
 <meta charset="UTF-8">
 <title>Quadro de Notas Simplificado</title>
+<style>
+  .peso-input { width: 50px; margin: 0 5px; }
+</style>
 </head>
 <body>
 
-<div id="alunos">
-  <h2>Cadastro de Alunos</h2>
-  <input type="text" id="matricula" placeholder="Matrícula">
-  <input type="text" id="nome" placeholder="Nome">
-  <button onclick="adicionarAluno()">Adicionar Aluno</button>
-</div>
+<h2>Cadastro de Alunos</h2>
+<input type="text" id="matricula" placeholder="Matrícula">
+<input type="text" id="nome" placeholder="Nome">
+<button onclick="adicionarAluno()">Adicionar Aluno</button>
 
-<div id="notas">
-  <h2>Cadastro de Componentes de Nota</h2>
-  <input type="text" id="compNome" placeholder="Nome">
-  <input type="text" id="compSigla" placeholder="Sigla (ex: P1)">
-  <input type="text" id="compDesc" placeholder="Descrição">
-  <button onclick="adicionarComponente()">Adicionar Componente</button>
-</div>
+<h2>Cadastro de Componentes de Nota</h2>
+<input type="text" id="compNome" placeholder="Nome">
+<input type="text" id="compSigla" placeholder="Sigla (ex: P1)">
+<button onclick="adicionarComponente()">Adicionar Componente</button>
 
-<div id="formula">
-  <h2>Fórmula de Cálculo da Nota Final</h2>
-  <input type="text" id="formulaInput" placeholder="(P1 + P2 + P3) / 3" size="50">
-  <button onclick="salvarFormula()">Salvar Fórmula</button>
-  <button onclick="definirFormulaPadrao()">Usar Média Aritmética (P1 + P2 + P3) / 3</button>
-  <button onclick="definirFormulaPonderada()">Usar Média Ponderada (P1*0.3 + P2*0.3 + P3*0.4)</button>
-</div>
+<h2>Fórmula de Cálculo</h2>
+<button onclick="usarMediaAritmetica()">Média Aritmética</button>
+<button onclick="usarMediaPonderada()">Média Ponderada</button>
 
-<button onclick="alternarPainelAuditoria()">Ocultar / Exibir Auditoria</button>
-<p>Status Edição: <span id="statusEdicao">Edição Habilitada</span></p>
+<div id="pesos-container" style="display:none; margin-top:10px;">
+  <h3>Defina os pesos (%):</h3>
+  <div id="inputs-pesos"></div>
+  <button onclick="salvarPesos()">Salvar Pesos</button>
+</div>
 
 <h2>Quadro de Notas</h2>
-<table id="tabela">
+<table id="tabela" border="1">
   <thead>
     <tr>
       <th>Matrícula</th>
@@ -45,159 +42,126 @@
   <tbody></tbody>
 </table>
 
-<div id="painel-auditoria" style="display: block;">
-  <h3>Painel de Auditoria de Notas (LOG)</h3>
-  <ul id="painel-auditoria-notas">
-    <li>Logs de operações aparecerão aqui...</li>
-  </ul>
-</div>
-
 <script>
-let componentes = [];
-let alunosData = {};
-let formula = "(P1 + P2 + P3) / 3";
+let alunos = {};      // dados dos alunos
+let componentes = []; // componentes
+let formula = "aritmetica"; // tipo de cálculo
+let pesos = {};       // pesos para média ponderada
 
 function adicionarAluno() {
-  const matricula = document.getElementById('matricula').value.trim();
-  const nome = document.getElementById('nome').value.trim();
-  if (!matricula || !nome) {
-    alert("Preencha matrícula e nome!");
-    return;
-  }
-  alunosData[matricula] = { nome, notas: {}, notaFinal: '0.00' };
+  let mat = document.getElementById("matricula").value;
+  let nome = document.getElementById("nome").value;
+  if (!mat || !nome) { alert("Preencha matrícula e nome"); return; }
 
-  const tabelaBody = document.querySelector('#tabela tbody');
-  const novaLinha = tabelaBody.insertRow();
-  novaLinha.setAttribute('data-matricula', matricula);
+  alunos[mat] = { nome: nome, notas: {}, notaFinal: 0 };
 
-  const celMat = novaLinha.insertCell();
-  celMat.textContent = matricula;
+  let tabela = document.getElementById("tabela").getElementsByTagName("tbody")[0];
+  let linha = tabela.insertRow();
+  linha.setAttribute("data-mat", mat);
+  linha.insertCell().innerText = mat;
+  linha.insertCell().innerText = nome;
 
-  const celNome = novaLinha.insertCell();
-  celNome.textContent = nome;
-
-  // Colunas de notas
-  componentes.forEach(comp => {
-    const cel = novaLinha.insertCell();
-    cel.classList.add("celula-nota");
-    cel.innerHTML = `
-      <input type="number" data-sigla="${comp.sigla}" min="0" max="10" step="0.01"
-             placeholder="-" onchange="updateNota(this)">
-      <span class="valor-baixo">0.00</span>
-    `;
+  componentes.forEach(c => {
+    let cel = linha.insertCell();
+    cel.innerHTML = `<input type="number" data-sigla="${c.sigla}" min="0" max="10" onchange="atualizarNota(this)">`;
   });
 
-  const celNF = novaLinha.insertCell();
-  celNF.setAttribute("data-coluna", "NotaFinal");
-  celNF.textContent = "0.00";
+  linha.insertCell().setAttribute("data-coluna", "NotaFinal");
+  linha.cells[linha.cells.length-1].innerText = "0.00";
 
-  document.getElementById('matricula').value = "";
-  document.getElementById('nome').value = "";
+  document.getElementById("matricula").value = "";
+  document.getElementById("nome").value = "";
 }
 
 function adicionarComponente() {
-  const nome = document.getElementById('compNome').value.trim();
-  const sigla = document.getElementById('compSigla').value.toUpperCase().trim();
-  const desc = document.getElementById('compDesc').value.trim();
-  if (!nome || !sigla || !desc) {
-    alert("Preencha nome, sigla e descrição!");
-    return;
-  }
-  if (componentes.some(c => c.sigla === sigla)) {
-    alert(`O componente com sigla '${sigla}' já existe.`);
-    return;
-  }
-  componentes.push({ nome, sigla, desc });
+  let nome = document.getElementById("compNome").value;
+  let sigla = document.getElementById("compSigla").value.toUpperCase();
+  if (!nome || !sigla) { alert("Preencha todos os campos"); return; }
+  if (componentes.some(c => c.sigla === sigla)) { alert("Componente já existe"); return; }
 
-  const header = document.querySelector('#tabela thead tr');
-  const thNF = header.lastElementChild;
-  const novaTh = document.createElement('th');
-  novaTh.textContent = sigla;
-  header.insertBefore(novaTh, thNF);
+  componentes.push({ nome: nome, sigla: sigla });
 
-  const tabelaBody = document.querySelector('#tabela tbody');
-  for (const linha of tabelaBody.rows) {
-    const cel = linha.insertCell(linha.cells.length - 1);
-    cel.classList.add("celula-nota");
-    cel.innerHTML = `
-      <input type="number" data-sigla="${sigla}" min="0" max="10" step="0.01"
-             placeholder="-" onchange="updateNota(this)">
-      <span class="valor-baixo">0.00</span>
-    `;
+  let tabela = document.getElementById("tabela");
+  let header = tabela.tHead.rows[0];
+  let th = document.createElement("th");
+  th.innerText = sigla;
+  header.insertBefore(th, header.cells[header.cells.length-1]);
+
+  let tbody = tabela.tBodies[0];
+  for (let i=0; i<tbody.rows.length; i++) {
+    let cel = tbody.rows[i].insertCell(tbody.rows[i].cells.length-1);
+    cel.innerHTML = `<input type="number" data-sigla="${sigla}" min="0" max="10" onchange="atualizarNota(this)">`;
   }
 
-  document.getElementById('compNome').value = "";
-  document.getElementById('compSigla').value = "";
-  document.getElementById('compDesc').value = "";
+  document.getElementById("compNome").value = "";
+  document.getElementById("compSigla").value = "";
 }
 
-function definirFormulaPadrao() {
-  formula = "(P1 + P2 + P3) / 3";
-  document.getElementById('formulaInput').value = formula;
-  alert("Fórmula padrão de média aritmética selecionada!");
+function atualizarNota(input) {
+  let mat = input.closest("tr").dataset.mat;
+  let sigla = input.dataset.sigla;
+  let val = parseFloat(input.value) || 0;
+  if (val>10) val=10; if(val<0) val=0;
+  input.value = val;
+
+  alunos[mat].notas[sigla] = val;
+  calcularNotaFinal(mat);
 }
 
-function definirFormulaPonderada() {
-  formula = "(P1 * 0.3 + P2 * 0.3 + P3 * 0.4)";
-  document.getElementById('formulaInput').value = formula;
-  alert("Fórmula ponderada selecionada!");
-}
+function calcularNotaFinal(mat) {
+  let aluno = alunos[mat];
+  let nf = 0;
 
-function salvarFormula() {
-  const nova = document.getElementById('formulaInput').value.trim();
-  if (nova) {
-    formula = nova;
-    alert("Fórmula salva manualmente: " + formula);
+  if (formula=="aritmetica") {
+    let soma=0;
+    componentes.forEach(c => soma += aluno.notas[c.sigla] || 0);
+    nf = componentes.length ? (soma/componentes.length).toFixed(2) : "0.00";
+  } else {
+    let soma=0;
+    componentes.forEach(c => {
+      let peso = pesos[c.sigla]/100 || 0;
+      soma += (aluno.notas[c.sigla] || 0) * peso;
+    });
+    nf = soma.toFixed(2);
   }
-}
 
-function updateNota(input) {
-  let val = parseFloat(input.value);
-  if (isNaN(val) || val < 0) val = 0;
-  if (val > 10) val = 10;
-  const valorCorrigido = val.toFixed(2);
-
-  input.value = valorCorrigido;
-  input.parentElement.querySelector('.valor-baixo').innerText = valorCorrigido;
-
-  const linha = input.closest('tr');
-  const matricula = linha.dataset.matricula;
-  const sigla = input.dataset.sigla;
-  const valorAntigo = alunosData[matricula].notas[sigla] || 0;
-
-  alunosData[matricula].notas[sigla] = val;
-  recalcularNotaFinal(matricula);
-
-  const nomeAluno = alunosData[matricula].nome;
-  adicionarLogAoPainel(`[${new Date().toLocaleTimeString('pt-BR')}] - (Aluno ${nomeAluno}) - Nota ${sigla} alterada de ${valorAntigo.toFixed(2)} para ${valorCorrigido}.`);
-}
-
-function recalcularNotaFinal(matricula) {
-  const aluno = alunosData[matricula];
-  let soma = 0, count = 0;
-  componentes.forEach(c => {
-    soma += aluno.notas[c.sigla] || 0;
-    count++;
-  });
-  const nf = count ? (soma / count).toFixed(2) : "0.00"; // Mantém média simples, mas você pode adaptar a fórmula aqui para ponderada se quiser.
   aluno.notaFinal = nf;
-  document.querySelector(`tr[data-matricula="${matricula}"] [data-coluna="NotaFinal"]`).textContent = nf;
+  let cel = document.querySelector(`tr[data-mat="${mat}"] [data-coluna="NotaFinal"]`);
+  cel.innerText = nf;
 }
 
-function alternarPainelAuditoria() {
-  const painel = document.getElementById("painel-auditoria");
-  painel.style.display = painel.style.display === "none" ? "block" : "none";
+function usarMediaAritmetica() {
+  formula = "aritmetica";
+  document.getElementById("pesos-container").style.display = "none";
+  Object.keys(alunos).forEach(m => calcularNotaFinal(m));
 }
 
-function adicionarLogAoPainel(msg) {
-  const painel = document.getElementById("painel-auditoria-notas");
-  const li = document.createElement("li");
-  li.textContent = msg;
-  if (painel.firstChild && painel.firstChild.textContent.includes("Logs de operações")) {
-    painel.firstChild.remove();
-  }
-  painel.prepend(li);
+function usarMediaPonderada() {
+  formula = "ponderada";
+  let container = document.getElementById("pesos-container");
+  let div = document.getElementById("inputs-pesos");
+  div.innerHTML = "";
+  componentes.forEach(c => {
+    let inp = document.createElement("input");
+    inp.type="number"; inp.min=0; inp.max=100;
+    inp.value = pesos[c.sigla] || 0;
+    inp.placeholder = c.sigla;
+    inp.className = "peso-input";
+    inp.dataset.sigla = c.sigla;
+    div.appendChild(inp);
+  });
+  container.style.display = "block";
+}
+
+function salvarPesos() {
+  let inputs = document.querySelectorAll("#inputs-pesos input");
+  let total=0;
+  inputs.forEach(i => { pesos[i.dataset.sigla] = parseFloat(i.value)||0; total += parseFloat(i.value)||0; });
+  if (total != 100) { alert("Soma dos pesos deve ser 100%"); return; }
+  Object.keys(alunos).forEach(m => calcularNotaFinal(m));
+  alert("Pesos salvos!");
 }
 </script>
+
 </body>
 </html>
