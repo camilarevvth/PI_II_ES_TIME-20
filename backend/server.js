@@ -4,10 +4,10 @@ const sql = require('mysql');
 const app = express();
 const port = 3000;
 const database = sql.createConnection({
-    host: "",
-    user: "",
-    password: "",
-    database: ""
+    host: "localhost",
+    user: "root",
+    password: "Naigf10",
+    database: "intprojeto"
 });
 
 app.use(express.json());
