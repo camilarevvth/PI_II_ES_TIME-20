@@ -51,116 +51,11 @@ Exemplo:
 
 ## 6. Banco de Dados
 ### Modelos SQL (BR Modelo)
-Modelo Conceitual: <img width="1187" height="473" alt="Captura de tela 2025-10-18 180321" src="https://github.com/user-attachments/assets/029dea23-7e0c-4a5a-a9ee-9344b1a722fe" />
-
-Modelo Logico: <img width="854" height="478" alt="Captura de tela 2025-10-18 184956" src="https://github.com/user-attachments/assets/4403e3ff-3b0b-427e-8f1c-2586e1211096" />
-
-Modelo Físico (MysSQL Workbench):
-
-CREATE TABLE Docentes 
-( 
- id_docente INT PRIMARY KEY,  
- nome_docente varchar(100),  
- senha varchar(100)
-); 
-select * from Docentes;
+Modelo Conceitual: <img width="1202" height="486" alt="345f8b9c-ab1c-44f1-a4c4-9f69a42f334d" src="https://github.com/user-attachments/assets/23671f29-105d-4c6d-b901-f9237c18c33a" />
 
 
-CREATE TABLE Instituicao 
-( 
- id_instituicao INT PRIMARY KEY,  
- nome_instituicao varchar(100)
-); 
-select * from Instituicao;
+Modelo Logico: <img width="1035" height="479" alt="d4e2a234-b3d6-4544-b3ed-157251af509f" src="https://github.com/user-attachments/assets/fd0deb4f-6199-420e-baa5-5412c3790a0e" />
 
 
-CREATE TABLE Cursos 
-( 
- id_curso INT PRIMARY KEY,  
- nome_curso varchar(100)
-); 
-select * from Cursos;
+Modelo Físico (Oracle):
 
-
-CREATE TABLE Turmas 
-( 
- id_turma INT PRIMARY KEY,  
- nome_turma varchar(100),  
- dia_aula date,  
- local_aula varchar(100),  
- horario_aula varchar(100),  
- id_Aluno INT
-);
-select * from Turmas;
- 
-
-CREATE TABLE Disciplinas 
-( 
- id_disciplina INT PRIMARY KEY,  
- nome_disciplina varchar(100),  
- sigla_disciplina varchar(100),
- pediodo INT, 
- id_Turma INT
-); 
-select * from Disciplinas;
-
-
-CREATE TABLE Componentes 
-( 
- id_componente INT PRIMARY KEY,  
- nome_componente varchar(100),  
- media_final float
-); 
-select * from Componentes;
-
-
-CREATE TABLE Notas_médias 
-( 
- id_média INT primary KEY,  
- RA_aluno int,
- FOREIGN KEY (RA_aluno) REFERENCES Alunos(RA_aluno),
- fórmula float,  
- média_final float,  
- id_Componente INT 
-); 
-select * from Notas_médias;
-
-CREATE TABLE Alunos 
-( 
- RA_aluno INT PRIMARY KEY,  
- nome_aluno varchar(100) 
-); 
-
-CREATE TABLE Cadastro 
-( 
- id_curso INT,
- id_instituicao int,  
- id_docente INT,
- primary key(id_curso, id_instituicao, id_docente),
- FOREIGN KEY (id_curso) REFERENCES Cursos(id_curso), 
- FOREIGN KEY (id_instituicao) REFERENCES Instituicao(id_instituicao),
- FOREIGN KEY (id_docente) REFERENCES Docentes(id_docente)
-); 
-select * from Cadastro;
-
-
-CREATE TABLE Criar 
-( 
- id_disciplina INT,  
- id_curso INT,
- primary key(id_disciplina, id_curso),
- foreign key (id_disciplina) references Disciplinas(id_disciplina),
- foreign key (id_curso) references Cursos(id_curso)
-); 
-select * from Criar;
-
-
-CREATE TABLE Terão 
-( 
- id_componente INT,  
- RA_aluno INT,
- primary key(id_componente, RA_aluno),
- foreign key (id_componente) references Componentes(id_componente),
- foreign key (RA_aluno) references Alunos(RA_aluno)
-); 
-select * from Terão;
