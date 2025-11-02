@@ -37,7 +37,7 @@
   <button onclick="usarMediaAritmetica()">Média Aritmética</button>
   <button onclick="usarMediaPonderada()">Média Ponderada</button>
 
-  <div id="pesosDiv" style="display:none; margin-top:10px;">
+  <div id="pesosDiv" >
     <h3>Defina os pesos (%) para cada componente:</h3>
     <div id="pesosInputs"></div>
     <button onclick="salvarPesos()">Salvar Pesos</button>
