@@ -1,0 +1,109 @@
+/*
+    Autor: Demetrius Valverde Ferreira Corradi Junqueira e Matheus Azevedo Teixeira
+    Arquivo: app.css
+    Descrição: Protótipo CSS do sistema NotaDez. Contém a estilização de telas de login, cadastro de usuário, cadastro de instituições, disciplinas/turmas, cadastro de alunos, painel de auditoria e botões de exportação. 
+*/
+
+
+body {
+    font-family: 'Verdana', sans-serif;
+    background-color: #f4f4f4;
+    color: #2c3e50;
+    padding: 20px;
+}
+
+/* Título principal */
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #2c3e50;
+    font-size: 28px;
+}
+
+/* Subtítulos */
+h2 {
+    margin-top: 25px;
+    margin-bottom: 12px;
+    color: #2c3e50;
+    border-left: 4px solid #7f8c8d; /* barra discreta */
+    padding-left: 10px;
+    font-size: 20px;
+}
+
+h3 {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    color: #2c3e50;
+    font-size: 16px;
+}
+
+/* Formulários */
+form {
+    background-color: #ffffff;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #d0d0d0;
+}
+
+/* Inputs */
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 8px;
+    margin: 6px 0;
+    border-radius: 4px;
+    border: 1px solid #b0b0b0;
+    font-size: 14px;
+}
+
+/* Botões */
+input[type="submit"],
+input[type="button"] {
+    padding: 8px 18px;
+    margin-top: 5px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #ffffff;
+    background-color: #34495e; /* azul escuro sóbrio */
+    transition: 0.2s;
+}
+
+input[type="submit"]:hover,
+input[type="button"]:hover {
+    background-color: #2c3e50;
+}
+
+/* Links */
+a {
+    color: #34495e;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Listas */
+ul {
+    list-style-type: none;
+    padding-left: 15px;
+    margin-bottom: 15px;
+    background-color: #ffffff;
+    border-radius: 6px;
+    border: 1px solid #d0d0d0;
+}
+
+li {
+    padding: 6px 8px;
+    margin: 3px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+li:last-child {
+    border-bottom: none;
+}
