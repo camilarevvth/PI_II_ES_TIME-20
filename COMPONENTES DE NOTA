@@ -4,16 +4,7 @@
 <head>
 <meta charset="UTF-8" />
 <title>Quadro de Notas Simplificado</title>
-<style>
-  table, th, td {
-    border: 1px solid black;
-    border-collapse: collapse;
-    padding: 4px;
-  }
-  input.pesoInput {
-    width: 50px;
-  }
-</style>
+
 </head>
 <body>
 
