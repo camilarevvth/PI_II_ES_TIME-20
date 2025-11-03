@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    //opcoes basicas
+    "target": "es2020", //modo que ele vai trabalhar, padrão de linguagem
+    "module": "commonjs",//geração do js, seguindo um padrão, *modulos* do js
+    "rootDir": "./src", //onde estará os arquivos typescript
+    "outDir": "./dist", //pega tudo do diretorio src e converte para js, e cuspe o arquivo dentro do diretorio dist
+    "strict": true, //modo de js é strict, gere um js com opções rigorosas
+    //opcoes de caminho
+    "baseUrl": "./src", //diretorio base tabém é o src
+
+    //outras opcoes necessarias
+    "esModuleInterop": true, //se usar outro modulo de linguagem padrao, consegue integrar
+    "skipLibCheck": true, //pula a verificação de tipo de arquivos se é js ou ts
+    "forceConsistentCasingInFileNames": true, //obedece o nome de arquivo definido (por ex T maiusculo no nome)
+    "moduleResolution": "node", //quem resolve os modulos é o node
+
+
+  },
+  //mais duas informações
+  "include": [
+    "src/**/*" //quando gerar o codigo, o compilador vai pegar tudo que esta dentro da pasta sorce, e gera na mesma estrutura de saida, ent gerar codigo JS  apartir de uma estrutura
+
+  ],
+  "exclude":[
+    "node_modules",
+    "dist" //diretorios q eu nao quero que analisem
+  ]
+}
+
