@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Sistema Completo - Fluxo Corrigido</title>
+</head>
+<body>
+
+<!-- ========================================================= -->
+<!-- ======================== LOGIN =========================== -->
+<!-- ========================================================= -->
+<div id="parte5">
+  <h2>Login</h2>
+
+  <form id="form-login">
+    <input id="login-email" type="email" placeholder="E-mail" required><br>
+    <input id="login-senha" type="password" placeholder="Senha" required><br>
+    <input type="submit" value="Entrar"><br><br>
+    <button type="button" onclick="mostrarCadastro()">Criar conta</button>
+    <button type="button" onclick="mostrarEsqueci()">Esqueci minha senha</button>
+  </form>
+
+  <form id="form-cadastro" style="display:none;">
+    <input id="cadastro-nome" type="text" placeholder="Nome completo" required><br>
+    <input id="cadastro-email" type="email" placeholder="E-mail" required><br>
+    <input id="cadastro-celular" type="tel" placeholder="Telefone celular" required><br>
+    <input id="cadastro-senha" type="password" placeholder="Senha" required><br>
+    <input type="submit" value="Cadastrar"><br><br>
+    <button type="button" onclick="voltarLogin()">Voltar</button>
+  </form>
+
+  <form id="form-esqueci" style="display:none;">
+    <p>Digite seu e-mail para redefinir a senha:</p>
+    <input id="esqueci-email" type="email" placeholder="E-mail" required><br>
+    <input type="submit" value="Enviar link de recuperação"><br>
+    <button type="button" onclick="voltarLogin()">Voltar</button>
+  </form>
+</div>
+
+<!-- ========================================================= -->
+<!-- ========== INSTITUIÇÃO / DISCIPLINA / TURMAS ============ -->
+<!-- ========================================================= -->
+<div id="parte2" style="display:none;">
+  <h2>Cadastro de Instituição e Curso</h2>
+  <input id="instituicao" type="text" placeholder="Instituição" required><br>
+  <input id="curso" type="text" placeholder="Curso" required><br><br>
+
+  <h2>Cadastro de Disciplina</h2>
+  <input id="disciplina" type="text" placeholder="Nome da disciplina" required><br>
+  <input id="sigla" type="text" placeholder="Sigla" required><br>
+  <input id="codigo" type="text" placeholder="Código do curso" required><br>
+  <input id="periodo" type="text" placeholder="Período do curso" required><br><br>
+
+  <h2>Cadastro de Turmas</h2>
+  <div id="turmas">
+    <div class="turma">
+      <input type="text" placeholder="Horário da turma" required><br>
+      <input type="text" placeholder="Dia da turma" required><br>
+      <input type="text" placeholder="Local da turma" required><br>
+      <button type="button" onclick="removerTurma(this)">Excluir turma</button><br><br>
+    </div>
+  </div>
+
+  <button type="button" onclick="adicionarTurma()">Adicionar nova turma</button><br><br>
+  <button type="button" onclick="irParaCadastroAlunos()">Avançar para cadastro de alunos</button>
+</div>
+
+<!-- ========================================================= -->
+<!-- ================= CADASTRO DE ALUNOS ==================== -->
+<!-- ========================================================= -->
+<div id="parte1" style="display:none;">
+  <h2>Cadastro de Alunos</h2>
+  <input type="text" id="matricula" placeholder="Matrícula" />
+  <input type="text" id="nome" placeholder="Nome" />
+  <button onclick="adicionarAluno()">Adicionar Aluno</button><br><br>
+
+  <h2>Cadastro de Componentes de Nota</h2>
+  <input type="text" id="compNome" placeholder="Nome" />
+  <input type="text" id="compSigla" placeholder="Sigla (ex: P1)" />
+  <input type="text" id="compDesc" placeholder="Descrição" />
+  <button onclick="adicionarComponente()">Adicionar Componente</button><br><br>
+
+  <h2>Fórmula de Cálculo da Nota Final</h2>
+  <button onclick="usarMediaAritmetica()">Média Aritmética</button>
+  <button onclick="usarMediaPonderada()">Média Ponderada</button>
+
+  <div id="pesosDiv" style="display:none;">
+    <h3>Pesos de cada componente:</h3>
+    <div id="pesosInputs"></div>
+    <button onclick="salvarPesos()">Salvar Pesos</button>
+  </div>
+
+  <h2>Quadro de Notas</h2>
+  <table id="tabela" border="1">
+    <thead>
+      <tr>
+        <th>Matrícula</th>
+        <th>Nome</th>
+        <th>Nota Final</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <br>
+  <button onclick="exportarCSV()">Exportar CSV</button>
+</div>
+
+<script>
+// ======== VARIÁVEIS GLOBAIS ========
+let componentes = [];
+let alunos = [];
+let pesos = {};
+let formula = "aritmetica";
+
+// ======== FLUXO DE TELAS ========
+function mostrarCadastro() {
+  document.getElementById("form-login").style.display = "none";
+  document.getElementById("form-cadastro").style.display = "block";
+  document.getElementById("form-esqueci").style.display = "none";
+}
+function mostrarEsqueci() {
+  document.getElementById("form-login").style.display = "none";
+  document.getElementById("form-cadastro").style.display = "none";
+  document.getElementById("form-esqueci").style.display = "block";
+}
+function voltarLogin() {
+  document.getElementById("form-login").style.display = "block";
+  document.getElementById("form-cadastro").style.display = "none";
+  document.getElementById("form-esqueci").style.display = "none";
+}
+
+document.getElementById("form-login").addEventListener("submit", function(e){
+  e.preventDefault();
+  document.getElementById("parte5").style.display = "none";
+  document.getElementById("parte2").style.display = "block";
+});
+
+document.getElementById("form-cadastro").addEventListener("submit", function(e){
+  e.preventDefault();
+  alert("Conta criada com sucesso!");
+  voltarLogin();
+});
+
+document.getElementById("form-esqueci").addEventListener("submit", function(e){
+  e.preventDefault();
+  alert("Link de redefinição enviado!");
+  voltarLogin();
+});
+
+// ======== TURMAS ========
+function adicionarTurma(){
+  const div = document.createElement("div");
+  div.className = "turma";
+  div.innerHTML = `
+    <input type="text" placeholder="Horário da turma" required><br>
+    <input type="text" placeholder="Dia da turma" required><br>
+    <input type="text" placeholder="Local da turma" required><br>
+    <button type="button" onclick="removerTurma(this)">Excluir turma</button><br><br>
+  `;
+  document.getElementById("turmas").appendChild(div);
+}
+
+function removerTurma(botao){
+  botao.parentElement.remove();
+}
+
+// ======== AVANÇAR PARA CADASTRO DE ALUNOS ========
+function irParaCadastroAlunos() {
+  const inst = document.getElementById("instituicao").value.trim();
+  const curso = document.getElementById("curso").value.trim();
+  const disc = document.getElementById("disciplina").value.trim();
+  if(!inst || !curso || !disc){
+    alert("Preencha todos os campos antes de continuar!");
+    return;
+  }
+  document.getElementById("parte2").style.display = "none";
+  document.getElementById("parte1").style.display = "block";
+}
+
+// ======== ALUNOS ========
+function adicionarAluno(){
+  const matricula = document.getElementById("matricula").value.trim();
+  const nome = document.getElementById("nome").value.trim();
+  if(!matricula || !nome) return alert("Preencha matrícula e nome!");
+  
+  alunos.push({matricula, nome, notaFinal: 0});
+  atualizarTabela();
+
+  document.getElementById("matricula").value = "";
+  document.getElementById("nome").value = "";
+}
+
+function atualizarTabela(){
+  const tbody = document.querySelector("#tabela tbody");
+  tbody.innerHTML = "";
+  alunos.forEach(a=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${a.matricula}</td><td>${a.nome}</td><td>${a.notaFinal.toFixed(2)}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ======== COMPONENTES ========
+function adicionarComponente(){
+  const nome = document.getElementById("compNome").value.trim();
+  const sigla = document.getElementById("compSigla").value.trim();
+  const desc = document.getElementById("compDesc").value.trim();
+  if(!nome || !sigla) return alert("Preencha nome e sigla!");
+  
+  componentes.push({nome, sigla, desc});
+  document.getElementById("compNome").value = "";
+  document.getElementById("compSigla").value = "";
+  document.getElementById("compDesc").value = "";
+  alert("Componente adicionado!");
+}
+
+// ======== FÓRMULAS ========
+function usarMediaAritmetica(){
+  formula = "aritmetica";
+  document.getElementById("pesosDiv").style.display = "none";
+  alert("Usando média aritmética.");
+}
+function usarMediaPonderada(){
+  formula = "ponderada";
+  gerarCamposPesos();
+  document.getElementById("pesosDiv").style.display = "block";
+}
+function gerarCamposPesos(){
+  const div = document.getElementById("pesosInputs");
+  div.innerHTML = "";
+  componentes.forEach(c=>{
+    const campo = document.createElement("input");
+    campo.type = "number";
+    campo.placeholder = `Peso de ${c.sigla}`;
+    campo.id = `peso_${c.sigla}`;
+    div.appendChild(campo);
+    div.appendChild(document.createElement("br"));
+  });
+}
+function salvarPesos(){
+  pesos = {};
+  componentes.forEach(c=>{
+    const valor = parseFloat(document.getElementById(`peso_${c.sigla}`).value) || 0;
+    pesos[c.sigla] = valor;
+  });
+  alert("Pesos salvos!");
+}
+
+// ======== EXPORTAR CSV ========
+function exportarCSV(){
+  if(alunos.length === 0){
+    alert("Nenhum aluno cadastrado!");
+    return;
+  }
+  let csv = "Matrícula,Nome,Nota Final\n";
+  alunos.forEach(a=>{
+    csv += `${a.matricula},${a.nome},${a.notaFinal.toFixed(2)}\n`;
+  });
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "notas.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+
+</body>
+</html>
