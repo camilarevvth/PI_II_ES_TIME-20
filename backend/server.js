@@ -1,71 +1,76 @@
-const express = require('express');
-const cors = require('cors');
-const sql = require('mysql');
-const app = express();
+import express, {Request, Response} from "express";
+import bodyparser from "body-parser";
+import cors from "cors";
+import OracleDB from "oracledb";
+
 const port = 3000;
-const database = sql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "Naigf10",
-    database: "intprojeto"
-});
+const walletPath="";
+const app = express();
 
-app.use(express.json());
 app.use(cors());
+app.use(express.json())
 
-database.connect((err) => {
-    if(err){
-        console.log("erro ao conectar com o banco...");
-    } else {
-        console.log("banco conectado com sucesso!");
+OracleDB.initOracleClient({configDir:walletPath});
+//formato de saida dos dados
+OracleDB.outFormat = OracleDB.OUT_FORMAT_OBJECT;
+const dbConfig = {
+    user:"WEBAPP", 
+    password: "notadez",
+    connectString: "puc_high"
+}
+
+
+
+
+function open(){
+    try{
+        const connection = OracleDB.getConnection(dbConfig); //ela e assincrona pq o oracle ta em outro servidor, e nos estamos em outro
+        console.log("Conexao OCI - aberta");
+        return connection; //retorna o objeto connection aberto
+        
+    } catch(err){
+        console.error("erro ao abrir a conexao com oracle", err);
+        throw err;
     }
-});
+}
 
 app.post('/cadastrarusuario', (req, res) => {
-    const nome = req.body.nome;
-    const email = req.body.email;
-    const celular = req.body.celular;
-    const senha = req.body.senha;
+    const { nome, email, senha } = req.body;
+    const existe:boolean = `SELECT COUNT(*) FROM DOCENTE WHERE EMAIL_DOCENTE = ${email}`;
+    if(existe == true){
+        console.log(`O e-mail já foi cadastrado. Tente novamente!`);
+    }else{
+        const cad = `INSERT INTO DOCENTE (NOME_DOCENTE, EMAIL_DOCENTE, SENHA) 
+        VALUES(:${nome}, :${nome}, :${nome})`;
+    }
 
-    let user;
-
-    database.query('INSERT INTO usuarios(nome, email, celular, senha) VALUES(?, ?, ?, ?)', 
-        [nome, email, celular, senha],
-        (err, result) => {
-            if(err){
-                res.status(501);
-                res.json({mesage : "não foi possivel cadastrar o úsuario..."});
-
-                return
-            }
-
-            res.json({
-                mesage : "úsuario cadastrado com sucesso!"});
-        });
+    //postar no banco
 });
 
-app.get('/login', () => {
-    const email = req.body.email;
+app.get('/login', (req: Request, res: Response) => {
+    const { email, senha } = req.body;
 
     let existe = false;
 
-    database.query('SELECT * FROM usuarios')
+    //buscar no banco de dados
 
-    res.json({ existe });
+    res.body.json({ existe });
 });
 
 app.listen(port, () => {
-    console.log(`servidor rodando na porta ${port}`);
+    console.log("servidor rodando na porta 3000");
 });
 
-//front
-const email = '';
-const senha = '';
 
-const data = await fetch('/cadastro', {
-    method: 'POST',
-    headers: {
-        'content-type': 'application.json'
-    },
-    body: JSON.stringify({email, senha})
-});
+
+async function close(connection: OracleDB.Connection){
+    try{//tentar fechar a conexao
+        await connection.close();
+        console.log("Conexao OCI - fechada");
+
+
+    }catch(err){
+        console.log("erro de conexao com o oracle", err);
+    }
+}
+
