@@ -34,22 +34,34 @@ app.post('/cadastrarusuario', (req, res) => {
         (err, result) => {
             if(err){
                 res.status(501);
-                res.json({mesage : "não foi possivel cadastrar o úsuario..."});
+                res.json({message : "não foi possivel cadastrar o úsuario..."});
 
                 return
             }
 
             res.json({
-                mesage : "úsuario cadastrado com sucesso!"});
+                message : "úsuario cadastrado com sucesso!"});
         });
 });
 
-app.get('/login', () => {
+app.post('/login', () => {
     const email = req.body.email;
+    const senha = req.body.senha;
 
     let existe = false;
 
-    database.query('SELECT * FROM usuarios')
+    const rows = database.query('SELECT * FROM usuarios');
+
+    for(let i = 0; i < rows.length; i++){
+        if(rows[i].email == email){
+            if(row[i].senha == senha){
+                existe = true;
+            } else {
+                res.status(500);
+                res.json({ message : "senha incorreta" });
+            }
+        }
+    }
 
     res.json({ existe });
 });
