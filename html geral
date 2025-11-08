@@ -3,15 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <title>Sistema Completo - Fluxo Corrigido</title>
+  
 </head>
 <body>
+
 
 <!-- ========================================================= -->
 <!-- ======================== LOGIN =========================== -->
 <!-- ========================================================= -->
 <div id="parte5">
   <h2>Login</h2>
-
   <form id="form-login">
     <input id="login-email" type="email" placeholder="E-mail" required><br>
     <input id="login-senha" type="password" placeholder="Senha" required><br>
@@ -107,165 +108,265 @@
 </div>
 
 <script>
-// ======== VARIÁVEIS GLOBAIS ========
+// ===================== VARIÁVEIS =====================
 let componentes = [];
 let alunos = [];
 let pesos = {};
 let formula = "aritmetica";
+let acaoConfirmada = null;
 
-// ======== FLUXO DE TELAS ========
-function mostrarCadastro() {
-  document.getElementById("form-login").style.display = "none";
-  document.getElementById("form-cadastro").style.display = "block";
-  document.getElementById("form-esqueci").style.display = "none";
-}
-function mostrarEsqueci() {
-  document.getElementById("form-login").style.display = "none";
-  document.getElementById("form-cadastro").style.display = "none";
-  document.getElementById("form-esqueci").style.display = "block";
-}
-function voltarLogin() {
-  document.getElementById("form-login").style.display = "block";
-  document.getElementById("form-cadastro").style.display = "none";
-  document.getElementById("form-esqueci").style.display = "none";
+// ===================== FEEDBACK =====================
+function showMessage(msg, tipo="info"){
+  const box = document.getElementById("feedback");
+  box.textContent = msg;
+  box.className = tipo;
+  box.style.display = "block";
+  setTimeout(()=> box.style.display="none", 2500);
 }
 
-document.getElementById("form-login").addEventListener("submit", function(e){
+// ===================== MODAL =====================
+function confirmarModal(mensagem, callback){
+  document.getElementById("confirmation-message").innerText = mensagem;
+  document.getElementById("confirmation-modal").style.display = "flex";
+  acaoConfirmada = callback;
+}
+function confirmarAcao(){
+  document.getElementById("confirmation-modal").style.display = "none";
+  if(acaoConfirmada) acaoConfirmada();
+}
+function cancelarAcao(){
+  document.getElementById("confirmation-modal").style.display = "none";
+}
+
+// ===================== FLUXO =====================
+function mostrarCadastro(){
+  document.getElementById("form-login").style.display="none";
+  document.getElementById("form-cadastro").style.display="block";
+  document.getElementById("form-esqueci").style.display="none";
+}
+function mostrarEsqueci(){
+  document.getElementById("form-login").style.display="none";
+  document.getElementById("form-cadastro").style.display="none";
+  document.getElementById("form-esqueci").style.display="block";
+}
+function voltarLogin(){
+  document.getElementById("form-login").style.display="block";
+  document.getElementById("form-cadastro").style.display="none";
+  document.getElementById("form-esqueci").style.display="none";
+}
+
+document.getElementById("form-login").addEventListener("submit", e=>{
   e.preventDefault();
-  document.getElementById("parte5").style.display = "none";
-  document.getElementById("parte2").style.display = "block";
+  document.getElementById("parte5").style.display="none";
+  document.getElementById("parte2").style.display="block";
 });
 
-document.getElementById("form-cadastro").addEventListener("submit", function(e){
+document.getElementById("form-cadastro").addEventListener("submit", e=>{
   e.preventDefault();
-  alert("Conta criada com sucesso!");
+  showMessage("Conta criada com sucesso!", "sucesso");
+  voltarLogin();
+});
+document.getElementById("form-esqueci").addEventListener("submit", e=>{
+  e.preventDefault();
+  showMessage("Link de redefinição enviado!", "info");
   voltarLogin();
 });
 
-document.getElementById("form-esqueci").addEventListener("submit", function(e){
-  e.preventDefault();
-  alert("Link de redefinição enviado!");
-  voltarLogin();
-});
-
-// ======== TURMAS ========
+// ===================== TURMAS =====================
 function adicionarTurma(){
-  const div = document.createElement("div");
-  div.className = "turma";
-  div.innerHTML = `
-    <input type="text" placeholder="Horário da turma" required><br>
-    <input type="text" placeholder="Dia da turma" required><br>
-    <input type="text" placeholder="Local da turma" required><br>
+  const div=document.createElement("div");
+  div.className="turma";
+  div.innerHTML=`
+    <input type="text" placeholder="Horário da turma"><br>
+    <input type="text" placeholder="Dia da turma"><br>
+    <input type="text" placeholder="Local da turma"><br>
     <button type="button" onclick="removerTurma(this)">Excluir turma</button><br><br>
   `;
   document.getElementById("turmas").appendChild(div);
 }
-
 function removerTurma(botao){
-  botao.parentElement.remove();
+  confirmarModal("Deseja realmente excluir esta turma?", ()=>{
+    const temNotas = Math.random()<0.5;
+    if(temNotas){
+      showMessage("Não é possível excluir turma com notas lançadas!", "erro");
+    }else{
+      botao.parentElement.remove();
+      showMessage("Turma excluída!", "sucesso");
+    }
+  });
 }
 
-// ======== AVANÇAR PARA CADASTRO DE ALUNOS ========
-function irParaCadastroAlunos() {
-  const inst = document.getElementById("instituicao").value.trim();
-  const curso = document.getElementById("curso").value.trim();
-  const disc = document.getElementById("disciplina").value.trim();
-  if(!inst || !curso || !disc){
-    alert("Preencha todos os campos antes de continuar!");
+// ===================== FLUXO PARA CADASTRO =====================
+function irParaCadastroAlunos(){
+  const inst=document.getElementById("instituicao").value.trim();
+  const curso=document.getElementById("curso").value.trim();
+  const disc=document.getElementById("disciplina").value.trim();
+  if(!inst||!curso||!disc){
+    showMessage("Preencha todos os campos!", "erro");
     return;
   }
-  document.getElementById("parte2").style.display = "none";
-  document.getElementById("parte1").style.display = "block";
+  document.getElementById("parte2").style.display="none";
+  document.getElementById("parte1").style.display="block";
 }
 
-// ======== ALUNOS ========
+// ===================== ALUNOS =====================
 function adicionarAluno(){
-  const matricula = document.getElementById("matricula").value.trim();
-  const nome = document.getElementById("nome").value.trim();
-  if(!matricula || !nome) return alert("Preencha matrícula e nome!");
-  
-  alunos.push({matricula, nome, notaFinal: 0});
+  const matricula=document.getElementById("matricula").value.trim();
+  const nome=document.getElementById("nome").value.trim();
+  if(!matricula||!nome){
+    showMessage("Preencha matrícula e nome!", "erro");
+    return;
+  }
+  alunos.push({matricula,nome,notas:{},notaFinal:0});
   atualizarTabela();
-
-  document.getElementById("matricula").value = "";
-  document.getElementById("nome").value = "";
+  document.getElementById("matricula").value="";
+  document.getElementById("nome").value="";
 }
 
 function atualizarTabela(){
-  const tbody = document.querySelector("#tabela tbody");
-  tbody.innerHTML = "";
+  const tabela=document.getElementById("tabela");
+  const thead=tabela.querySelector("thead tr");
+  const tbody=tabela.querySelector("tbody");
+
+  // Cabeçalho
+  thead.innerHTML="<th>Matrícula</th><th>Nome</th>";
+  componentes.forEach(c=>{
+    const th=document.createElement("th");
+    th.textContent=c.sigla;
+    th.onclick=()=>abrirEdicaoComponente(c.sigla);
+    thead.appendChild(th);
+  });
+  thead.innerHTML+="<th>Nota Final</th>";
+
+  // Corpo
+  tbody.innerHTML="";
   alunos.forEach(a=>{
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${a.matricula}</td><td>${a.nome}</td><td>${a.notaFinal.toFixed(2)}</td>`;
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${a.matricula}</td><td>${a.nome}</td>`;
+    componentes.forEach(c=>{
+      const valor=a.notas[c.sigla]??"";
+      const td=document.createElement("td");
+      td.textContent=valor;
+      td.dataset.sigla=c.sigla;
+      td.contentEditable="false";
+      td.onblur=()=>salvarNota(a,td);
+      tr.appendChild(td);
+    });
+    const tdFinal=document.createElement("td");
+    tdFinal.textContent=a.notaFinal.toFixed(2);
+    tr.appendChild(tdFinal);
     tbody.appendChild(tr);
   });
 }
 
-// ======== COMPONENTES ========
+// ===================== COMPONENTES =====================
 function adicionarComponente(){
-  const nome = document.getElementById("compNome").value.trim();
-  const sigla = document.getElementById("compSigla").value.trim();
-  const desc = document.getElementById("compDesc").value.trim();
-  if(!nome || !sigla) return alert("Preencha nome e sigla!");
-  
-  componentes.push({nome, sigla, desc});
-  document.getElementById("compNome").value = "";
-  document.getElementById("compSigla").value = "";
-  document.getElementById("compDesc").value = "";
-  alert("Componente adicionado!");
+  const nome=document.getElementById("compNome").value.trim();
+  const sigla=document.getElementById("compSigla").value.trim();
+  const desc=document.getElementById("compDesc").value.trim();
+  if(!nome||!sigla){
+    showMessage("Preencha nome e sigla!", "erro");
+    return;
+  }
+  componentes.push({nome,sigla,desc});
+  showMessage("Componente adicionado!", "sucesso");
+  atualizarTabela();
 }
 
-// ======== FÓRMULAS ========
+function abrirEdicaoComponente(sigla){
+  document.querySelectorAll(`#tabela td`).forEach(td=>{
+    td.contentEditable=(td.dataset.sigla===sigla).toString();
+  });
+}
+
+function salvarNota(aluno,td){
+  const valor=parseFloat(td.textContent);
+  if(isNaN(valor)||valor<0||valor>10){
+    td.textContent="";
+    showMessage("Nota inválida!", "erro");
+    return;
+  }
+  aluno.notas[td.dataset.sigla]=valor;
+  calcularNotaFinal(aluno);
+  atualizarTabela();
+}
+
+function calcularNotaFinal(aluno){
+  let total=0, divisor=0;
+  if(formula==="aritmetica"){
+    const notas=Object.values(aluno.notas);
+    aluno.notaFinal=notas.length?notas.reduce((a,b)=>a+b,0)/notas.length:0;
+  }else{
+    for(const c of componentes){
+      const peso=pesos[c.sigla]||1;
+      const nota=aluno.notas[c.sigla]||0;
+      total+=nota*peso;
+      divisor+=peso;
+    }
+    aluno.notaFinal=divisor?total/divisor:0;
+  }
+}
+
+// ===================== FORMULAS =====================
 function usarMediaAritmetica(){
-  formula = "aritmetica";
-  document.getElementById("pesosDiv").style.display = "none";
-  alert("Usando média aritmética.");
+  formula="aritmetica";
+  document.getElementById("pesosDiv").style.display="none";
+  showMessage("Usando média aritmética","info");
 }
 function usarMediaPonderada(){
-  formula = "ponderada";
+  formula="ponderada";
   gerarCamposPesos();
-  document.getElementById("pesosDiv").style.display = "block";
+  document.getElementById("pesosDiv").style.display="block";
 }
 function gerarCamposPesos(){
-  const div = document.getElementById("pesosInputs");
-  div.innerHTML = "";
+  const div=document.getElementById("pesosInputs");
+  div.innerHTML="";
   componentes.forEach(c=>{
-    const campo = document.createElement("input");
-    campo.type = "number";
-    campo.placeholder = `Peso de ${c.sigla}`;
-    campo.id = `peso_${c.sigla}`;
-    div.appendChild(campo);
+    const input=document.createElement("input");
+    input.type="number";
+    input.placeholder=`Peso de ${c.sigla}`;
+    input.id=`peso_${c.sigla}`;
+    div.appendChild(input);
     div.appendChild(document.createElement("br"));
   });
 }
 function salvarPesos(){
-  pesos = {};
+  pesos={};
   componentes.forEach(c=>{
-    const valor = parseFloat(document.getElementById(`peso_${c.sigla}`).value) || 0;
-    pesos[c.sigla] = valor;
+    const v=parseFloat(document.getElementById(`peso_${c.sigla}`).value)||1;
+    pesos[c.sigla]=v;
   });
-  alert("Pesos salvos!");
+  showMessage("Pesos salvos!","sucesso");
 }
 
-// ======== EXPORTAR CSV ========
+// ===================== EXPORTAR =====================
 function exportarCSV(){
-  if(alunos.length === 0){
-    alert("Nenhum aluno cadastrado!");
+  if(alunos.length===0){
+    showMessage("Nenhum aluno cadastrado!","erro");
     return;
   }
-  let csv = "Matrícula,Nome,Nota Final\n";
+  for(const a of alunos){
+    if(componentes.some(c=>a.notas[c.sigla]==null)){
+      showMessage("Lance todas as notas antes de exportar!","erro");
+      return;
+    }
+  }
+  let csv="Matrícula,Nome";
+  componentes.forEach(c=>csv+=`,`+c.sigla);
+  csv+=",Nota Final\n";
   alunos.forEach(a=>{
-    csv += `${a.matricula},${a.nome},${a.notaFinal.toFixed(2)}\n`;
+    csv+=`${a.matricula},${a.nome}`;
+    componentes.forEach(c=>csv+=`,`+(a.notas[c.sigla]??""));
+    csv+=`,`+a.notaFinal.toFixed(2)+`\n`;
   });
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "notas.csv";
+  const blob=new Blob([csv],{type:"text/csv"});
+  const a=document.createElement("a");
+  const data=new Date().toISOString().split('T')[0];
+  a.href=URL.createObjectURL(blob);
+  a.download=`notas_${data}.csv`;
   a.click();
-  URL.revokeObjectURL(url);
+  showMessage("Arquivo exportado!","sucesso");
 }
 </script>
-
 </body>
 </html>
