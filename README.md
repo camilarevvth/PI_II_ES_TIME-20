@@ -1,54 +1,79 @@
-# ES-PI2-2025-T2-G20
-# Nome do Projeto
-NotaDez 
+# Sistema NotaDez
 
-## Integrantes
-- **Camila Fernandes Costacurta** — RA: 25012949  
-- **Bernardo Castro Brandao de Oliveira** — RA: 25014953
-- **Demetrius Valverde Ferreira Corradi Junqueira** — RA: 25015035
-- **Gustavo Santos de Oliveira** — RA: 25004239
+## Descrição
+Sistema para gerenciamento de notas acadêmicas desenvolvido como Projeto Integrador 2.
 
-## 1. Objetivo
- plataforma web para professores gerenciarem turmas, alunos e nota.
+## Equipe
+[Adicione os nomes dos integrantes da equipe aqui]
 
-## 2. Requisitos
+## Tecnologias Utilizadas
+- **Backend:** Node.js com TypeScript e Express
+- **Banco de Dados:** Oracle Database
+- **Frontend:** HTML5, CSS3 e JavaScript
 
-## 3. Tecnologias
-- **Backend**: Node.js + TypeScript  
-- **Frontend**: HTML5, CSS3 (opcional: Bootstrap)  
-- **Banco de Dados**: PostgreSQL ou MySQL  
+## Pré-requisitos
+- Node.js (versão LTS)
+- Oracle Database instalado e configurado
+- npm ou yarn
 
-## 4. Como executar
-### Backend
+## Instalação
 
-cd backend
-npm install
-npm run dev
-
-## 5. Branches
-Cada funcionalidade será desenvolvida em uma branch separada.  
-Exemplos:  
-- `feature/autenticacao`  
-- `feature/turmas`  
-- `feature/notas`  
-
-Depois, será feito merge para a branch principal (`main`) via *pull request*.
-## 5. Autoria dos arquivos
-Cada artefato (HTML, CSS, TypeScript, etc.) terá o autor identificado no topo do arquivo.  
-
-Exemplo:
-```ts
-// Autor: Camila Revvth — RA: 25012949
-## Como rodar o projeto completo
 1. Clone o repositório:
-   git clone https://github.com/camilarevvth/ES-PI2-2025-TX-GXX.git
-2. Configure o banco de dados
-3. Rode o backend:
-   cd backend
-   npm install
-   npm run dev
-4. Abra o frontend:
-   cd frontend
-   abrir index.html
-´´´
+```bash
+git clone [URL_DO_REPOSITORIO]
+cd backend
+```
+
+2. Instale as dependências:
+```bash
+npm install
+```
+
+3. Configure o banco de dados:
+   - Execute o script `oracle.sql` no Oracle Database
+   - Ajuste as credenciais em `backend.ts` (linha 16-20)
+
+4. Inicie o servidor:
+```bash
+npm start
+```
+
+5. Abra o arquivo `parte.html` no navegador
+
+## Estrutura do Projeto
+```
+backend/
+├── backend.ts          # Servidor backend com todas as rotas
+├── parte.html          # Interface frontend
+├── oracle.sql          # Script de criação do banco de dados
+├── package.json        # Dependências do projeto
+└── tsconfig.json       # Configuração TypeScript
+```
+
+## Funcionalidades
+- Login e cadastro de docentes
+- Cadastro de instituições, disciplinas e turmas
+- Importação de alunos via CSV
+- Cadastro de componentes de nota
+- Lançamento de notas por componente
+- Cálculo automático de notas finais (média aritmética ou ponderada)
+- Exportação de notas em CSV
+- Validações de exclusão (não permite excluir turma com notas)
+
+## Configuração do Banco de Dados
+O sistema utiliza o usuário `NOTADEZ` no Oracle Database. Certifique-se de:
+1. Criar o usuário conforme o script `oracle.sql`
+2. Ajustar a string de conexão em `backend.ts` conforme seu ambiente
+
+## Desenvolvimento
+Para desenvolvimento com hot-reload:
+```bash
+npm run dev
+```
+
+## Observações
+- O sistema valida exclusões para evitar perda de dados
+- A importação CSV considera apenas as 2 primeiras colunas (matrícula e nome)
+- Notas devem estar entre 0.00 e 10.00
+- A exportação CSV só funciona quando todas as notas foram lançadas
 
