@@ -43,6 +43,7 @@ Exemplo:
 2. Configure o banco de dados
 3. Rode o backend:
    cd backend
+
    npm install
    npm run dev
 4. Abra o frontend:
@@ -51,11 +52,192 @@ Exemplo:
 
 ## 6. Banco de Dados
 ### Modelos SQL (BR Modelo)
-Modelo Conceitual: <img width="1202" height="486" alt="345f8b9c-ab1c-44f1-a4c4-9f69a42f334d" src="https://github.com/user-attachments/assets/23671f29-105d-4c6d-b901-f9237c18c33a" />
+Modelo Conceitual: <img width="1201" height="486" alt="Captura de tela 2025-11-11 161810" src="https://github.com/user-attachments/assets/da148d81-0c7a-4945-8f8c-4a7908f8a0e0" />
 
 
-Modelo Logico: <img width="1035" height="479" alt="d4e2a234-b3d6-4544-b3ed-157251af509f" src="https://github.com/user-attachments/assets/fd0deb4f-6199-420e-baa5-5412c3790a0e" />
+Modelo Logico: <img width="1205" height="481" alt="Captura de tela 2025-11-11 164906" src="https://github.com/user-attachments/assets/a2830fa0-ccf7-43e0-a305-878fad053b15" />
 
 
-Modelo Físico (Oracle):
+Modelo Físico (Oracle/VS):
+grant connect,resource,
+   create table,
+   create view,
+   create sequence,
+   create trigger
+to notadez;
+
+select username,
+       authentication_type
+  from dba_users
+ where username = 'NOTADEZ'; /*da um select na tabela dba-users pra verificar se o usuario webapp foi criado*/
+
+create tablespace data
+   datafile 'C:\app\Usuario\product\21c\oradata\XE\data.dbf' size 100M
+   autoextend on;
+
+alter user notadez
+   default tablespace data
+   temporary tablespace temp;
+
+alter user notadez
+   quota 100M on data; /* altera para ter 100 megas de dados*/
+
+select username,
+       default_tablespace,
+       temporary_tablespace
+  from dba_users
+ where username = 'NOTADEZ'; /* verificar se o usuario webapp esta la, e qual o tablespace temporario*/
+
+select tablespace_name,
+       bytes,
+       max_bytes
+  from dba_ts_quotas
+ where username = 'NOTADEZ'; /*VERIFICAR A QUOTA*/
+/*ainda como admin vamos criar uma tabela*/
+
+CREATE TABLE docentes (
+    id_docente NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    senha VARCHAR2(100) NOT NULL,
+    email_docente VARCHAR2(100) NOT NULL,
+    nome_docente VARCHAR2(100) NOT NULL,
+    UNIQUE (email_docente)
+);
+
+CREATE TABLE turmas (
+    id_turma NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nome_turma VARCHAR2(100) NOT NULL,
+    horario_aula TIMESTAMP NOT NULL, -- Oracle TIMESTAMP armazena data e hora
+    local_aula VARCHAR2(100) NOT NULL,
+    dia_aula VARCHAR2(20) NOT NULL
+);
+
+CREATE TABLE disciplinas (
+    id_disciplina NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    sigla_disciplina VARCHAR2(20) NOT NULL,
+    nome_disciplina VARCHAR2(100) NOT NULL,
+    periodo DATE NOT NULL -- TIME nao e um tipo nativo, DATE armazena data e hora
+);
+
+CREATE TABLE instituicoes (
+    id_instituicao NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nome_instituicao VARCHAR2(100) NOT NULL
+);
+
+CREATE TABLE cursos (
+    id_curso NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nome_curso VARCHAR2(100) NOT NULL,
+    id_instituicao NUMBER NOT NULL,
+    FOREIGN KEY (id_instituicao) REFERENCES instituicoes(id_instituicao)
+);
+
+CREATE TABLE notas (
+    id_nota NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_turma NUMBER NOT NULL,
+    valor_nota NUMBER NOT NULL, -- FLOAT e sinonimo de NUMBER
+    data_lancamento DATE NOT NULL,
+    FOREIGN KEY (id_turma) REFERENCES turmas(id_turma)
+);
+
+CREATE TABLE alunos (
+    ra_aluno NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nome_aluno VARCHAR2(100) NOT NULL
+);
+
+CREATE TABLE componentes_nota (
+    id_componente NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_disciplina NUMBER NOT NULL,
+    nome_componente VARCHAR2(100) NOT NULL,
+    descricao VARCHAR2(255) NOT NULL,
+    sigla_componente VARCHAR2(20) NOT NULL,
+    FOREIGN KEY (id_disciplina) REFERENCES disciplinas(id_disciplina)
+);
+
+CREATE TABLE formula_nota_final (
+    id_formula NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_disciplina NUMBER NOT NULL,
+    tipo_formula VARCHAR2(50) NOT NULL,
+    peso_p1 NUMBER NOT NULL,
+    peso_p2 NUMBER NOT NULL,
+    peso_p3 NUMBER NOT NULL,
+    formula_text VARCHAR2(255) NOT NULL,
+    FOREIGN KEY (id_disciplina) REFERENCES disciplinas(id_disciplina)
+);
+
+CREATE TABLE auditoria_notas (
+    id_auditoria NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    ra_aluno NUMBER NOT NULL,
+    id_componente NUMBER NOT NULL,
+    id_docente NUMBER NOT NULL,
+    valor_antigo NUMBER NOT NULL,
+    valor_novo NUMBER NOT NULL,
+    data_hora TIMESTAMP NOT NULL, -- Oracle TIMESTAMP para data e hora
+    FOREIGN KEY (ra_aluno) REFERENCES alunos(ra_aluno),
+    FOREIGN KEY (id_componente) REFERENCES componentes_nota(id_componente),
+    FOREIGN KEY (id_docente) REFERENCES docentes(id_docente)
+);
+
+-- Tabelas Associativas (muitos-para-muitos)
+
+CREATE TABLE cadastro (
+    id_docente NUMBER NOT NULL,
+    id_instituicao NUMBER NOT NULL,
+    PRIMARY KEY (id_docente, id_instituicao),
+    FOREIGN KEY (id_docente) REFERENCES docentes(id_docente),
+    FOREIGN KEY (id_instituicao) REFERENCES instituicoes(id_instituicao)
+);
+
+CREATE TABLE matriculam (
+    id_turma NUMBER NOT NULL,
+    ra_aluno NUMBER NOT NULL,
+    PRIMARY KEY (id_turma, ra_aluno),
+    FOREIGN KEY (id_turma) REFERENCES turmas(id_turma),
+    FOREIGN KEY (ra_aluno) REFERENCES alunos(ra_aluno)
+);
+
+CREATE TABLE turma_disciplina (
+    id_disciplina NUMBER NOT NULL,
+    id_turma NUMBER NOT NULL,
+    PRIMARY KEY (id_disciplina, id_turma),
+    FOREIGN KEY (id_disciplina) REFERENCES disciplinas(id_disciplina),
+    FOREIGN KEY (id_turma) REFERENCES turmas(id_turma)
+);
+
+
+/*Trigger para auditoria automatica - UPDATE*/
+create or replace trigger notadez.trigger_auditoria_notas_update before
+   update on notadez.notas
+   for each row
+begin
+   insert into notadez.auditoria_notas (
+      ra_aluno,
+      id_componente,
+      valor_antigo,
+      valor_novo,
+      id_docente
+   ) values ( :old.ra_aluno,
+              :old.id_componente,
+              :old.valor_nota,
+              :new.valor_nota,
+              1 );
+end;
+/
+
+/*Trigger para auditoria automatica - INSERT*/
+create or replace trigger notadez.trigger_auditoria_notas_insert after
+   insert on notadez.notas
+   for each row
+begin
+   insert into notadez.auditoria_notas (
+      ra_aluno,
+      id_componente,
+      valor_antigo,
+      valor_novo,
+      id_docente
+   ) values ( :new.ra_aluno,
+              :new.id_componente,
+              null,
+              :new.valor_nota,
+              1 );
+end;
+/
 
