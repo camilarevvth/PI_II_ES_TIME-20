@@ -1,6 +1,7 @@
 import express, {Request, Response} from 'express';
 import cors from 'cors';
 import oracledb from 'oracledb';
+import OracleDB from 'oracledb';
 
 const app = express();
 const port:number = 3000;
@@ -27,10 +28,11 @@ return await oracledb.createPool({
 app.use(express.json());
 app.use(cors());
 
-//  ||        ||
-//  ||        ||
-//--\/CADASTRO\/--
+//  ||                    ||
+//  ||                    ||
+//--\/REGISTRO DE USUÁRIOS\/--
 
+//cadastro
 app.post('/cadastrar', async (req : Request, res : Response) => {
     //buscar os dados do front-end
     const nome = req.body.nome;
@@ -69,10 +71,7 @@ app.post('/cadastrar', async (req : Request, res : Response) => {
 
 });
 
-//  ||     ||
-//  ||     ||
-//--\/LOGIN\/--
-
+//login
 app.post('/login', async (req:Request, res:Response) => {
     const email = req.body.email;
     const senha = req.body.senha;
@@ -80,12 +79,12 @@ app.post('/login', async (req:Request, res:Response) => {
     try{
         const con = await oracledb.getConnection();
 
-        const resultado = await con.execute(`SELECT * FROM docentes WHERE email = :email AND senha = :senha`,
+        const result = await con.execute(`SELECT * FROM docentes WHERE email = :email AND senha = :senha`,
             {email, senha});
 
-        if(resultado.rows.length > 0){
+        if(result.rows.length > 0){
             return res.json({ mensagem : "sucesso ao fazer login1",
-                usuario : resultado.rows[0]
+                usuario : result.rows[0]
              });
         }
 
@@ -95,6 +94,58 @@ app.post('/login', async (req:Request, res:Response) => {
         res.status(500);
         res.json({ error: "Erro ao realizar login" });
     }
+});
+
+//  ||                             ||
+//  ||                             ||
+//--\/GERENCIAMENTO DE INSTITUIÇÕES\/--
+
+//buscar todas as instituições
+app.post('/buscartodasinstituicoes', async (req:Request, res:Response) => {
+    const id_docente = req.body.id_docente;
+
+    const con = await oracledb.getConnection();
+    try{
+        //obs: não sei o nome da tabela assosiativa de instituições para docentes(então substitui por doc_ins)
+        const code:string = 'SELECT i.* FROM DOCENTES AS D INNER JOIN CADASTROS AS C ON D.ID_DOCENTE = C.ID_DOCENTE INNER JOIN INSTITUICOES AS I ON C.ID_INSTITUICAO = I.ID_INSTITUICAO WHERE D.ID_DOCENTE = :id_docente';
+        const result = await con.execute(code, { id_docente });
+
+        res.json({ instituicoes : result.rows });
+
+    } catch(err){
+        res.json({ message : "algo deu errado ao buscar instituições" });
+    } finally{
+        if(con){
+            con.close();
+        }
+    }
+});
+
+//adicionar uma instituição
+app.post('/adicionarinstituicao', async (req:Request, res:Response) => {
+    const nome_instituicao = req.body.nome_instituicao;
+    const con =  await oracledb.getConnection();
+    let confirm:boolean = false;
+
+    try{
+        const code:string = 'INSERT INTO INSTITUICOES(NOME_INSTITUICAO) VALUES(:nome_instituicoes)'; 
+        const result = await con.execute(code, { nome_instituicao });
+
+        confirm = true;
+        res.json({ confirm });
+    } catch(err){
+
+        res.json({ confirm });
+    } finally{
+        if(con){
+            await con.close();
+        }
+    }
+});
+
+//excluir uma instituição
+app.post('/excluirinstituicao', (req:Request, res:Response) => {
+    
 });
 
 initconnection().then(() =>{
