@@ -1,0 +1,158 @@
+/*
+    Autor: Demetrius Valverde Ferreira Corradi Junqueira e Matheus Azevedo Teixeira
+    Arquivo: app.css
+    Descrição: Protótipo CSS do sistema NotaDez. Contém a estilização de telas de login, cadastro de usuário, cadastro de instituições, disciplinas/turmas, cadastro de alunos, painel de auditoria e botões de exportação. 
+*/
+
+body {
+    font-family: 'Verdana', sans-serif;
+    background-color: #f8f9fa; /* Mudança: Fundo levemente mais claro e mais branco (quase branco) */
+    color: #343a40; /* Mudança: Cor de texto mais escura (preto soft) para melhor contraste */
+    padding: 25px; /* Aumenta um pouco mais o padding */
+    line-height: 1.65; /* Aumenta a altura da linha para melhor leitura */
+}
+
+/* Título principal */
+h1 {
+    text-align: center;
+    margin-bottom: 40px; /* Aumenta o espaço inferior */
+    color: #212529; /* Mudança: Um preto ainda mais escuro para o título */
+    font-size: 32px; /* Aumenta o tamanho */
+    font-weight: 700;
+    /* Toque Sutil: Linha decorativa abaixo do H1 */
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 10px;
+}
+
+/* Subtítulos */
+h2 {
+    margin-top: 35px;
+    margin-bottom: 18px;
+    color: #343a40;
+    /* Mudança: Barra de destaque com cor primária para identidade visual */
+    border-left: 5px solid #007bff; 
+    padding-left: 15px;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: #495057; /* Um cinza-escuro suave */
+    font-size: 18px;
+    font-weight: 500;
+}
+
+/* Formulários */
+form {
+    background-color: #ffffff;
+    padding: 30px; /* Aumenta o padding interno para um visual mais premium */
+    border-radius: 12px; /* Borda mais suavemente arredondada */
+    margin-bottom: 35px;
+    border: 1px solid #dee2e6; /* Borda mais fina e clara */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08); /* Sombra mais destacada, mas ainda suave */
+}
+
+/* Inputs de Texto */
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    margin: 6px 0 18px 0;
+    border-radius: 6px;
+    border: 1px solid #ced4da; /* Borda em um tom mais neutro */
+    font-size: 16px; /* Aumenta a fonte para inputs */
+    color: #495057;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus {
+    border-color: #007bff; /* Mudança: Cor de foco igual à primária (azul) */
+    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25); /* Padrão de anel de foco mais suave (Bootstrap-like) */
+    outline: none;
+}
+
+/* Botões - Cor Primária (Ação Principal) */
+input[type="submit"] {
+    padding: 12px 30px; /* Mais largura */
+    margin-top: 20px;
+    border: 1px solid #007bff; /* Adiciona borda sutil na cor primária */
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+    background-color: #007bff; /* Mudança: Azul primário padrão e acessível */
+    transition: all 0.2s;
+}
+
+input[type="submit"]:hover {
+    background-color: #0056b3;
+    border-color: #004085;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Botões - Ação Secundária (Manter o estilo sóbrio do botão secundário) */
+input[type="button"] {
+    padding: 12px 30px;
+    margin-top: 20px;
+    border: 1px solid #6c757d;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+    background-color: #6c757d; /* Cinza Sutil */
+    transition: all 0.2s;
+    margin-right: 10px; /* Para separar do botão primário, se existirem lado a lado */
+}
+
+input[type="button"]:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Links */
+a {
+    color: #007bff; /* Links com a cor primária para maior destaque */
+    font-size: 15px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+a:hover {
+    text-decoration: underline;
+    color: #0056b3;
+}
+
+/* Listas */
+ul {
+    list-style-type: none;
+    padding-left: 0;
+    margin-bottom: 30px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+    overflow: hidden; /* Garante que as bordas arredondadas funcionem com os li's */
+}
+
+li {
+    padding: 12px 20px; /* Padding maior para melhor leitura */
+    margin: 0;
+    border-bottom: 1px solid #f8f9fa; /* Linha divisória muito clara */
+    font-size: 15px;
+}
+
+li:last-child {
+    border-bottom: none;
+}
+

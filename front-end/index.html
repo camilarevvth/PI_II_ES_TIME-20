@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <link type="text/css" rel="stylesheet" href="./style.css">
+  <title>Sistema Completo - Fluxo Corrigido</title>
+</head>
+<body>
+
+<!-- ========================================================= -->
+<!-- ======================== LOGIN =========================== -->
+<!-- ========================================================= -->
+<div id="registrousuarios" class="">
+  
+  <div id="login">
+    <h2 id="registrousuarios_titulo">Login</h2>
+    <div id="form-login">
+      <input id="login-email" type="email" placeholder="E-mail" required><br>
+      <input id="login-senha" type="password" placeholder="Senha" required><br>
+      <button id="enviar-login" type="button">entrar</button><br><br>
+      <button id="voltar-cadastro" type="button" >Criar conta</button>
+    </div>
+  </div>
+
+  <div id="cadastro" class="suspenso">
+    <h2 id="registrousuarios_titulo">Cadastro</h2>
+    <div id="form-cadastro">
+      <input id="cadastronome" type="text" placeholder="Nome completo" required><br>
+      <input id="cadastroemail" type="email" placeholder="E-mail" required><br>
+      <input id="cadastrotelefone" type="tel" placeholder="Telefone celular" required><br>
+      <input id="cadastrosenha" type="password" placeholder="Senha" required><br>
+      <button id="enviar-cadastro" type="button" value="Cadastrar">cadastrar</button> <br><br>
+      <button id="voltar-login" type="button">Voltar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- ========== INSTITUIÇÃO / CURSOS ========================= -->
+<!-- ========================================================= -->
+<div id="gerenciar-instituicoes" class="suspenso">
+
+  <div id="instituicoes" class="suspenso">
+
+    <h2>Instituições</h2>
+
+    <div id="instituicao-conteiner">
+    </div>
+
+    <div>
+      <h3>Cadastro de Instituições</h3>
+      <input id="instituicao-nome" type="text" placeholder="Instituição" required><br>
+      <button id="enviar-instituicao">criar</button>
+      <button id="excluir-instituicao">excluir</button>
+      <p>nenhuma Instituição selecionada</p>
+      <input id="curso-nome" type="text" placeholder="Curso" required><br><br>
+    </div>
+  
+  </div>
+
+  <div id="cursos">
+
+    <div id="curso_conteiner">
+    </div>
+    <div>
+      <h2>Criar Curso</h2>
+      <input id="curso" type="text" placeholder="Curso" required><br><br>
+    </div>
+  
+  </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- ========== TURMAS / DISCILPINAS ========================= -->
+<!-- ========================================================= -->
+<div id="gerenciar-disciplinas" class="suspenso">
+  <div id="disciplinas">
+
+    <div id="disciplina-conteiner">
+    </div>
+    <div>
+      <h2>Criar Disciplina</h2>
+      <input id="nome-disciplina" type="text" placeholder="Nome da disciplina" required><br>
+      <input id="sigla-disciplina" type="text" placeholder="Sigla" required><br>
+      <input id="codigo" type="text" placeholder="Código do curso" required><br>
+      <input id="periodo-disciplina" type="text" placeholder="Período do curso" required><br><br>
+    </div>
+
+  </div>
+  
+  <div id="turmas">
+
+    <div id="turma_conteiner">
+    </div>
+    <div>
+      <h2>Criar turma</h2>
+      <input type="text" placeholder="Horário da turma" required><br>
+      <input type="text" placeholder="Dia da turma" required><br>
+      <input type="text" placeholder="Local da turma" required><br>
+      <button type="button">Adicionar nova turma</button><br><br>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ========================================================= -->
+<!-- ========== GERENCIAMENTO DE TURMAS ====================== -->
+<!-- ========================================================= -->
+<div id="gerenciar-turmas" class="suspenso">
+    <div id="configuracoes-notas">
+
+        
+        <div id="opcao-cadastrar-aluno" class="opcao">
+            <h3 class="opcao-nome">Cadastro de Alunos</h3>
+            
+            <div class="opcao">
+                <input type="text" id="matricula" placeholder="Matrícula" />
+                <input type="text" id="nome" placeholder="Nome" />
+                <button id="enviar-aluno">Adicionar Aluno</button>
+            </div>
+        </div>
+
+        
+        <div id="opcao-notas" class="opcao">
+            <h3 class="opcao-nome">Adicionar Componente de Nota</h3>
+            
+            <div class="opcao">
+                <input type="text" id="compNome" placeholder="Nome" />
+                <input type="text" id="compSigla" placeholder="Sigla (ex: P1)" />
+                <input type="text" id="compDesc" placeholder="Descrição" />
+                <button>Adicionar</button>
+            </div>
+        </div>
+
+        
+        <div id="opcao-medias" class="opcao">
+            <h3 class="opcao-nome">Cálculo Notas Finais</h3>
+            
+            <div class="opcao">
+                <div>
+                    <button>Média Aritmética</button>
+                    <button>Média Ponderada</button>
+                </div>
+                
+                    <select>
+                        <option>p1</option>
+                        <option>p2</option>
+                        <option>p3</option>
+                    </select>
+                    <input type="text" placeholder="digite o peso em porcentagem">
+                    <button>enviar peso</button>
+            </div>
+        </div>
+    </div>
+
+  
+  <div>
+    <h2>Quadro de Notas</h2>
+    <div id="importacoes-e-exportacoes">
+        <button id="exportar-csv">Exportar CSV</button>
+        <button id="importar-csv">Importar CSV</button>
+    </div>
+    <table id="tabela" border="1">
+        <thead>
+        <tr>
+            <th>Matrícula</th>
+            <th>Nome</th>
+            <th>p1</th>
+            <th>p2</th>
+            <th>p3</th>
+            <th>Nota Final</th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>11111</td>
+                <td>Gustas</td>
+                <td>7.8</td>
+                <td>7.0</td>
+                <td>4</td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+    </div>
+  <br>
+  
+</div>
+
+<script src="./index.js"></script>
+
+
+</body>
+</html>
