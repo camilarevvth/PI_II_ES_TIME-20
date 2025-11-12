@@ -4,7 +4,7 @@ NotaDez
 
 ## Integrantes
 - **Camila Fernandes Costacurta** — RA: 25012949  
-- **Nome2** — RA: 000000  
+- **Bernardo Castro Brandão de Oliveira** — RA: 25014953
 - **Nome3** — RA: 000000
 - **Gustavo Santos de Oliveira** — RA: 25004239
 
@@ -18,7 +18,7 @@ NotaDez
 
 ## 3. Como executar
 ### Backend
-```bash
+
 cd backend
 npm install
 npm run dev
@@ -35,9 +35,8 @@ Depois, será feito merge para a branch principal (`main`) via *pull request*.
 Cada artefato (HTML, CSS, TypeScript, etc.) terá o autor identificado no topo do arquivo.  
 
 Exemplo:
-```ts
 // Autor: Camila Revvth — RA: 25012949
-## Como rodar o projeto completo
+//## Como rodar o projeto completo
 1. Clone o repositório:
    git clone https://github.com/camilarevvth/ES-PI2-2025-TX-GXX.git
 2. Configure o banco de dados
@@ -48,6 +47,9 @@ Exemplo:
 4. Abra o frontend:
    cd frontend
    abrir index.html
+   
+## 6. Código HTML
 
 
-## 6. SQL(Br modelo)
+## 7. Código Typescript
+

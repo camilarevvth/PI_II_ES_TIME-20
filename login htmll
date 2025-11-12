@@ -8,68 +8,101 @@
 
   <h2 id="titulo">Login</h2>
 
-  <!-- se ja tiver conta -->
+  <!-- Login -->
   <form id="form-login">
-    <input type="email" placeholder="E-mail" required><br>
-    <input type="password" placeholder="Senha" required><br>
+    <input id="login-email" type="email" placeholder="E-mail" required><br>
+    <input id="login-senha" type="password" placeholder="Senha" required><br>
     <input type="submit" value="Entrar"><br><br>
-    <button  id="btnEsqueci" onclick="recuperar()">Esqueci minha senha</button><br><br>
-    <button id="btnCriar" onclick="criar()">Criar conta</button>
+    <button type="button" onclick="mostrarCadastro()">Criar conta</button>
+    <button type="button" onclick="mostrarEsqueci()">Esqueci minha senha</button>
   </form>
 
-  <!-- se precisar cadastrar -->
+  <!-- Cadastro -->
   <form id="form-cadastro" style="display:none;">
-    <input type="text" placeholder="Nome completo" required><br>
-    <input type="email" placeholder="E-mail" required><br>
-    <input type="tel" placeholder="Telefone celular" required><br>
-    <input type="password" placeholder="Senha" required><br>
+    <input id="cadastro-nome" type="text" placeholder="Nome completo" required><br>
+    <input id="cadastro-email" type="email" placeholder="E-mail" required><br>
+    <input id="cadastro-celular" type="tel" placeholder="Telefone celular" required><br>
+    <input id="cadastro-senha" type="password" placeholder="Senha" required><br>
     <input type="submit" value="Cadastrar"><br><br>
-    <button id="btnVoltarLogin" onclick="voltar()">Voltar ao Login</button>
+    <button type="button" onclick="voltarLogin()">Voltar ao Login</button>
   </form>
 
-  <!-- se esquecer a senha -->
+  <!-- Recuperar senha -->
   <form id="form-esqueci" style="display:none;">
     <p>Digite seu e-mail para redefinir a senha:</p>
-    <input type="email" placeholder="E-mail" required><br>
+    <input id="esqueci-email" type="email" placeholder="E-mail" required><br>
     <input type="submit" value="Enviar link de recuperação"><br>
-    <button id="btnVoltarLogin2" onclick="voltarLogin()">Voltar ao Login</button>
-    <div id="resultado"></div>
+    <button type="button" onclick="voltarLogin()">Voltar ao Login</button>
   </form>
 
+  <!-- local para exibir mensagens -->
+  <div id="resultado"></div>
+
   <script>
-    
-   async function enviarLogin() {
-  const email = document.getElementById("form-login").value;
- 
-
-  const dados = {
-    email: email,
-    senha: senha
-  };
-
-  fetch("http://localhost:3000/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(dados)
-  })
-  .then(function(response) {
-    if (!response.ok) {
-      throw new Error("Erro na requisição");
+    // Mostrar e esconder formulários
+    function mostrarCadastro() {
+      document.getElementById("form-login").style.display = "none";
+      document.getElementById("form-cadastro").style.display = "block";
+      document.getElementById("form-esqueci").style.display = "none";
     }
-    return response.text();
-  })
-  .then(function(texto) {
-    document.getElementById("resultado").innerHTML = texto;
-  })
-  .catch(function(error) {
-    document.getElementById("resultado").innerHTML = "Erro: " + error.message;
-  });
-}
-</script>
 
-    
+    function mostrarEsqueci() {
+      document.getElementById("form-login").style.display = "none";
+      document.getElementById("form-cadastro").style.display = "none";
+      document.getElementById("form-esqueci").style.display = "block";
+    }
+
+    function voltarLogin() {
+      document.getElementById("form-login").style.display = "block";
+      document.getElementById("form-cadastro").style.display = "none";
+      document.getElementById("form-esqueci").style.display = "none";
+    }
+
+    // LOGIN
+    document.getElementById("form-login").addEventListener("submit", async function() {
+      const email = document.getElementById("login-email").value;
+      const senha = document.getElementById("login-senha").value;
+
+      const resposta = await fetch("http://localhost:3000/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, senha })
+      });
+
+      const resultado = await resposta.json();
+      document.getElementById("resultado").innerText = resultado.message;
+    });
+
+    // CADASTRO
+    document.getElementById("form-cadastro").addEventListener("submit", async function() {
+      const nome = document.getElementById("cadastro-nome").value;
+      const email = document.getElementById("cadastro-email").value;
+      const celular = document.getElementById("cadastro-celular").value;
+      const senha = document.getElementById("cadastro-senha").value;
+
+      const resposta = await fetch("http://localhost:3000/cadastrarusuario", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nome, email, celular, senha })
+      });
+
+      const resultado = await resposta.json();
+      document.getElementById("resultado").innerText = resultado.mesage;
+    });
+
+    // ESQUECI SENHA
+    document.getElementById("form-esqueci").addEventListener("submit", async function() {
+      const email = document.getElementById("esqueci-email").value;
+
+      const resposta = await fetch("http://localhost:3000/esqueci", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+
+      const resultado = await resposta.json();
+      document.getElementById("resultado").innerText = resultado.message;
+    });
   </script>
 
 </body>

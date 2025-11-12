@@ -1,0 +1,7 @@
+npm install -D ts-node-dev
+
+npx tsc --init
+
+npm install express cors tf csv body-parser
+
+npm install -D @types/cors -D @types/cors -D @types/body-parser

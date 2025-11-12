@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
 <title>Quadro de Notas Simplificado</title>
 
 </head>
@@ -10,27 +10,30 @@
 
 <div id="alunos">
   <h2>Cadastro de Alunos</h2>
-  <input type="text" id="matricula" placeholder="Matrícula">
-  <input type="text" id="nome" placeholder="Nome">
+  <input type="text" id="matricula" placeholder="Matrícula" />
+  <input type="text" id="nome" placeholder="Nome" />
   <button onclick="adicionarAluno()">Adicionar Aluno</button>
 </div>
 
 <div id="notas">
   <h2>Cadastro de Componentes de Nota</h2>
-  <input type="text" id="compNome" placeholder="Nome">
-  <input type="text" id="compSigla" placeholder="Sigla (ex: P1)">
-  <input type="text" id="compDesc" placeholder="Descrição">
+  <input type="text" id="compNome" placeholder="Nome" />
+  <input type="text" id="compSigla" placeholder="Sigla (ex: P1)" />
+  <input type="text" id="compDesc" placeholder="Descrição" />
   <button onclick="adicionarComponente()">Adicionar Componente</button>
 </div>
 
 <div id="formula">
   <h2>Fórmula de Cálculo da Nota Final</h2>
-  <input type="text" id="formulaInput" placeholder="(P1 + P2 + P3) / 3" size="50">
-  <button onclick="salvarFormula()">Salvar Fórmula</button>
-</div>
+  <button onclick="usarMediaAritmetica()">Média Aritmética</button>
+  <button onclick="usarMediaPonderada()">Média Ponderada</button>
 
-<button onclick="alternarPainelAuditoria()">Ocultar / Exibir Auditoria</button>
-<p>Status Edição: <span id="statusEdicao">Edição Habilitada</span></p>
+  <div id="pesosDiv" >
+    <h3>Defina os pesos (%) para cada componente:</h3>
+    <div id="pesosInputs"></div>
+    <button onclick="salvarPesos()">Salvar Pesos</button>
+  </div>
+</div>
 
 <h2>Quadro de Notas</h2>
 <table id="tabela">
@@ -44,29 +47,28 @@
   <tbody></tbody>
 </table>
 
-<div id="painel-auditoria" style="display: block;">
-  <h3>Painel de Auditoria de Notas (LOG)</h3>
-  <ul id="painel-auditoria-notas">
-    <li>Logs de operações aparecerão aqui...</li>
-  </ul>
-</div>
-
 <script>
 let componentes = [];
 let alunosData = {};
-let formula = "(P1 + P2 + P3) / 3";
+let pesos = {};  // pesos em decimal, ex: 0.3
+let formula = "aritmetica"; // ou "ponderada"
 
+// Função para adicionar aluno na tabela e dados
 function adicionarAluno() {
   const matricula = document.getElementById('matricula').value.trim();
   const nome = document.getElementById('nome').value.trim();
-
   if (!matricula || !nome) {
     alert("Preencha matrícula e nome!");
+    return;
+  }
+  if(alunosData[matricula]) {
+    alert("Matrícula já cadastrada!");
     return;
   }
 
   alunosData[matricula] = { nome, notas: {}, notaFinal: '0.00' };
 
+  // Cria linha na tabela
   const tabelaBody = document.querySelector('#tabela tbody');
   const novaLinha = tabelaBody.insertRow();
   novaLinha.setAttribute('data-matricula', matricula);
@@ -77,15 +79,12 @@ function adicionarAluno() {
   const celNome = novaLinha.insertCell();
   celNome.textContent = nome;
 
-  // Inserir colunas de notas antes da nota final
+  // Insere células para cada componente
   componentes.forEach(comp => {
     const cel = novaLinha.insertCell();
-    cel.classList.add("celula-nota");
-    cel.innerHTML = `
-      <input type="number" data-sigla="${comp.sigla}" min="0" max="10" step="0.01"
-             placeholder="-" onchange="updateNota(this)">
-      <span class="valor-baixo">0.00</span>
-    `;
+    cel.innerHTML = `<input type="number" min="0" max="10" step="0.01" placeholder="-" 
+                      data-sigla="${comp.sigla}" onchange="atualizarNota(this)">
+                     <span class="valor-baixo">0.00</span>`;
   });
 
   const celNF = novaLinha.insertCell();
@@ -96,6 +95,7 @@ function adicionarAluno() {
   document.getElementById('nome').value = "";
 }
 
+// Função para adicionar componente na tabela e cabeçalho
 function adicionarComponente() {
   const nome = document.getElementById('compNome').value.trim();
   const sigla = document.getElementById('compSigla').value.toUpperCase().trim();
@@ -105,29 +105,27 @@ function adicionarComponente() {
     alert("Preencha nome, sigla e descrição!");
     return;
   }
-
   if (componentes.some(c => c.sigla === sigla)) {
-    alert(`O componente com sigla '${sigla}' já existe.`);
+    alert(`Componente com sigla '${sigla}' já existe.`);
     return;
   }
 
   componentes.push({ nome, sigla, desc });
 
+  // Atualiza cabeçalho da tabela, insere antes da coluna Nota Final
   const header = document.querySelector('#tabela thead tr');
   const thNF = header.lastElementChild;
   const novaTh = document.createElement('th');
   novaTh.textContent = sigla;
   header.insertBefore(novaTh, thNF);
 
+  // Para cada linha já na tabela, adiciona nova célula de nota
   const tabelaBody = document.querySelector('#tabela tbody');
   for (const linha of tabelaBody.rows) {
     const cel = linha.insertCell(linha.cells.length - 1);
-    cel.classList.add("celula-nota");
-    cel.innerHTML = `
-      <input type="number" data-sigla="${sigla}" min="0" max="10" step="0.01"
-             placeholder="-" onchange="updateNota(this)">
-      <span class="valor-baixo">0.00</span>
-    `;
+    cel.innerHTML = `<input type="number" min="0" max="10" step="0.01" placeholder="-" 
+                     data-sigla="${sigla}" onchange="atualizarNota(this)">
+                     <span class="valor-baixo">0.00</span>`;
   }
 
   document.getElementById('compNome').value = "";
@@ -135,61 +133,130 @@ function adicionarComponente() {
   document.getElementById('compDesc').value = "";
 }
 
-function salvarFormula() {
-  const nova = document.getElementById('formulaInput').value.trim();
-  if (nova) {
-    formula = nova;
-    alert("Fórmula salva: " + formula);
-  }
+// Função chamada ao clicar em Média Aritmética
+function usarMediaAritmetica() {
+  formula = "aritmetica";
+  document.getElementById('pesosDiv').style.display = "none";
+  alert("Fórmula Média Aritmética salva!");
+  // Recalcular notas para aplicar média aritmética com pesos ocultos
+  recalcularTodasNotas();
 }
 
-function updateNota(input) {
-  let val = parseFloat(input.value);
-  if (isNaN(val) || val < 0) val = 0;
-  if (val > 10) val = 10;
-  const valorCorrigido = val.toFixed(2);
+// Função chamada ao clicar em Média Ponderada
+function usarMediaPonderada() {
+  formula = "ponderada";
+  mostrarCamposPesos();
+}
 
-  input.value = valorCorrigido;
-  input.parentElement.querySelector('.valor-baixo').innerText = valorCorrigido;
+// Mostra os inputs para digitar os pesos
+function mostrarCamposPesos() {
+  const divPesos = document.getElementById('pesosDiv');
+  const container = document.getElementById('pesosInputs');
+  container.innerHTML = "";
+
+  if (componentes.length === 0) {
+    container.innerHTML = "Cadastre componentes antes de definir pesos.";
+    divPesos.style.display = "block";
+    return;
+  }
+
+  componentes.forEach(c => {
+    const label = document.createElement("label");
+    label.textContent = c.sigla + ": ";
+    const input = document.createElement("input");
+    input.type = "number";
+    input.min = 0;
+    input.max = 100;
+    input.value = (pesos[c.sigla] !== undefined) ? pesos[c.sigla]*100 : "";
+    input.className = "pesoInput";
+    input.id = "peso_" + c.sigla;
+    label.appendChild(input);
+    container.appendChild(label);
+    container.appendChild(document.createElement("br"));
+  });
+
+  divPesos.style.display = "block";
+}
+
+// Salva os pesos digitados e valida soma 100%
+function salvarPesos() {
+  let soma = 0;
+  for (let c of componentes) {
+    const input = document.getElementById("peso_" + c.sigla);
+    let val = parseFloat(input.value);
+    if (isNaN(val) || val < 0) val = 0;
+    if (val > 100) val = 100;
+    pesos[c.sigla] = val / 100;
+    soma += val;
+  }
+
+  if (soma !== 100) {
+    alert("A soma dos pesos deve ser exatamente 100%. Soma atual: " + soma + "%");
+    return;
+  }
+
+  alert("Pesos salvos!");
+  document.getElementById('pesosDiv').style.display = "none";
+  recalcularTodasNotas();
+}
+
+// Atualiza a nota na linha e recalcula nota final
+function atualizarNota(input) {
+  const val = parseFloat(input.value);
+  const nota = isNaN(val) ? 0 : Math.min(Math.max(val, 0), 10);
+  input.value = nota.toFixed(2);
+  input.nextElementSibling.textContent = nota.toFixed(2);
 
   const linha = input.closest('tr');
   const matricula = linha.dataset.matricula;
   const sigla = input.dataset.sigla;
-  const valorAntigo = alunosData[matricula].notas[sigla] || 0;
 
-  alunosData[matricula].notas[sigla] = val;
+  if (!alunosData[matricula].notas) alunosData[matricula].notas = {};
+  alunosData[matricula].notas[sigla] = nota;
+
   recalcularNotaFinal(matricula);
-
-  const nomeAluno = alunosData[matricula].nome;
-  adicionarLogAoPainel(`[${new Date().toLocaleTimeString('pt-BR')}] - (Aluno ${nomeAluno}) - Nota ${sigla} alterada de ${valorAntigo.toFixed(2)} para ${valorCorrigido}.`);
 }
 
+// Recalcula nota final de um aluno
 function recalcularNotaFinal(matricula) {
   const aluno = alunosData[matricula];
-  let soma = 0, count = 0;
-  componentes.forEach(c => {
-    soma += aluno.notas[c.sigla] || 0;
-    count++;
-  });
-  const nf = count ? (soma / count).toFixed(2) : "0.00";
-  aluno.notaFinal = nf;
-  document.querySelector(`tr[data-matricula="${matricula}"] [data-coluna="NotaFinal"]`).textContent = nf;
-}
+  if (!aluno) return;
 
-function alternarPainelAuditoria() {
-  const painel = document.getElementById("painel-auditoria");
-  painel.style.display = painel.style.display === "none" ? "block" : "none";
-}
-
-function adicionarLogAoPainel(msg) {
-  const painel = document.getElementById("painel-auditoria-notas");
-  const li = document.createElement("li");
-  li.textContent = msg;
-  if (painel.firstChild && painel.firstChild.textContent.includes("Logs de operações")) {
-    painel.firstChild.remove();
+  let notaFinal = 0;
+  if (formula === "aritmetica") {
+    // soma simples das notas / quantidade
+    let soma = 0;
+    let count = 0;
+    componentes.forEach(c => {
+      soma += aluno.notas[c.sigla] || 0;
+      count++;
+    });
+    notaFinal = count > 0 ? soma / count : 0;
+  } else if (formula === "ponderada") {
+    // soma ponderada
+    let somaPesos = 0;
+    let somaNotas = 0;
+    componentes.forEach(c => {
+      let peso = pesos[c.sigla] || 0;
+      somaPesos += peso;
+      somaNotas += (aluno.notas[c.sigla] || 0) * peso;
+    });
+    notaFinal = somaPesos > 0 ? somaNotas / somaPesos : 0;
   }
-  painel.prepend(li);
+  aluno.notaFinal = notaFinal.toFixed(2);
+
+  // Atualiza tabela
+  const celNotaFinal = document.querySelector(`tr[data-matricula="${matricula}"] [data-coluna="NotaFinal"]`);
+  if (celNotaFinal) celNotaFinal.textContent = aluno.notaFinal;
+}
+
+// Recalcula todas notas na tabela (útil ao mudar fórmula ou pesos)
+function recalcularTodasNotas() {
+  for (let matricula in alunosData) {
+    recalcularNotaFinal(matricula);
+  }
 }
 </script>
+
 </body>
 </html>
