@@ -47,7 +47,7 @@ app.post('/cadastrar', async (req : Request, res : Response) => {
              {nome, email, senha, telefone}, //foranecer os dados necessarios
             {autoCommit : true}); //salvar a alteração no banco
 
-            confirm = true; //compirmar que deu certo
+            confirm = true; //comfirmar que deu certo
 
         res.json({ //enviar para o front-end
             confirm,
@@ -61,7 +61,7 @@ app.post('/cadastrar', async (req : Request, res : Response) => {
 
         res.json({
             confirm,
-            error : "usuario já cadasstrado"
+            message : "usuario já cadasstrado"
         });
 
         
@@ -80,7 +80,7 @@ app.post('/login', async (req:Request, res:Response) => {
     try{
         const con = await oracledb.getConnection();
 
-        const resultado = await con.execute(`SELECT * FROM usuarios WHERE email = :email AND senha = :senha`,
+        const resultado = await con.execute(`SELECT * FROM docentes WHERE email = :email AND senha = :senha`,
             {email, senha});
 
         if(resultado.rows.length > 0){
@@ -97,11 +97,11 @@ app.post('/login', async (req:Request, res:Response) => {
     }
 });
 
-initconnection().then(
+initconnection().then(() =>{
     app.listen(port, () => {
             console.log("servidor criado!-porta 3000");
         })
-);
+});
 
 /*
 //-----------ANOTAÇÕES-----------//

@@ -51,15 +51,7 @@ function fluxotelas(){
     });
 
     //disciplinas e turmas
-    document.getElementById("enviar-login").addEventListener("click", () => {trocartela(
-        document.getElementById("login"),
-        document.getElementById("gerenciar-disciplinas"));
-
-        document.getElementById("enviar-instituicao").addEventListener("click", () => inseririnstituicao());
-        document.getElementById("excluir-instituicao").addEventListener("click", () => excluirinstituicao());
-
-        atualizardisciplinas();
-    });
+    document.getElementById("enviar-login").addEventListener("click", () => { comfirmarlogin()});
 }
 
 // ======== GERENCIAMENTO DE DISCIPLINAS ========
@@ -189,7 +181,7 @@ async function comfirmarcadastro(){
         const senha = document.getElementById("cadastrosenha").value;
         const telefone = document.getElementById("cadastrotelefone").value;
 
-        const response = await fetch('http://localhost:3000/cadastro', {
+        const response = await fetch('http://localhost:3000/cadastrar', {
             method : "POST",
             headers : {
                 "Content-Type" : "application/json"
@@ -199,8 +191,43 @@ async function comfirmarcadastro(){
 
         const resultado = await response.json();
 
-        console.log(resultado.mensagem);
+        document.getElementById("cadastro-resultado").innerText = resultado.message;
 
+    } catch(err){
+        console.log(err);
+    }
+}
+
+async function comfirmarlogin() {
+    try{
+    const email = document.getElementById("login-email").value;
+    const senha = document.getElementById("login-senha").value;
+
+    const response = await fetch('http://localhost:3000/login', {
+            method : "POST",
+            headers : {
+                "Content-Type" : "application/json"
+            },
+            body : JSON.stringify({email, senha})
+        });
+
+        const resultado = await response.json();
+
+        if(resultado.comfirm){
+            usuario = resultado.usuario;
+
+
+            trocartela(
+                document.getElementById("login"),
+                document.getElementById("gerenciar-disciplinas"));
+
+            document.getElementById("enviar-instituicao").addEventListener("click", () => inseririnstituicao());
+            document.getElementById("excluir-instituicao").addEventListener("click", () => excluirinstituicao());
+
+            atualizardisciplinas();
+        } else {
+            console.log(resultado.mensagem);
+        }
     } catch(err){
         console.log(err);
     }
