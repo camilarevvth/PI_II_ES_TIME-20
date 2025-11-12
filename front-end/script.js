@@ -173,7 +173,7 @@ function cadastraralunos(){
 }
 
 // ======== VALIDAÇÕES E BUSCA DE DADOS========
-
+//registro de usuarios
 async function comfirmarcadastro(){
     try{
         const nome = document.getElementById("cadastronome").value;
@@ -219,7 +219,7 @@ async function comfirmarlogin() {
 
             trocartela(
                 document.getElementById("login"),
-                document.getElementById("gerenciar-disciplinas"));
+                document.getElementById("gerenciar-instituicoes"));
 
             document.getElementById("enviar-instituicao").addEventListener("click", () => inseririnstituicao());
             document.getElementById("excluir-instituicao").addEventListener("click", () => excluirinstituicao());
