@@ -1,24 +1,26 @@
 import express, {Request, Response} from 'express';
 import cors from 'cors';
-import oracledb from 'oracledb';
-import OracleDB from 'oracledb';
+import * as oracledb from 'oracledb';
+
+//const express = require('express');
 
 const app = express();
 const port:number = 3000;
 
 async function initconnection(){ 
 try{
-    oracledb.initOracleClient({
-        libDir : "C:"
+    oracledb.initOracleClient({//acessar o client(local)
+        libDir : "C:/client_oracle/instantclient-basiclite-windows.x64-23.9.0.25.07/instantclient_23_9"
     });
 } catch (err){
     console.log("já inicializado ou erro");
+    console.log(err);
 }
 
 return await oracledb.createPool({
-        user: "",
-        password: "",
-        connectString: "",
+        user: "NOTADEZ",
+        password: "secretmypass",
+        connectString: "localhost:1521/XEPDB1",
         poolMin: 1,
         poolMax: 5,
         poolIncrement: 1
@@ -33,7 +35,7 @@ app.use(cors());
 //--\/REGISTRO DE USUÁRIOS\/--
 
 //cadastro
-app.post('/cadastrar', async (req : Request, res : Response) => {
+app.post('/cadastrar', async (req, res) => {
     //buscar os dados do front-end
     const nome = req.body.nome;
     const email = req.body.email;
@@ -82,9 +84,9 @@ app.post('/login', async (req:Request, res:Response) => {
         const result = await con.execute(`SELECT * FROM docentes WHERE email = :email AND senha = :senha`,
             {email, senha});
 
-        if(result.rows.length > 0){
+        if(result.rows!.length > 0){
             return res.json({ mensagem : "sucesso ao fazer login1",
-                usuario : result.rows[0]
+                usuario : result.rows![0]
              });
         }
 
@@ -145,7 +147,7 @@ app.post('/adicionarinstituicao', async (req:Request, res:Response) => {
 
 //excluir uma instituição
 app.post('/excluirinstituicao', (req:Request, res:Response) => {
-    
+
 });
 
 initconnection().then(() =>{
@@ -174,4 +176,41 @@ __códigos de status http:
 500: erro genérico(como de sintax)
 501: o servidor não possui ou não suporta uma função necessária para a requisição
 503: o servidor está em manutenção
+
+__acesso ao banco:
+1-baixar oracle database EX(o servidor do banco de dados oracle).
+
+2-definir senha ao executar setup.
+
+3-baixar oracle instant-client(conexão para o node oracledb).
+
+4-baixar extensão oracle sql developer for vscode(ferramenta para aplicações sql).
+
+5-criar conexão pela extensão(preencher requisitos:
+-username: system       (padrão no oracle database EX)
+-password:              (senha definida anteriormente)
+-hostname: localhost    (endereço)
+-port: 1521             (porta padrão para o banco oracle)
+-service name: XEPDB1   (rota padrão)
+)
+6-rodar oracle.sql.
+7 - async function initconnection(){ 
+try{
+    oracledb.initOracleClient({//acessar o client(local)
+        libDir : "caminho para o oracle instant-client"
+    });
+} catch (err){
+    console.log("já inicializado ou erro");
+    console.log(err);
+}
+
+return await oracledb.createPool({
+        user: "<nome do usuário>",
+        password: "<senha do usuário>",
+        connectString: "<rota>",
+        poolMin: 1,
+        poolMax: 5,
+        poolIncrement: 1
+    });
+}
 */
