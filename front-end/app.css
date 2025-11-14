@@ -6,17 +6,21 @@
 
 body {
     font-family: 'Verdana', sans-serif;
-    background-color: #f8f9fa; /* Mudança: Fundo levemente mais claro e mais branco (quase branco) */
-    color: #343a40; /* Mudança: Cor de texto mais escura (preto soft) para melhor contraste */
+    background-image: linear-gradient(to right, rgb(97, 150, 206), rgb(74, 83, 125)) ; /* Mudança: Fundo levemente mais claro e mais branco (quase branco) */
+    color: #3a3f45; /* Mudança: Cor de texto mais escura (preto soft) para melhor contraste */
     padding: 25px; /* Aumenta um pouco mais o padding */
     line-height: 1.65; /* Aumenta a altura da linha para melhor leitura */
+}
+#titulo{
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif ;
+    color: #4c4c4c;
 }
 
 /* Título principal */
 h1 {
     text-align: center;
     margin-bottom: 40px; /* Aumenta o espaço inferior */
-    color: #212529; /* Mudança: Um preto ainda mais escuro para o título */
+    color: rgb(0, 0, 255) ;/* Mudança: Um preto ainda mais escuro para o título */
     font-size: 32px; /* Aumenta o tamanho */
     font-weight: 700;
     /* Toque Sutil: Linha decorativa abaixo do H1 */
@@ -28,7 +32,7 @@ h1 {
 h2 {
     margin-top: 35px;
     margin-bottom: 18px;
-    color: #343a40;
+    color: #4c4c4c;
     /* Mudança: Barra de destaque com cor primária para identidade visual */
     border-left: 5px solid #007bff; 
     padding-left: 15px;
@@ -54,17 +58,22 @@ form {
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08); /* Sombra mais destacada, mas ainda suave */
 }
 
+input::placeholder {
+    color: rgb(65, 65, 65); /* Define a cor do placeholder como cinza */
+  }
+
 /* Inputs de Texto */
 input[type="text"],
 input[type="email"],
 input[type="password"] {
+    background-color: #cccccc;  
     width: 100%;
     padding: 12px;
     margin: 6px 0 18px 0;
     border-radius: 6px;
-    border: 1px solid #ced4da; /* Borda em um tom mais neutro */
+    border: 1px solid #ffffff; /* Borda em um tom mais neutro */
     font-size: 16px; /* Aumenta a fonte para inputs */
-    color: #495057;
+    color: #0000009d;
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
@@ -107,7 +116,7 @@ input[type="button"] {
     font-size: 16px;
     font-weight: 600;
     color: #ffffff;
-    background-color: #6c757d; /* Cinza Sutil */
+    background-color: #dae3eb; /* Cinza Sutil */
     transition: all 0.2s;
     margin-right: 10px; /* Para separar do botão primário, se existirem lado a lado */
 }
@@ -156,6 +165,7 @@ li:last-child {
     border-bottom: none;
 }
 
+
 #gerenciar-turmas{
     display: inline-flex;
     width: 100%;
@@ -190,3 +200,4 @@ li:last-child {
 .suspenso{
     display: none;
 }
+
