@@ -6,132 +6,126 @@
 
 body {
     font-family: 'Verdana', sans-serif;
-    background-image: linear-gradient(to right, rgb(97, 150, 206), rgb(74, 83, 125)) ; /* Mudança: Fundo levemente mais claro e mais branco (quase branco) */
-    color: #3a3f45; /* Mudança: Cor de texto mais escura (preto soft) para melhor contraste */
-    padding: 25px; /* Aumenta um pouco mais o padding */
-    line-height: 1.65; /* Aumenta a altura da linha para melhor leitura */
-}
-#titulo{
-    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif ;
-    color: #4c4c4c;
+    background: linear-gradient(to right, #81a9d6, #4a537d);
+    color: #2f3336;
+    padding: 26px;
+    line-height: 1.7;
 }
 
-/* Título principal */
+
 h1 {
     text-align: center;
-    margin-bottom: 40px; /* Aumenta o espaço inferior */
-    color: rgb(0, 0, 255) ;/* Mudança: Um preto ainda mais escuro para o título */
-    font-size: 32px; /* Aumenta o tamanho */
+    margin-bottom: 42px;
+    color: #0033cc;
+    font-size: 34px;
     font-weight: 700;
-    /* Toque Sutil: Linha decorativa abaixo do H1 */
-    border-bottom: 2px solid #e9ecef;
-    padding-bottom: 10px;
+    border-bottom: 2px solid #e4e7eb;
+    padding-bottom: 12px;
 }
 
-/* Subtítulos */
+
 h2 {
-    margin-top: 35px;
-    margin-bottom: 18px;
-    color: #4c4c4c;
-    /* Mudança: Barra de destaque com cor primária para identidade visual */
-    border-left: 5px solid #007bff; 
-    padding-left: 15px;
-    font-size: 24px;
+    margin-top: 38px;
+    margin-bottom: 20px;
+    color: #444;
+    border-left: 5px solid #007bff;
+    padding-left: 16px;
+    font-size: 25px;
     font-weight: 600;
 }
 
 h3 {
-    margin-top: 20px;
-    margin-bottom: 10px;
-    color: #495057; /* Um cinza-escuro suave */
-    font-size: 18px;
+    margin-top: 22px;
+    margin-bottom: 12px;
+    color: #4d5256;
+    font-size: 19px;
     font-weight: 500;
 }
 
-/* Formulários */
+
 form {
-    background-color: #ffffff;
-    padding: 30px; /* Aumenta o padding interno para um visual mais premium */
-    border-radius: 12px; /* Borda mais suavemente arredondada */
-    margin-bottom: 35px;
-    border: 1px solid #dee2e6; /* Borda mais fina e clara */
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08); /* Sombra mais destacada, mas ainda suave */
+    background-color: #fff;
+    padding: 32px;
+    border-radius: 14px;
+    margin-bottom: 36px;
+    border: 1px solid #d3d7db;
+    box-shadow: 0 7px 18px rgba(0, 0, 0, 0.08);
 }
 
-input::placeholder {
-    color: rgb(65, 65, 65); /* Define a cor do placeholder como cinza */
-  }
 
-/* Inputs de Texto */
+input::placeholder {
+    color: #4a4a4a;
+}
+
 input[type="text"],
 input[type="email"],
 input[type="password"] {
-    background-color: #cccccc;  
+    background-color: #dadada;
     width: 100%;
-    padding: 12px;
-    margin: 6px 0 18px 0;
-    border-radius: 6px;
-    border: 1px solid #ffffff; /* Borda em um tom mais neutro */
-    font-size: 16px; /* Aumenta a fonte para inputs */
-    color: #0000009d;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    padding: 13px;
+    margin: 7px 0 20px 0;
+    border-radius: 7px;
+    border: 1px solid #fff;
+    font-size: 16px;
+    color: #000;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 input[type="text"]:focus,
 input[type="email"]:focus,
 input[type="password"]:focus {
-    border-color: #007bff; /* Mudança: Cor de foco igual à primária (azul) */
-    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25); /* Padrão de anel de foco mais suave (Bootstrap-like) */
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.28rem rgba(0, 123, 255, 0.28);
     outline: none;
 }
 
-/* Botões - Cor Primária (Ação Principal) */
+
 input[type="submit"] {
-    padding: 12px 30px; /* Mais largura */
-    margin-top: 20px;
-    border: 1px solid #007bff; /* Adiciona borda sutil na cor primária */
-    border-radius: 6px;
+    padding: 13px 34px;
+    margin-top: 22px;
+    border: 1px solid #007bff;
+    border-radius: 7px;
     cursor: pointer;
     font-size: 16px;
     font-weight: 600;
-    color: #ffffff;
-    background-color: #007bff; /* Mudança: Azul primário padrão e acessível */
-    transition: all 0.2s;
+    color: #fff;
+    background-color: #007bff;
+    transition: all 0.25s;
 }
 
 input[type="submit"]:hover {
     background-color: #0056b3;
-    border-color: #004085;
-    transform: translateY(-1px);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    border-color: #00408a;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.12);
 }
 
-/* Botões - Ação Secundária (Manter o estilo sóbrio do botão secundário) */
+
 input[type="button"] {
-    padding: 12px 30px;
-    margin-top: 20px;
+    padding: 13px 34px;
+    margin-top: 22px;
     border: 1px solid #6c757d;
-    border-radius: 6px;
+    border-radius: 7px;
     cursor: pointer;
     font-size: 16px;
     font-weight: 600;
-    color: #ffffff;
-    background-color: #dae3eb; /* Cinza Sutil */
-    transition: all 0.2s;
-    margin-right: 10px; /* Para separar do botão primário, se existirem lado a lado */
+    color: #fff;
+    background-color: #cfd8df;
+    transition: all 0.25s;
+    margin-right: 12px;
 }
 
 input[type="button"]:hover {
     background-color: #5a6268;
-    border-color: #545b62;
-    transform: translateY(-1px);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    border-color: #4e555b;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.12);
 }
 
-/* Links */
+
 a {
-    color: #007bff; /* Links com a cor primária para maior destaque */
-    font-size: 15px;
+    color: #007bff;
+    font-size: 16px;
     text-decoration: none;
     font-weight: 500;
     transition: color 0.2s;
@@ -142,23 +136,22 @@ a:hover {
     color: #0056b3;
 }
 
-/* Listas */
+
 ul {
-    list-style-type: none;
+    list-style: none;
     padding-left: 0;
-    margin-bottom: 30px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    border: 1px solid #ced4da;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
-    overflow: hidden; /* Garante que as bordas arredondadas funcionem com os li's */
+    margin-bottom: 34px;
+    background-color: #fff;
+    border-radius: 10px;
+    border: 1px solid #c7ccd1;
+    box-shadow: 0 3px 9px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
 }
 
 li {
-    padding: 12px 20px; /* Padding maior para melhor leitura */
-    margin: 0;
-    border-bottom: 1px solid #f8f9fa; /* Linha divisória muito clara */
-    font-size: 15px;
+    padding: 14px 22px;
+    border-bottom: 1px solid #f1f3f5;
+    font-size: 16px;
 }
 
 li:last-child {
@@ -166,38 +159,30 @@ li:last-child {
 }
 
 
-#gerenciar-turmas{
+#gerenciar-turmas {
     display: inline-flex;
     width: 100%;
     height: 100%;
 }
 
-
-#gerenciar-turmas.suspenso{
+#gerenciar-turmas.suspenso {
     display: none;
 }
 
-#configuracoes-notas{
+#configuracoes-notas {
     display: block;
     align-items: center;
     justify-items: center;
     justify-content: space-between;
-
     width: 40%;
-
-    
 }
 
-#quadro-notas{
+#quadro-notas {
     width: 100%;
-
     align-items: center;
     justify-items: center;
-    
-    
 }
 
-.suspenso{
+.suspenso {
     display: none;
 }
-
