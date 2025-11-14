@@ -7,6 +7,7 @@ NotaDez
 - **Bernardo Castro Brandão de Oliveira** — RA: 25014953
 - **Demétrius valverde Ferreira corradi Junqueira** — RA: 25015035
 - **Gustavo Santos de Oliveira** — RA: 25004239
+- **Matheus Azevedo Teixeira** - RA:25014927
 
 ## 1. Objetivo
  plataforma web para professores gerenciarem turmas, alunos e nota.
