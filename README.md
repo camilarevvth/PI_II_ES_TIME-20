@@ -7,7 +7,7 @@ Sistema para gerenciamento de notas acadêmicas desenvolvido como Projeto Integr
 Gustavo Santos de Oliveira
 Bernardo Castro Brandão de Oliveira 
 Camila Fernandes Costacurta
-Demetrius 
+Demétrius valverde Ferreira corradi Junqueira
 
 ## Tecnologias Utilizadas
 - **Backend:** Node.js com TypeScript e Express
@@ -79,5 +79,6 @@ npm run dev
 - A importação CSV considera apenas as 2 primeiras colunas (matrícula e nome)
 - Notas devem estar entre 0.00 e 10.00
 - A exportação CSV só funciona quando todas as notas foram lançadas
+
 
 
