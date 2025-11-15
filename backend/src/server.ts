@@ -1,26 +1,26 @@
-import express, {Request, Response} from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import * as oracledb from 'oracledb';
 
 //const express = require('express');
 
 const app = express();
-const port:number = 3000;
+const port: number = 3000;
 
-async function initconnection(){ 
-try{
-    oracledb.initOracleClient({//acessar o client(local)
-        libDir : "C:/client_oracle/instantclient-basiclite-windows.x64-23.9.0.25.07/instantclient_23_9"
-    });
-} catch (err){
-    console.log("já inicializado ou erro");
-    console.log(err);
-}
+async function initconnection() {
+    try {
+        oracledb.initOracleClient({//acessar o client(local)
+            libDir: "C:/oracle-client/instantclient-basiclite-windows.x64-23.9.0.25.07/instantclient_23_9"
+        });
+    } catch (err) {
+        console.log("já inicializado ou erro");
+        console.log(err);
+    }
 
-return await oracledb.createPool({
+    return await oracledb.createPool({
         user: "NOTADEZ",
         password: "secretmypass",
-        connectString: "localhost:1521/XEPDB1",
+        connectString: "192.168.15.8:1521/XEPDB1",
         poolMin: 1,
         poolMax: 5,
         poolIncrement: 1
@@ -42,56 +42,57 @@ app.post('/cadastrar', async (req, res) => {
     const senha = req.body.senha;
     const telefone = req.body.telefone;
 
-    let confirm : boolean = false;
+    let confirm: boolean = false;
 
-    try{
+    try {
         const con = await oracledb.getConnection();
 
-        const resultado = await con.execute(`INSERT INTO docentes(nome, email, senha, telefone) VALUES(:nome, :email, :senha, :telefone)`, //execução da conexão e do comando sql(oracle)
-             {nome, email, senha, telefone}, //foranecer os dados necessarios
-            {autoCommit : true}); //salvar a alteração no banco
+        const resultado = await con.execute(`INSERT INTO NOTADEZ.DOCENTE(NOME_DOCENTE, EMAIL_DOCENTE, SENHA, TELEFONE) VALUES(:nome, :email, :senha, :telefone)`, //execução da conexão e do comando sql(oracle)
+            { nome, email, senha, telefone }, //foranecer os dados necessarios
+            { autoCommit: true }); //salvar a alteração no banco
 
-            confirm = true; //comfirmar que deu certo
+        confirm = true; //comfirmar que deu certo
 
         res.json({ //enviar para o front-end
             confirm,
-            message : "cadastro realizado com sucesso"
+            message: "cadastro realizado com sucesso"
         });
 
         await con.close();//fechar a conexão
-    } catch(err){//erro(usuario já cadasstrado)
+    } catch (err) {//erro(usuario já cadasstrado)
 
-         res.status(500);
+        res.status(500);
 
         res.json({
             confirm,
-            message : "usuario já cadasstrado"
+            message: "usuario já cadastrado"
         });
 
-        
+
     }
 
 });
 
 //login
-app.post('/login', async (req:Request, res:Response) => {
+app.post('/login', async (req: Request, res: Response) => {
     const email = req.body.email;
     const senha = req.body.senha;
-        
-    try{
+
+    try {
         const con = await oracledb.getConnection();
 
         const result = await con.execute(`SELECT * FROM docentes WHERE email = :email AND senha = :senha`,
-            {email, senha});
+            { email, senha });
 
-        if(result.rows!.length > 0){
-            return res.json({ mensagem : "sucesso ao fazer login1",
-                usuario : result.rows![0]
-             });
+        if (result.rows!.length > 0) {
+            return res.json({
+                mensagem: "sucesso ao fazer login1",
+                usuario: result.rows![0]
+            });
         }
 
-        res.json({ mensagem : "email ou senha incorretos..."});
-    } catch(err){
+        res.json({ mensagem: "email ou senha incorretos..." });
+    } catch (err) {
         console.error(err);
         res.status(500);
         res.json({ error: "Erro ao realizar login" });
@@ -103,57 +104,57 @@ app.post('/login', async (req:Request, res:Response) => {
 //--\/GERENCIAMENTO DE INSTITUIÇÕES\/--
 
 //buscar todas as instituições
-app.post('/buscartodasinstituicoes', async (req:Request, res:Response) => {
+app.post('/buscartodasinstituicoes', async (req: Request, res: Response) => {
     const id_docente = req.body.id_docente;
 
     const con = await oracledb.getConnection();
-    try{
+    try {
         //obs: não sei o nome da tabela assosiativa de instituições para docentes(então substitui por doc_ins)
-        const code:string = 'SELECT i.* FROM DOCENTES AS D INNER JOIN CADASTROS AS C ON D.ID_DOCENTE = C.ID_DOCENTE INNER JOIN INSTITUICOES AS I ON C.ID_INSTITUICAO = I.ID_INSTITUICAO WHERE D.ID_DOCENTE = :id_docente';
+        const code: string = 'SELECT i.* FROM DOCENTES AS D INNER JOIN CADASTROS AS C ON D.ID_DOCENTE = C.ID_DOCENTE INNER JOIN INSTITUICOES AS I ON C.ID_INSTITUICAO = I.ID_INSTITUICAO WHERE D.ID_DOCENTE = :id_docente';
         const result = await con.execute(code, { id_docente });
 
-        res.json({ instituicoes : result.rows });
+        res.json({ instituicoes: result.rows });
 
-    } catch(err){
-        res.json({ message : "algo deu errado ao buscar instituições" });
-    } finally{
-        if(con){
+    } catch (err) {
+        res.json({ message: "algo deu errado ao buscar instituições" });
+    } finally {
+        if (con) {
             con.close();
         }
     }
 });
 
 //adicionar uma instituição
-app.post('/adicionarinstituicao', async (req:Request, res:Response) => {
+app.post('/adicionarinstituicao', async (req: Request, res: Response) => {
     const nome_instituicao = req.body.nome_instituicao;
-    const con =  await oracledb.getConnection();
-    let confirm:boolean = false;
+    const con = await oracledb.getConnection();
+    let confirm: boolean = false;
 
-    try{
-        const code:string = 'INSERT INTO INSTITUICOES(NOME_INSTITUICAO) VALUES(:nome_instituicoes)'; 
+    try {
+        const code: string = 'INSERT INTO INSTITUICOES(NOME_INSTITUICAO) VALUES(:nome_instituicoes)';
         const result = await con.execute(code, { nome_instituicao });
 
         confirm = true;
         res.json({ confirm });
-    } catch(err){
+    } catch (err) {
 
         res.json({ confirm });
-    } finally{
-        if(con){
+    } finally {
+        if (con) {
             await con.close();
         }
     }
 });
 
 //excluir uma instituição
-app.post('/excluirinstituicao', (req:Request, res:Response) => {
+app.post('/excluirinstituicao', (req: Request, res: Response) => {
 
 });
 
-initconnection().then(() =>{
+initconnection().then(() => {
     app.listen(port, () => {
-            console.log("servidor criado!-porta 3000");
-        })
+        console.log("servidor criado!-porta 3000");
+    })
 });
 
 /*
