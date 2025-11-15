@@ -110,13 +110,13 @@ app.post('/buscartodasinstituicoes', async (req: Request, res: Response) => {
     const con = await oracledb.getConnection();
     try {
         //obs: não sei o nome da tabela assosiativa de instituições para docentes(então substitui por doc_ins)
-        const code: string = 'SELECT i.* FROM DOCENTES AS D INNER JOIN CADASTROS AS C ON D.ID_DOCENTE = C.ID_DOCENTE INNER JOIN INSTITUICOES AS I ON C.ID_INSTITUICAO = I.ID_INSTITUICAO WHERE D.ID_DOCENTE = :id_docente';
-        const result = await con.execute(code, { id_docente });
+        const comando: string = 'SELECT i.* FROM DOCENTES AS D INNER JOIN CADASTROS AS C ON D.ID_DOCENTE = C.ID_DOCENTE INNER JOIN INSTITUICOES AS I ON C.ID_INSTITUICAO = I.ID_INSTITUICAO WHERE D.ID_DOCENTE = :id_docente';
+        const result = await con.execute(comando, { id_docente });
 
-        res.json({ instituicoes: result.rows });
+        res.json({ rows : result.rows });
 
     } catch (err) {
-        res.json({ message: "algo deu errado ao buscar instituições" });
+        res.json({ mensagem: "algo deu errado ao buscar instituições" });
     } finally {
         if (con) {
             con.close();
@@ -146,10 +146,162 @@ app.post('/adicionarinstituicao', async (req: Request, res: Response) => {
     }
 });
 
-//excluir uma instituição
-app.post('/excluirinstituicao', (req: Request, res: Response) => {
+//buscar cursos
+app.post('/', async (req: Request, res: Response) => {
+    const id_ins = req.body.id_ins;
 
+    const con = await oracledb.getConnection();
+    try{
+        const comando:string = '';
+
+        const resultado = await con.execute(comando);
+
+    } catch(err){
+        res.json({
+            message: ""
+        });
+    } finally{
+        if(con){
+            con.close();
+        }
+    }
 });
+
+//adicionar curso
+app.post('/', async (req: Request, res: Response) => {
+    const id_ins = req.body.id_ins;
+
+    const con = await oracledb.getConnection();
+    try{
+        const comando:string = '';
+
+        const resultado = await con.execute(comando);
+
+    } catch(err){
+        res.json({
+            message: ""
+        });
+    } finally{
+        if(con){
+            con.close();
+        }
+    }
+});
+
+//  ||                            ||
+//  ||                            ||
+//--\/GERENCIAMENTO DE DISCIPLINAS\/--
+
+//buscar disciplinas
+app.post('/', async (req: Request, res: Response) => {
+    const id_ins = req.body.id_ins;
+
+    const con = await oracledb.getConnection();
+    try{
+        const comando:string = '';
+
+        const resultado = await con.execute(comando);
+
+    } catch(err){
+        res.json({
+            message: ""
+        });
+    } finally{
+        if(con){
+            con.close();
+        }
+    }
+});
+
+//adicionar disciplina
+app.post('/', async (req: Request, res: Response) => {
+    const id_ins = req.body.id_ins;
+
+    const con = await oracledb.getConnection();
+    try{
+        const comando:string = '';
+
+        const resultado = await con.execute(comando);
+
+    } catch(err){
+        res.json({
+            message: ""
+        });
+    } finally{
+        if(con){
+            con.close();
+        }
+    }
+});
+
+//buscar turmas
+app.post('/', async (req: Request, res: Response) => {
+    const id_ins = req.body.id_ins;
+
+    const con = await oracledb.getConnection();
+    try{
+        const comando:string = '';
+
+        const resultado = await con.execute(comando);
+
+    } catch(err){
+        res.json({
+            message: ""
+        });
+    } finally{
+        if(con){
+            con.close();
+        }
+    }
+});
+
+//adicionar turma
+app.post('/', async (req: Request, res: Response) => {
+    const id_ins = req.body.id_ins;
+
+    const con = await oracledb.getConnection();
+    try{
+        const comando:string = '';
+
+        const resultado = await con.execute(comando);
+
+    } catch(err){
+        res.json({
+            message: ""
+        });
+    } finally{
+        if(con){
+            con.close();
+        }
+    }
+});
+
+//excluir turma
+app.post('/', async (req: Request, res: Response) => {
+    const id_ins = req.body.id_ins;
+
+    const con = await oracledb.getConnection();
+    try{
+        const comando:string = '';
+
+        const resultado = await con.execute(comando);
+
+    } catch(err){
+        res.json({
+            message: ""
+        });
+    } finally{
+        if(con){
+            con.close();
+        }
+    }
+});
+
+//  ||                      ||
+//  ||                      ||
+//--\/GERENCIAMENTO DE NOTAS\/--
+
+//
 
 initconnection().then(() => {
     app.listen(port, () => {
@@ -214,4 +366,26 @@ return await oracledb.createPool({
         poolIncrement: 1
     });
 }
+
+rota modelo
+
+app.post('/', async (req: Request, res: Response) => {
+    const id_ins = req.body.id_ins;
+
+    const con = await oracledb.getConnection();
+    try{
+        const comando:string = '';
+
+        const resultado = await con.execute(comando);
+
+    } catch(err){
+        res.json({
+            message: ""
+        });
+    } finally{
+        if(con){
+            con.close();
+        }
+    }
+});
 */

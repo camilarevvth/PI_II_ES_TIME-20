@@ -305,16 +305,18 @@ async function comfirmarlogin() {
 //==gerenciamento de instituições==
 //buscar instituições
 async function buscarinstituicoes(){
+    const id_usu = usuario[0];
+
     try{
         const response = await fetch('http://localhost:3000/buscartodasinstituicoes', {
             method : "POST",
             headers : { "Content-Type" : "application/json" },
-            body : JSON.stringify({ id_docente : usuario[0] })
+            body : JSON.stringify({ id_docente : id_usu })
         });
 
         const resultado = await response.json();
 
-        return resultado.instituicoes;
+        return resultado.rows;
     } catch(err){
         console.log(err);
     }
@@ -326,12 +328,12 @@ async function enviarnstituicao(nome_instituicao){
         const response = await fetch('http://localhost:3000/adicionarinstituicao', {
             method : "POST",
             headers : { "Content-Type" : "application/json" },
-            body : JSON.stringify({ nome_instituicao })
+            body : JSON.stringify({ nome_instituicao, id_usuario : usuario[0] })
         });
 
         const resultado = await response.json();
 
-        return resultado.confirm;
+        return resultado.mensagem;
     } catch(err){
         console.log(err);
     }
@@ -348,7 +350,7 @@ async function apagarinstituicao(nome_instituicao){
 
         const resultado = await response.json();
 
-        return resultado.confirm;
+        return resultado;
     } catch(err){
         console.log(err);
     }
@@ -358,41 +360,140 @@ async function apagarinstituicao(nome_instituicao){
 //buscar cursos
 async function buscarcursos(){
     const id_ins = selec_ins[0];
+
+    try{
+        const response = await fetch('http://localhost:3000/buscarcursos', {
+            method: 'POST',
+            headers: {
+                "Content-Type" : "application/json"
+            },
+            body: JSON.stringify({ id_ins })
+        });
+
+        const resultado = await response.json();
+
+        return resultado.rows;
+    } catch(err){
+        console.log(err);
+    }
 }
 
 //adicionar cursos
-async function adicionarcurso(){
+async function adicionarcurso(nome_cur){
     const id_ins = selec_ins[0];
+
+    try{
+        const response = await fetch('http://localhost:3000/adicionarcurso', {
+            method: 'POST',
+            headers: {
+                "Content-Type" : "application/json"
+            },
+            body: JSON.stringify({ id_ins, nome_cur })
+        });
+
+        const resultado = await response.json();
+
+        return resultado.mensagem;
+    } catch(err){
+        console.log(err);
+    }
 }
 
 //apagar cursos
-async function apagarcurso() {
+async function apagarcurso(nome_cur) {
     const id_ins = selec_ins[0];
+
+    try{
+        const response = await fetch('http://localhost:3000/apagarcurso', {
+            method: 'POST',
+            headers: {
+                "Content-Type" : "application/json"
+            },
+            body: JSON.stringify({ id_ins, nome_cur })
+        });
+
+        const resultado = await response.json();
+
+        return resultado.mensagem;
+    } catch(err){
+        console.log(err);
+    }
 }
 
 //==gerenciamento de disciplinas==
 //buscar disciplinas
 async function buscardisciplinas(){
     const id_cur = selec_cur[0];
+
+    try{
+        const response = await fetch('http://localhost:3000/buscardisciplinas', {
+            method: 'POST',
+            headers: {
+                "Content-Type" : "application/json"
+            },
+            body: JSON.stringify({ id_cur, nome_dis })
+        });
+
+        const resultado = await response.json();
+
+        return resultado.disciplinas;
+    } catch(err){
+        console.log(err);
+    }
 }
 
 //adicionar disciplinas
-async function adicionardiscplina(nome_disciplina){
+async function adicionardiscplina(nome_dis){
     const id_cur = selec_cur[0];
+
+    try{
+         const response = await fetch('http://localhost:3000/adicionardisciplina', {
+            method: 'POST',
+            headers: {
+                "Content-Type" : "application/json"
+            },
+            body: JSON.stringify({ id_cur, nome_dis })
+        });
+
+        const resultado = await response.json();
+
+        return resultado.mensagem;
+    } catch(err){
+
+    }
 }
 
 //apagar disciplinas
-async function apagardisciplina(nome_disciplina){
+async function apagardisciplina(nome_dis){
     const id_cur = selec_cur[0];
+
+    try{
+         const response = await fetch('http://localhost:3000/adicionarcurso', {
+            method: 'POST',
+            headers: {
+                "Content-Type" : "application/json"
+            },
+            body: JSON.stringify({ id_cur, nome_dis })
+        });
+
+        const resultado = await response.json();
+
+        return resultado.mensagem;
+    } catch(err){
+
+    }
 }
 
 //==gerenciamento de turmas==
-async function buscarturmas(nomedisciplina){
+//buscar turmas
+async function buscarturmas(){
+    const id_dis = selec_dis[0];
+
     try{ 
-        const response = await fetch('http://localhost:3000/buscardisciplina', {
+        const response = await fetch('http://localhost:3000/buscarturmas', {
             method : "POST",
             headers : { "Content-Type" : "application/json" },
-            body : JSON.stringify({ nomedisciplina })
+            body : JSON.stringify({ id_dis })
         });
 
         const resultado = await response.json();
@@ -403,7 +504,48 @@ async function buscarturmas(nomedisciplina){
     }
 }
 
+async function adicionarturma(nome_tur, car_hor, car_dia){
+    const id_dis = selec_dis[0];
 
+    try{
+        const response = await fetch('http://localhost:3000/adicionarturma', {
+            method: 'POST',
+            headers: {
+                "Constent-Type" : "application/json"
+            },
+            body: JSON.stringify({ id_dis, nome_tur, car_hor, car_dia })
+        });
+        
+        const resultado = await response.json();
+
+        return resultado.mensagem;
+    } catch(err){
+        console.log(err);
+    }
+}
+
+//excluir turma
+async function excluirturma(nome_tur){
+    const id_dis = selec_dis[0];
+
+    try{
+        const response = await fetch('http://localhost:3000/excluirturma', {
+            method: 'POST',
+            headers: {
+                "Constent-Type" : "application/json"
+            },
+            body: JSON.stringify({ id_dis, nome_tur })
+        });
+        
+        const resultado = await response.json();
+
+        return response.mensagem;
+    } catch(err){
+        console.log(err);
+    }
+}
+
+//==gerenciamento de notas==
 //tela inicial(login)
 fluxotelas();
 
