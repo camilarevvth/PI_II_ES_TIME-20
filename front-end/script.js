@@ -159,6 +159,7 @@ function mostrarcursos(cur_conteiner){
             adicionarcurso(nome_cur.value).then(resultado => {
                 e.preventDefault();
                 if(resultado.confirm){
+                    adicionarcursorcurso(nome_cur.value);
                     mostrarcursos(cur_conteiner);
                 } else {
                     p_cur.innerText = resultado.mensagem;
@@ -169,8 +170,6 @@ function mostrarcursos(cur_conteiner){
 
 
 }
-
-//criar curso
 
 //excluir curso
 
@@ -234,7 +233,7 @@ function mostrarturmas(dis_conteiner){
 
     buscarturmas().then(resultado => {
         resultado.rows.forEach(turma => {
-            
+
         });
     });
 }
@@ -250,19 +249,10 @@ function atualizarnotas(){
     buscarnotas().then( inforamcoes => {
         inforamcoes.forEach(aluno => {
             const linha = tabela.insertRow();
-            linha.insertCell(0).innerText = aluno[0];
-            linha.insertCell(1).innerText = aluno[1];
-            linha.insertCell(2).innerText = aluno[2];
-            linha.insertCell(3).innerText = aluno[3];
-            linha.insertCell(4).innerText = aluno[4];
-            linha.insertCell(5).innerText = aluno[5];
+
+            
         });
     });
-}
-
-//editar nota
-function editarnota(){
-
 }
 
 //adicionar aluno
@@ -272,13 +262,10 @@ function inseriraluno(){
 
     adicionaraluno(nome).then(resultado => {
         if(resultado.confirm){
-            const tabela = document.getElementById("tabela")
+            const tabela = document.getElementById("tabela");
             const linha = tabela.insertRow(-1);
             linha.insertCell(0).innerText = matricula;
             linha.insertCell(1).innerText = nome;
-            linha.insertCell(2).innerText = "-";
-            linha.insertCell(3).innerText = "-";
-            linha.insertCell(4).innerText = "-";
         } else {
 
         }
@@ -526,8 +513,18 @@ async function excluirturma(nome_tur){
 //tela inicial(login)
 fluxotelas();
 
-
 /*
+-funções de exclusão
+-funções de volta
+
+-importação e exportação csv
+
+-rotas do backend
+
+-atualização do código sql
+
+
+
 organização dos arquivos
 
 /backend
