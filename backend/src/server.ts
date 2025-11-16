@@ -10,7 +10,7 @@ const port: number = 3000;
 async function initconnection() {
     try {
         oracledb.initOracleClient({//acessar o client(local)
-            libDir: "C:/oracle-client/instantclient-basiclite-windows.x64-23.9.0.25.07/instantclient_23_9"
+            libDir: "C:/client_oracle/instantclient-basiclite-windows.x64-23.9.0.25.07/instantclient_23_9"
         });
     } catch (err) {
         console.log("já inicializado ou erro");
@@ -20,7 +20,7 @@ async function initconnection() {
     return await oracledb.createPool({
         user: "NOTADEZ",
         password: "secretmypass",
-        connectString: "192.168.15.8:1521/XEPDB1",
+        connectString: "localhost:1521/XEPDB1",
         poolMin: 1,
         poolMax: 5,
         poolIncrement: 1
@@ -47,7 +47,7 @@ app.post('/cadastrar', async (req, res) => {
     try {
         const con = await oracledb.getConnection();
 
-        const resultado = await con.execute(`INSERT INTO NOTADEZ.DOCENTE(NOME_DOCENTE, EMAIL_DOCENTE, SENHA, TELEFONE) VALUES(:nome, :email, :senha, :telefone)`, //execução da conexão e do comando sql(oracle)
+        const resultado = await con.execute(`INSERT INTO NOTADEZ.DOCENTES(NOME, EMAIL, SENHA, TELEFONE) VALUES(:nome, :email, :senha, :telefone)`, //execução da conexão e do comando sql(oracle)
             { nome, email, senha, telefone }, //foranecer os dados necessarios
             { autoCommit: true }); //salvar a alteração no banco
 
@@ -77,16 +77,19 @@ app.post('/cadastrar', async (req, res) => {
 app.post('/login', async (req: Request, res: Response) => {
     const email = req.body.email;
     const senha = req.body.senha;
+    let confirm:boolean = false;
 
     try {
         const con = await oracledb.getConnection();
 
-        const result = await con.execute(`SELECT * FROM docentes WHERE email = :email AND senha = :senha`,
+        const result = await con.execute(`SELECT * FROM NOTADEZ.DOCENTES WHERE EMAIL = :email AND SENHA = :senha`,
             { email, senha });
 
         if (result.rows!.length > 0) {
+            confirm = true;
             return res.json({
                 mensagem: "sucesso ao fazer login1",
+                confirm,
                 usuario: result.rows![0]
             });
         }
@@ -147,7 +150,7 @@ app.post('/adicionarinstituicao', async (req: Request, res: Response) => {
 });
 
 //buscar cursos
-app.post('/', async (req: Request, res: Response) => {
+app.post('/buscarcursos', async (req: Request, res: Response) => {
     const id_ins = req.body.id_ins;
 
     const con = await oracledb.getConnection();
@@ -168,7 +171,28 @@ app.post('/', async (req: Request, res: Response) => {
 });
 
 //adicionar curso
-app.post('/', async (req: Request, res: Response) => {
+app.post('/adicionarcurso', async (req: Request, res: Response) => {
+    const id_ins = req.body.id_ins;
+
+    const con = await oracledb.getConnection();
+    try{
+        const comando:string = '';
+
+        const resultado = await con.execute(comando);
+
+    } catch(err){
+        res.json({
+            message: ""
+        });
+    } finally{
+        if(con){
+            con.close();
+        }
+    }
+});
+
+//excluir curso
+app.post('/excluircurso', async (req: Request, res: Response) => {
     const id_ins = req.body.id_ins;
 
     const con = await oracledb.getConnection();
@@ -193,7 +217,7 @@ app.post('/', async (req: Request, res: Response) => {
 //--\/GERENCIAMENTO DE DISCIPLINAS\/--
 
 //buscar disciplinas
-app.post('/', async (req: Request, res: Response) => {
+app.post('/buscardisciplinas', async (req: Request, res: Response) => {
     const id_ins = req.body.id_ins;
 
     const con = await oracledb.getConnection();
@@ -214,7 +238,27 @@ app.post('/', async (req: Request, res: Response) => {
 });
 
 //adicionar disciplina
-app.post('/', async (req: Request, res: Response) => {
+app.post('/adicionardisciplina', async (req: Request, res: Response) => {
+    const id_ins = req.body.id_ins;
+
+    const con = await oracledb.getConnection();
+    try{
+        const comando:string = '';
+
+        const resultado = await con.execute(comando);
+
+    } catch(err){
+        res.json({
+            message: ""
+        });
+    } finally{
+        if(con){
+            con.close();
+        }
+    }
+});
+
+app.post('/excluirdisciplina', async (req: Request, res: Response) => {
     const id_ins = req.body.id_ins;
 
     const con = await oracledb.getConnection();
@@ -235,7 +279,7 @@ app.post('/', async (req: Request, res: Response) => {
 });
 
 //buscar turmas
-app.post('/', async (req: Request, res: Response) => {
+app.post('/buscarturmas', async (req: Request, res: Response) => {
     const id_ins = req.body.id_ins;
 
     const con = await oracledb.getConnection();
@@ -256,7 +300,7 @@ app.post('/', async (req: Request, res: Response) => {
 });
 
 //adicionar turma
-app.post('/', async (req: Request, res: Response) => {
+app.post('/adicionarturma', async (req: Request, res: Response) => {
     const id_ins = req.body.id_ins;
 
     const con = await oracledb.getConnection();
@@ -277,7 +321,7 @@ app.post('/', async (req: Request, res: Response) => {
 });
 
 //excluir turma
-app.post('/', async (req: Request, res: Response) => {
+app.post('/excluirturma', async (req: Request, res: Response) => {
     const id_ins = req.body.id_ins;
 
     const con = await oracledb.getConnection();

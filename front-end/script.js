@@ -26,10 +26,27 @@ function fluxotelas(){
             document.getElementById("cadastro")
         ));
 
-    document.getElementById("enviar-cadastro").addEventListener("click", () => {comfirmarcadastro();});
+    document.getElementById("enviar-cadastro").addEventListener("click", () => {comfirmarcadastro()});
 
     //disciplinas e turmas
-    document.getElementById("enviar-login").addEventListener("click", () => { comfirmarlogin()});
+    document.getElementById("enviar-login").addEventListener("click", () => { 
+        comfirmarlogin().then(resultado => {
+            if(resultado.confirm){
+            usuario = resultado.usuario;
+            document.getElementById("login-comfirmar").innerText = resultado.mensagem;
+
+            trocartela(
+                document.getElementById("login"),
+                document.getElementById("gerenciar-instituicoes"));
+
+            document.getElementById("enviar-instituicao").addEventListener("click", () => inseririnstituicao());
+
+            atualizardisciplinas();
+        } else {
+            console.log(resultado.mensagem);
+        }
+        })
+    });
 }
 
 // ======== GERENCIAMENTO DE INSTITUIÇÕES ========
@@ -81,27 +98,12 @@ function inseririnstituicao(){
     });
 }
 
-//excluir instituição
-function excluirinstituicao(){
-    const nome_instituicao = document.getElementById("instituicao-nome").value;
-
-    apagernstituicao(nome_instituicao).then(confirm => {
-         if(confirm){
-            document.getElementById("instituicao-comfirm").innerText = "instituição apagada";
-            atualizarinstituicoes();
-        } else{
-            document.getElementById("instituicao-comfirm").innerText = "essa instituição não existe";
-        };
-    });
-}
-
 //mostrar cursos
 function mostrarcursos(cur_conteiner){
-    const nome_instituicao = selec_ins[1];
 
     cur_conteiner.innerHTML = '';
 
-    buscarcursos(nome_instituicao).then(cursos => {
+    buscarcursos().then(cursos => {
         cursos.forEach(curso => {
             const h3_cur = document.createElement("h3");
 
@@ -112,16 +114,65 @@ function mostrarcursos(cur_conteiner){
             h3_cur.addEventListener('click', () => {
                 selec_cur = curso;
 
-                trocartela(document.getElementById("gerenciar-instituicoes"),
+                trocartela(
+                document.getElementById("gerenciar-instituicoes"),
                 document.getElementById("gerenciar-disciplinas"));
+
+                document.getElementById("form-disciplina")
+                .addEventListener('submit', (e) => {
+                    e.preventDefault();
+                   const nome_dis = document.getElementById("nome-disciplina").value;
+                   const sigla_dis = document.getElementById("sigla-disciplina").value;
+                   const codigo_dis = document.getElementById("codigo-disciplna").value;
+                   const periodo_dis = document.getElementById("periodo-disciplina").value;
+
+                    adicionardiscplina(nome_dis, sigla_dis, codigo_dis, periodo_dis)
+                    .then(resultado => {
+                        if(!resultado.confirm){
+                            document.getElementById("disciplina-confirm").innerText = "essa disciplina já existe";
+                        }
+                    });
+                });
             });
         });
 
+        const form_criarcurso = document.createElement("form");
+        const h2_criar_curso = document.createElement("h2");
+        const nome_cur = document.createElement("input");
+        const p_cur = document.createElement("p");
+        const enviarcurso = document.createElement("input");
 
+        h2_criar_curso.innerText = "Criar Curso";
+
+        nome_cur.setAttribute("type", "text");
+        nome_cur.setAttribute("placeholder", "nome do curso");
+        nome_cur.required = true;
+        enviarcurso.setAttribute("type", "submit");
+
+        form_criarcurso.appendChild(h2_criar_curso);
+        form_criarcurso.appendChild(nome_cur);
+        form_criarcurso.appendChild(p_cur);
+        form_criarcurso.appendChild(enviarcurso);
+        cur_conteiner.appendChild(form_criarcurso);
+
+        form_criarcurso.addEventListener('submit', (e) => {
+            adicionarcurso(nome_cur.value).then(resultado => {
+                e.preventDefault();
+                if(resultado.confirm){
+                    mostrarcursos(cur_conteiner);
+                } else {
+                    p_cur.innerText = resultado.mensagem;
+                }
+            });
+        });
     });
 
 
 }
+
+//criar curso
+
+//excluir curso
 
 // ======== GERENCIAMENTO DE DISCIPLINAS ========
 
@@ -132,65 +183,46 @@ function atualizardisciplinas(){
 
     dis_conteiner.innerHTML = "";
 
-    dis_data.forEach(element => {
-        const disciplina = document.createElement("div");
-        const nome = document.createElement("h2");
-        const tur_conteiner = document.createElement("div");
+    buscardisciplinas().then(resultado => {
+        resultado.rows.forEach(disciplina => {
+            const div_dis = document.createElement("div");
+            const h2_dis = document.createElement("h2");
+            const tur_conteiner = document.createElement("div");
 
-        nome.innerText = element;
-        nome.classList.add("disciplina-nome");
-        tur_conteiner.classList.add("turma-conteiner");
+            h2_dis.innerText = `${disciplina[1]}(${disciplina[2]})`;
+            div_dis.appendChild(h2_dis);
+            div_dis.appendChild(tur_conteiner);
 
-        disciplina.classList.add("disciplina");
-        disciplina.appendChild(nome);
-        disciplina.appendChild(tur_conteiner);
+            dis_conteiner.appendChild(div_dis);
 
-        dis_conteiner.appendChild(disciplina);
+            h2_dis.addEventListener('click', (e) => {
+                if(selec_dis != null){
+                    if(selec_dis == disciplina){
+                        tur_conteiner.innerHTML = '';
+                    } else {
+                        selec_dis = disciplina;
+
+                        mostrarturmas();
+                    }
+                } else {
+                    selec_dis = disciplina;
+
+                    mostrarturmas();
+                }
+            });
+        });
     });
 
-    const toda_disciplina = dis_conteiner.getElementsByClassName("disciplina");
     
-    for(let i = 0; i < toda_disciplina.length; i++){
-        toda_disciplina[i].addEventListener("click", (e) => {
-            console.log("apertou");
-
-            if(selec_dis == null){
-                selec_dis = e.currentTarget;
-                mostrarturmas(selec_dis);
-            } else {
-                selec_dis.querySelector(".turma-conteiner").innerHTML = "";
-
-                if(selec_dis == e.currentTarget){
-                    selec_dis = null;
-                } else {
-                    selec_dis = e.currentTarget;
-                    mostrarturmas(selec_dis);
-                }
-            }
-        });
-    }
 }
 
 //inserir disciplinas
 function inserirdisciplina(){
-    const ins_nome = document.getElementById("instituicao-nome").value;
+    const form_disciplina = document.getElementById("form-disciplina").value;
 
-    ins_data.push(ins_nome);
+    
 
     atualizardisciplinas();
-}
-
-//excluir disciplinas
-function excluirdisciplina(){
-    const dis_nome = document.getElementById("instituicao-nome").value;
-
-    for(let i = 0; i < ins_data.length; i++){
-        if(ins_data[i] == ins_nome){
-            ins_data.splice(i, 1);
-        }
-    };
-
-    atualizarinstituicoes();
 }
 
 //mostrar turmas ao selecionar a disciplina
@@ -233,13 +265,31 @@ function mostrarturmas(disciplina){
 
 // ======== GERENCIAMENTO DE TURMAS ========
 
-async function atualizaralunos(){
-    
+
+
+//==gerenciamento de notas==
+//adicionar aluno
+function inseriraluno(){
+    const matricula = document.getElementById("matricula-aluno").value;
+    const nome = document.getElementById("nome-aluno").value;
+
+    adicionaraluno(nome).then(resultado => {
+        if(resultado.confirm){
+            const tabela = document.getElementById("tabela")
+            const linha = tabela.insertRow(-1);
+            linha.insertCell(0).innerText = matricula;
+            linha.insertCell(1).innerText = nome;
+            linha.insertCell(2).innerText = "-";
+            linha.insertCell(3).innerText = "-";
+            linha.insertCell(4).innerText = "-";
+        } else {
+
+        }
+    });
+
 }
 
-function cadastraralunos(){
 
-}
 
 // ======== VALIDAÇÕES E GERENCIAMENTO DE DADOS========
 //registro de usuarios
@@ -262,6 +312,8 @@ async function comfirmarcadastro(){
 
         document.getElementById("cadastro-resultado").innerText = resultado.message;
 
+        return resultado.confirm;
+
     } catch(err){
         console.log(err);
     }
@@ -282,21 +334,7 @@ async function comfirmarlogin() {
 
         const resultado = await response.json();
 
-        if(resultado.comfirm){
-            usuario = resultado.usuario;
-
-
-            trocartela(
-                document.getElementById("login"),
-                document.getElementById("gerenciar-instituicoes"));
-
-            document.getElementById("enviar-instituicao").addEventListener("click", () => inseririnstituicao());
-            document.getElementById("excluir-instituicao").addEventListener("click", () => excluirinstituicao());
-
-            atualizardisciplinas();
-        } else {
-            console.log(resultado.mensagem);
-        }
+        return resultado;
     } catch(err){
         console.log(err);
     }
@@ -329,23 +367,6 @@ async function enviarnstituicao(nome_instituicao){
             method : "POST",
             headers : { "Content-Type" : "application/json" },
             body : JSON.stringify({ nome_instituicao, id_usuario : usuario[0] })
-        });
-
-        const resultado = await response.json();
-
-        return resultado.mensagem;
-    } catch(err){
-        console.log(err);
-    }
-}
-
-//excluir instituição
-async function apagarinstituicao(nome_instituicao){
-    try{
-        const response = await fetch('http://localhost:3000/adicionarinstituicao', {
-            method : "POST",
-            headers : { "Content-Type" : "application/json" },
-            body : JSON.stringify({ nome_instituicao })
         });
 
         const resultado = await response.json();
@@ -393,28 +414,7 @@ async function adicionarcurso(nome_cur){
 
         const resultado = await response.json();
 
-        return resultado.mensagem;
-    } catch(err){
-        console.log(err);
-    }
-}
-
-//apagar cursos
-async function apagarcurso(nome_cur) {
-    const id_ins = selec_ins[0];
-
-    try{
-        const response = await fetch('http://localhost:3000/apagarcurso', {
-            method: 'POST',
-            headers: {
-                "Content-Type" : "application/json"
-            },
-            body: JSON.stringify({ id_ins, nome_cur })
-        });
-
-        const resultado = await response.json();
-
-        return resultado.mensagem;
+        return resultado;
     } catch(err){
         console.log(err);
     }
@@ -463,27 +463,6 @@ async function adicionardiscplina(nome_dis){
     }
 }
 
-//apagar disciplinas
-async function apagardisciplina(nome_dis){
-    const id_cur = selec_cur[0];
-
-    try{
-         const response = await fetch('http://localhost:3000/adicionarcurso', {
-            method: 'POST',
-            headers: {
-                "Content-Type" : "application/json"
-            },
-            body: JSON.stringify({ id_cur, nome_dis })
-        });
-
-        const resultado = await response.json();
-
-        return resultado.mensagem;
-    } catch(err){
-
-    }
-}
-
 //==gerenciamento de turmas==
 //buscar turmas
 async function buscarturmas(){
@@ -511,7 +490,7 @@ async function adicionarturma(nome_tur, car_hor, car_dia){
         const response = await fetch('http://localhost:3000/adicionarturma', {
             method: 'POST',
             headers: {
-                "Constent-Type" : "application/json"
+                "Content-Type" : "application/json"
             },
             body: JSON.stringify({ id_dis, nome_tur, car_hor, car_dia })
         });
@@ -532,7 +511,7 @@ async function excluirturma(nome_tur){
         const response = await fetch('http://localhost:3000/excluirturma', {
             method: 'POST',
             headers: {
-                "Constent-Type" : "application/json"
+                "Content-Type" : "application/json"
             },
             body: JSON.stringify({ id_dis, nome_tur })
         });
@@ -545,7 +524,6 @@ async function excluirturma(nome_tur){
     }
 }
 
-//==gerenciamento de notas==
 //tela inicial(login)
 fluxotelas();
 
@@ -557,6 +535,7 @@ organização dos arquivos
     |-dist
     |-src
     |   |-server.ts
+    |-oracle.sql
     |-package.json
     |-package-lock.json
     |-tsconfig.json

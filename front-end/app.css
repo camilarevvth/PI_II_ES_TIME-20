@@ -225,6 +225,14 @@ li:last-child {
     justify-items: center;
 }
 
+.opcao-nome{
+    background-color: white;
+    border-radius: 6px;
+}
+
+.opcao div{
+    display: inline-flex;
+}
 .suspenso {
     display: none;
 }
