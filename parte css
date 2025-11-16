@@ -1,0 +1,253 @@
+/*
+    Autor: Demetrius Valverde Ferreira Corradi Junqueira e Matheus Azevedo Teixeira
+    Arquivo: app.css
+    Descrição: Protótipo CSS do sistema NotaDez. Contém a estilização de telas de login, cadastro de usuário, cadastro de instituições, disciplinas/turmas, cadastro de alunos, painel de auditoria e botões de exportação. 
+*/
+
+/* Logo principal do sistema no topo da página */
+#title {
+    max-width: 320px;          /* Largura máxima para não ficar muito grande */
+    display:block;              /* Faz o elemento ocupar toda a largura disponível */
+    margin: 0 auto 25px auto;   /* Centraliza o logo e adiciona espaço embaixo */
+}
+
+/* Estilo geral do corpo da página */
+body {
+    font-family: 'Verdana', sans-serif;                        /* Fonte padrão do sistema */
+    background-image: linear-gradient(to right, #e8ecf3, #cfd5df);  /* Gradiente de fundo cinza claro */
+    color: #2e2e2e;            /* Cor do texto principal */
+    padding: 25px;             /* Espaçamento interno da página */
+    line-height: 1.65;         /* Altura da linha para melhor leitura */
+}
+
+/* ======== TITULOS ======== */
+
+/* Estilo para todos os títulos (h1 a h4) */
+h1, h2, h3, h4 {
+    font-family: 'Segoe UI', sans-serif;  /* Fonte diferente para os títulos */
+}
+
+/* Estilo para subtítulos h2 */
+h2 {
+    margin-top: 30px;          /* Espaço superior */
+    margin-bottom: 12px;       /* Espaço inferior */
+    color: #3a3a3a;           /* Cor do texto */
+    border-left: 4px solid #4a6fa5;  /* Barra lateral azul para destacar */
+    padding-left: 12px;        /* Espaço entre a barra e o texto */
+}
+
+/* ======== FORMULÁRIOS ======== */
+
+/* Estilo base para todos os formulários */
+form {
+    background: #ffffff;       /* Fundo branco */
+    padding: 22px;            /* Espaçamento interno */
+    border-radius: 10px;      /* Bordas arredondadas */
+    margin-bottom: 32px;      /* Espaço entre formulários */
+    border: 1px solid #d7d7d7; /* Borda cinza clara */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);  /* Sombra suave para dar profundidade */
+}
+
+/* Título principal da página */
+h1 {
+    text-align: center;        /* Centraliza o título */
+    margin-bottom: 40px;       /* Aumenta o espaço inferior */
+    color: rgb(0, 0, 255);     /* Cor azul para o título principal */
+    font-size: 32px;          /* Tamanho grande do título */
+    font-weight: 700;         /* Texto em negrito */
+    /* Linha decorativa abaixo do título para separar visualmente */
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 10px;     /* Espaço entre o texto e a linha */
+}
+
+/* Subtítulos (h2) - estilização mais refinada */
+h2 {
+    margin-top: 35px;
+    margin-bottom: 18px;
+    color: #4c4c4c;           /* Cor cinza escuro */
+    /* Barra de destaque na lateral esquerda com cor azul */
+    border-left: 5px solid #007bff;
+    padding-left: 15px;       /* Espaço entre a barra e o texto */
+    font-size: 24px;          /* Tamanho do subtítulo */
+    font-weight: 600;         /* Peso médio do texto */
+}
+
+/* Subtítulos menores (h3) */
+h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: #495057;           /* Cinza escuro suave */
+    font-size: 18px;          /* Tamanho médio */
+    font-weight: 500;         /* Peso regular */
+}
+
+/* Estilo para os formulários - versão melhorada */
+form {
+    background-color: #ffffff;
+    padding: 30px;            /* Padding maior para visual mais premium */
+    border-radius: 12px;      /* Bordas mais arredondadas */
+    margin-bottom: 35px;
+    border: 1px solid #dee2e6; /* Borda mais fina e clara */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);  /* Sombra mais destacada */
+}
+
+/* Cor do texto de placeholder (dica dentro dos campos de input) */
+input::placeholder {
+    color: rgb(65, 65, 65);   /* Cinza escuro para os placeholders */
+}
+
+/* Estilo para todos os campos de input de texto */
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    background-color: #cccccc; /* Fundo cinza claro */
+    width: 100%;              /* Ocupa toda a largura disponível */
+    padding: 12px;            /* Espaçamento interno */
+    margin: 6px 0 18px 0;     /* Espaço acima e abaixo */
+    border-radius: 6px;       /* Bordas arredondadas */
+    border: 1px solid #ffffff; /* Borda branca (não muito visível) */
+    font-size: 16px;          /* Tamanho da fonte */
+    color: #0000009d;         /* Cor do texto (preto com transparência) */
+    transition: border-color 0.2s, box-shadow 0.2s;  /* Animação suave ao focar */
+}
+
+/* Quando o usuário clica no input (estado de foco) */
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus {
+    border-color: #007bff;    /* Borda azul quando está em foco */
+    /* Anel de foco azul suave ao redor do campo */
+    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+    outline: none;            /* Remove o contorno padrão do navegador */
+}
+
+/* Botões de submit (enviar formulário) - Cor Primária */
+input[type="submit"] {
+    padding: 12px 30px;       /* Espaçamento interno (vertical e horizontal) */
+    margin-top: 20px;         /* Espaço acima do botão */
+    border: 1px solid #007bff; /* Borda azul */
+    border-radius: 6px;       /* Bordas arredondadas */
+    cursor: pointer;          /* Cursor muda para "mãozinha" ao passar o mouse */
+    font-size: 16px;          /* Tamanho da fonte */
+    font-weight: 600;         /* Texto em negrito */
+    color: #ffffff;           /* Texto branco */
+    background-color: #007bff; /* Fundo azul primário */
+    transition: all 0.2s;     /* Animação suave em todas as propriedades */
+}
+
+/* Quando o mouse passa sobre o botão de submit */
+input[type="submit"]:hover {
+    background-color: #0056b3; /* Azul mais escuro ao passar o mouse */
+    border-color: #004085;     /* Borda ainda mais escura */
+    transform: translateY(-1px); /* Levanta o botão um pouco (efeito visual) */
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1); /* Sombra mais forte */
+}
+
+/* Botões de ação secundária (não são submit) */
+input[type="button"] {
+    padding: 12px 30px;
+    margin-top: 20px;
+    border: 1px solid #6c757d; /* Borda cinza */
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;           /* Texto branco */
+    background-color: #dae3eb; /* Fundo cinza claro */
+    transition: all 0.2s;
+    margin-right: 10px;       /* Espaço à direita para separar de outros botões */
+}
+
+/* Quando o mouse passa sobre o botão secundário */
+input[type="button"]:hover {
+    background-color: #5a6268; /* Cinza mais escuro ao passar o mouse */
+    border-color: #545b62;
+    transform: translateY(-1px); /* Efeito de "levanta" */
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Links */
+a {
+    color: #007bff;           /* Cor azul para os links */
+    font-size: 15px;
+    text-decoration: none;    /* Remove o sublinhado padrão */
+    font-weight: 500;         /* Peso médio */
+    transition: color 0.2s;   /* Animação suave na mudança de cor */
+}
+
+/* Quando o mouse passa sobre o link */
+a:hover {
+    text-decoration: underline; /* Adiciona sublinhado ao passar o mouse */
+    color: #0056b3;           /* Azul mais escuro */
+}
+
+/* Listas (ul) */
+ul {
+    list-style-type: none;    /* Remove as bolinhas padrão da lista */
+    padding-left: 0;          /* Remove o recuo padrão */
+    margin-bottom: 30px;
+    background-color: #ffffff; /* Fundo branco */
+    border-radius: 8px;       /* Bordas arredondadas */
+    border: 1px solid #ced4da; /* Borda cinza clara */
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05); /* Sombra suave */
+    overflow: hidden;         /* Garante que as bordas arredondadas funcionem */
+}
+
+/* Itens da lista (li) */
+li {
+    padding: 12px 20px;       /* Espaçamento interno maior para melhor leitura */
+    margin: 0;
+    border-bottom: 1px solid #f8f9fa; /* Linha divisória muito clara entre itens */
+    font-size: 15px;
+}
+
+/* Remove a borda do último item da lista */
+li:last-child {
+    border-bottom: none;
+}
+
+/* Container principal da tela de gerenciamento de turmas */
+/* Usa flexbox para colocar elementos lado a lado */
+#gerenciar-turmas {
+    display: inline-flex;     /* Layout flexível em linha */
+    width: 100%;              /* Ocupa toda a largura */
+    height: 100%;             /* Ocupa toda a altura */
+}
+
+/* Quando a tela de turmas está escondida (suspensa) */
+#gerenciar-turmas.suspenso {
+    display: none;            /* Não mostra o elemento */
+}
+
+/* Painel lateral com configurações de notas */
+#configuracoes-notas {
+    display: block;           /* Layout em bloco */
+    align-items: center;      /* Alinha itens verticalmente ao centro */
+    justify-items: center;    /* Alinha itens horizontalmente ao centro */
+    justify-content: space-between; /* Distribui espaço entre elementos */
+    width: 40%;               /* Ocupa 40% da largura disponível */
+}
+
+/* Área principal com o quadro de notas */
+#quadro-notas {
+    width: 100%;              /* Ocupa toda a largura restante */
+    align-items: center;      /* Centraliza verticalmente */
+    justify-items: center;    /* Centraliza horizontalmente */
+}
+
+/* Estilo para os títulos das opções no painel lateral */
+.opcao-nome {
+    background-color: white;  /* Fundo branco */
+    border-radius: 6px;       /* Bordas arredondadas */
+}
+
+/* Container dentro das opções - layout flexível */
+.opcao div {
+    display: inline-flex;     /* Itens lado a lado */
+}
+
+/* Classe utilitária para esconder elementos */
+/* Usada para trocar de tela (mostrar/esconder divs) */
+.suspenso {
+    display: none;            /* Esconde o elemento completamente */
+}
