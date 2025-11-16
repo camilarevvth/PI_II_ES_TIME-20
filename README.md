@@ -52,10 +52,9 @@ Exemplo:
 
 ## 6. Banco de Dados
 ### Modelos SQL (BR Modelo)
-Modelo Conceitual: <img width="1201" height="486" alt="Captura de tela 2025-11-11 161810" src="https://github.com/user-attachments/assets/da148d81-0c7a-4945-8f8c-4a7908f8a0e0" />
+Modelo Conceitual: <img width="1205" height="486" alt="image" src="https://github.com/user-attachments/assets/08125cd4-4c03-4315-840f-bdfaafb20ddc" />
 
-
-Modelo Logico: <img width="1205" height="481" alt="Captura de tela 2025-11-11 164906" src="https://github.com/user-attachments/assets/a2830fa0-ccf7-43e0-a305-878fad053b15" />
+Modelo Logico: <img width="1205" height="483" alt="image" src="https://github.com/user-attachments/assets/7be4eed6-0dfc-4167-9324-25b2ecb6a1dd" />
 
 
 Modelo Físico (Oracle/VS):
