@@ -226,48 +226,45 @@ function inserirdisciplina(){
 }
 
 //mostrar turmas ao selecionar a disciplina
-function mostrarturmas(disciplina){
+function mostrarturmas(dis_conteiner){
 
     let tur_conteiner = disciplina.querySelector(".turma-conteiner");
 
     tur_conteiner.innerHTML = "";
 
-    buscarturmas().then(tur_data => {
-
-        for(let i = 0; i < tur_data.length; i++){
-            if(tur_data[i].disciplina == disciplina.querySelector(".disciplina-nome").innerText){
-                tur_data[i].forEach(turma => {
-                    const nome = document.createElement("h3");
-
-                    nome.innerText = turma.nome;
-                    nome.classList.add("turma");
-
-                    tur_conteiner.appendChild(nome);
-                });
-
-                break;
-            }
-        }
-
-        const toda_turma = tur_conteiner.getElementsByClassName("turma");
-
-        for(let i = 0; i < toda_turma.length; i++){
-            toda_turma[i].addEventListener("click", () => {
-                selec_tur = toda_turma[i].innerText;
-
-                trocartela(
-                    document.getElementById("gerenciar-disciplinas"),
-                    document.getElementById("gerenciar-turmas"));
-            });
-        };
+    buscarturmas().then(resultado => {
+        resultado.rows.forEach(turma => {
+            
+        });
     });
 }
 
-// ======== GERENCIAMENTO DE TURMAS ========
-
-
-
 //==gerenciamento de notas==
+//atualizar tabela
+function atualizarnotas(){
+    const tab_conteiner = document.getElementById("tabela-corpo");
+    const tabela = document.getElementById("tabela");
+
+    tab_conteiner.innerHTML = '';
+
+    buscarnotas().then( inforamcoes => {
+        inforamcoes.forEach(aluno => {
+            const linha = tabela.insertRow();
+            linha.insertCell(0).innerText = aluno[0];
+            linha.insertCell(1).innerText = aluno[1];
+            linha.insertCell(2).innerText = aluno[2];
+            linha.insertCell(3).innerText = aluno[3];
+            linha.insertCell(4).innerText = aluno[4];
+            linha.insertCell(5).innerText = aluno[5];
+        });
+    });
+}
+
+//editar nota
+function editarnota(){
+
+}
+
 //adicionar aluno
 function inseriraluno(){
     const matricula = document.getElementById("matricula-aluno").value;
@@ -289,7 +286,9 @@ function inseriraluno(){
 
 }
 
+//editar peso
 
+//calcular nota final
 
 // ======== VALIDAÇÕES E GERENCIAMENTO DE DADOS========
 //registro de usuarios
