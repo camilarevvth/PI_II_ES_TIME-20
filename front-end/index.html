@@ -19,12 +19,12 @@
   <img id="title" src="0-removebg-preview.png" alt="N0TADEZ Logo Principal">
 
   <!-- ========================================================= -->
-  <!-- ======================== LOGIN =========================== -->
+  <!-- ======================== LOGIN ========================== -->
   <!-- ========================================================= -->
   
   <!-- Container principal para login e cadastro de usuários -->
   <!-- A classe "suspenso" esconde essa div quando não estamos nessa tela -->
-  <div id="registrousuarios" class="">
+  <div id="registrar-usuarios" class="">
     
     <!-- Formulário de login -->
     <div id="login" class="">
@@ -59,87 +59,89 @@
       </div>
     </div>
   </div>
-
-  <!-- ========================================================= -->
-  <!-- ========== INSTITUIÇÃO / CURSOS ========================= -->
-  <!-- ========================================================= -->
   
   <!-- Tela de gerenciamento de instituições -->
   <!-- Começa suspenso (escondido), só aparece depois do login -->
-  <div id="gerenciar-instituicoes" class="">
-    <div id="instituicoes">
-      <h2>Instituições</h2>
-      <!-- Container onde vamos listar as instituições cadastradas -->
-      <!-- O JavaScript vai preencher isso dinamicamente -->
-      <div id="instituicao-conteiner">
-      </div>
+  <!-- ========================================================= -->
+  <!-- =================== INSTITUIÇÕES ======================== -->
+  <!-- ========================================================= -->
+  <div id="gerenciar-instituicoes">
+    <h1>Instituições</h1>
+    <div id="instituicoes-conteiner">
 
-      <!-- Formulário para cadastrar uma nova instituição -->
-      <div>
-        <form id="form-instituicao">
-          <h3>Cadastro de Instituições</h3>
-          <input id="instituicao-nome" type="text" placeholder="Instituição" required><br>
-          <!-- Mensagem de confirmação ou erro ao cadastrar instituição -->
-          <p id="instituicao-comfirm"></p>
-          <button id="enviar-instituicao">criar</button>
-        </form>
-      </div>
+    </div>
+    <div>
+      <h1>Gerenciar instituições</h1>
+      <input id="nome-instituicao" type="text" placeholder="Nome da instituição">
+      <p id="confirm-instituicao"></p>
+      <button id="enviar-instituicao">Criar instituição</button>
+      <button id="excluir-instituicao">Excluir por nome</button>
     </div>
   </div>
 
   <!-- ========================================================= -->
-  <!-- ========== TURMAS / DISCILPINAS ========================= -->
+  <!-- ======================== CURSOS ========================= -->
   <!-- ========================================================= -->
-  
-  <!-- Tela de gerenciamento de disciplinas e turmas -->
-  <!-- Também começa suspensa, aparece quando selecionamos uma instituição -->
-  <div id="gerenciar-disciplinas" class="">
-    
-    <!-- Seção de disciplinas -->
-    <div id="disciplinas">
-      <!-- Container onde vamos listar as disciplinas cadastradas -->
-      <div id="disciplina-conteiner">
-      </div>
 
-      <!-- Formulário para criar uma nova disciplina -->
-      <div>
-        <form id="form-disciplina">
-          <h2>Criar Disciplina</h2>
-          <input id="nome-disciplina" type="text" placeholder="Nome da disciplina" required><br>
-          <input id="sigla-disciplina" type="text" placeholder="Sigla" required><br>
-          <input id="codigo" type="text" placeholder="Código do curso" required><br>
-          <input id="periodo-disciplina" type="text" placeholder="Período da disciplina" required><br><br>
-          <!-- Mensagem de confirmação ao criar disciplina -->
-          <p id="disciplina-confirm"></p>
-          <input type="submit" placeholder="adicionar">
-        </form>
-      </div>
+  <div id="gerenciar-cursos">
+    <h1>Cursos</h1>
+    <div id="cursos-conteiner">
+
     </div>
-
-    <!-- Seção de turmas -->
-    <div id="turmas">
-      <!-- Container onde vamos listar as turmas cadastradas -->
-      <div id="turma_conteiner">
-      </div>
-
-      <!-- Formulário para criar uma nova turma -->
-      <div>
-        <h2>Criar turma</h2>
-        <input type="text" placeholder="Horário da turma" required><br>
-        <input type="text" placeholder="Dia da turma" required><br>
-        <input type="text" placeholder="Local da turma" required><br>
-        <button type="button">Adicionar nova turma</button><br><br>
-      </div>
-    </div>
+    <form>
+      <input id="nome-curso" type="text">
+      <p id="confirm-curso"></p>
+      <input id="enviar-curso" type="submit">
+      <button id="excluir-curso">
+    </form>
   </div>
 
   <!-- ========================================================= -->
-  <!-- ========== GERENCIAMENTO DE TURMAS ====================== -->
+  <!-- =================== DISCILPINAS ========================= -->
+  <!-- ========================================================= -->
+
+  <div id="gerenciar-disciplinas">
+    <h1>Disciplinas</h1>
+    <div id="disciplinas-conteiner">
+
+    </div>
+    <form>
+      <input id="disciplina-nome" type="text">
+      <input id="disciplina-sigla" type="text">
+      <input id="disciplina-periodo" type="number">
+      <p id="confirm-disciplina"></p>
+      <input id="enviar-disciplina" type="submit">
+      <button id="excluir-disciplina">
+    </form>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- ======================== TURMAS ========================= -->
+  <!-- ========================================================= -->
+
+  <div id="gerenciar-turmas">
+    <h1>Turmas</h1>
+    <div id="turmas-conteiner">
+
+    </div>
+    <form>
+      <input id="turma-nome" type="text">
+      <input id="turma-horario" type="text">
+      <input id="turma-dia" type="datetime">
+      <input id="turma-local" type="text">
+      <p id="confirm-turma"></p>
+      <input id="enviar-turma" type="submit">
+      <button id="excluir-turma">
+    </form>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- =========== GERENCIAMENTO DE NOTAS ====================== -->
   <!-- ========================================================= -->
   
   <!-- Tela principal de gerenciamento de notas -->
   <!-- Essa é a tela que aparece por padrão quando a página carrega -->
-  <div id="gerenciar-turmas" class="">
+  <div id="gerenciar-notas" class="suspenso">
     
     <!-- Painel lateral com configurações e opções -->
     <div id="configuracoes-notas">
@@ -153,6 +155,7 @@
             <input type="text" id="matricula-aluno" placeholder="Matrícula" >
             <input type="text" id="nome-aluno" placeholder="Nome" >
             <input type="submit" id="enviar-aluno">
+             <button>apagar aluno</button>
           </form>
         </div>
       </div>
@@ -166,9 +169,9 @@
             <input id="sigla-componente" type="text" placeholder="sigla(EX: P1)">
             <input id="descricao" type="text" placeholder="descrição">
             <select id="peso-componente">
-            <option value="1">Peso 1</option>
-            <option value="2">Peso 2</option>
-            <option value="3">Peso 3</option> 
+              <option value="1">Peso 1</option>
+              <option value="2">Peso 2</option>
+              <option value="3">Peso 3</option> 
             </select><br>
 
             <input type="submit">
@@ -182,6 +185,12 @@
         <div class="opcao">
           <form>
             <h4>Média Final</h4>
+            <select id="peso-final">
+              <option value="1">Peso 1</option>
+              <option value="2">Peso 2</option>
+              <option value="3">Peso 3</option> 
+            </select><br>
+            <input type="text" id="peso-porcentagem">
             <div>
               <!-- Botões para escolher entre média aritmética ou ponderada -->
               <button>Aritmética</button>
@@ -210,6 +219,9 @@
           <tr>
             <th>Matrícula</th>
             <th>Nome</th>
+            <th>P1</th>
+            <th>P3</th>
+            <th>P2</th>
           </tr>
         </thead>
         <!-- O JavaScript vai preencher isso dinamicamente -->
@@ -218,6 +230,9 @@
           <tr>
             <td>11111</td>
             <td>Gustas</td>
+            <td>P1</td>
+            <td>P2</td>
+            <td>P3</td>
           </tr>
         </tbody>
       </table>

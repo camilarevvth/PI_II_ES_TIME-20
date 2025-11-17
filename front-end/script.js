@@ -3,11 +3,57 @@
     Arquivo: script.js
     Descrição:  
 *///dados temporarios
+
 let usuario = null;
 let selec_ins = null;
 let selec_cur = null;
 let selec_dis = null;
 let selec_tur = null;
+
+
+document.getElementById("enviar-instituicao").addEventListener('click', (e) => {
+    const nome = document.getElementById("nome-instituicao").value;
+
+    adicionarinstituicao(nome).then(resultado => {
+        if(resultado.confirm){
+            atualizarinstituicoes();
+            document.getElementById("confirm-instituicao").innerText = "instituição adicionada";
+        } else {
+            document.getElementById("confirm-instituicao").innerText = "não foi possivel criar a instituição";
+        }
+    });
+});
+document.getElementById("excluir-instituicao").addEventListener('click', (e) => {
+    const nome = document.getElementById("nome-instituicao").value;
+
+    excluirinstituicao(nome).then(resultado => {
+        if(resultado.confirm){
+            atualizarinstituicoes();
+            document.getElementById("confirm-instituicao").innerText = "instituição excluida";
+        } else {
+            document.getElementById("confirm-instituicao").innerText = "não foi possivel excluir a instituição";
+        }
+    });
+});
+
+document.getElementById("enviar-curso").addEventListener('click', (e) => {
+    
+});
+document.getElementById("excluir-curso").addEventListener('click', (e) => {
+    e.preventDefault();
+});
+document.getElementById("enviar-disciplina").addEventListener('click', (e) => {
+    
+});
+document.getElementById("excluir-disciplina").addEventListener('click', (e) => {
+    e.preventDefault();
+});
+document.getElementById("enviar-turma").addEventListener('click', (e) => {
+    
+});
+document.getElementById("excluir-turma").addEventListener('click', (e) => {
+    
+});
 
 // ======== FLUXO DE TELAS ========
 
@@ -57,126 +103,123 @@ function fluxotelas(){
 
 //mostrar instituicoes
 function atualizarinstituicoes(){
-    const ins_conteiner = document.getElementById("instituicao-conteiner");
+    const ins_conteiner = document.getElementById("instituicoes-conteiner");
 
     ins_conteiner.innerHTML = '';
 
     buscarinstituicoes().then(instituicoes => {
         instituicoes.forEach(instituicao => {
-            const div_ins = document.createElement("div");
             const h2_ins = document.createElement("h2");
-            const cur_conteiner = document.createElement("div");
 
             h2_ins.innerText = instituicao[1];
             h2_ins.classList.add("instituicao");
-            cur_conteiner.classList.add("curso-conteiner");
 
             div_ins.appendChild(h2_ins);
-            div_ins.appendChild(cur_conteiner);
-            ins_conteiner.appendChild(div_ins);
 
             h2_ins.addEventListener('click', (e) => {
+
+                selec_ins = instituicao;
                 
-                if(cur_conteiner.innerHTML != ''){
-                    cur_conteiner.innerHTML = '';
-                } else {
-                    selec_ins = instituicao;
-                    mostrarcursos(cur_conteiner);
-                }
+                trocartela(
+                    document.getElementById("gerenciar-instituicoes"),
+                    document.getElementById("gerenciar-cursos")
+                );
+
+                atualizarcursos();
             })
         });
     });
 }
 
-//criar instituição
-function inseririnstituicao(){
-    const nome_instituicao = document.getElementById("instituicao-nome").value;
-
-    enviarnstituicao(nome_instituicao).then(confirm => {
-        if(confirm){
-            document.getElementById("instituicao-comfirm").innerText = "instituição criada";
-            atualizarinstituicoes();
-        } else{
-            document.getElementById("instituicao-comfirm").innerText = "essa instituição já existe";
-        };
-    });
-}
-
 //mostrar cursos
-function mostrarcursos(cur_conteiner){
+function atualizarcursos(){
+    const cur_conteiner = document.getElementById("cursos-conteiner");
 
     cur_conteiner.innerHTML = '';
 
     buscarcursos().then(cursos => {
         cursos.forEach(curso => {
-            const h3_cur = document.createElement("h3");
+            const h2_cur = document.createElement("h2");
 
-            h3_cur.innerText = curso[1];
+            h2_cur.innerText = curso[1];
+            h2_cur.classList.add("curso");
 
-            cur_conteiner.appendChild(h3_cur);
+            cur_conteiner.appendChild(h2_cur);
 
-            h3_cur.addEventListener('click', () => {
+            h2_cur.addEventListener('click', (e) => {
+
                 selec_cur = curso;
-
+                
                 trocartela(
-                document.getElementById("gerenciar-instituicoes"),
-                document.getElementById("gerenciar-disciplinas"));
+                    document.getElementById("gerenciar-cursos"),
+                    document.getElementById("gerenciar-disciplinas")
+                );
 
-                document.getElementById("form-disciplina")
-                .addEventListener('submit', (e) => {
-                    e.preventDefault();
-                   const nome_dis = document.getElementById("nome-disciplina").value;
-                   const sigla_dis = document.getElementById("sigla-disciplina").value;
-                   const codigo_dis = document.getElementById("codigo-disciplna").value;
-                   const periodo_dis = document.getElementById("periodo-disciplina").value;
-
-                    adicionardiscplina(nome_dis, sigla_dis, codigo_dis, periodo_dis)
-                    .then(resultado => {
-                        if(!resultado.confirm){
-                            document.getElementById("disciplina-confirm").innerText = "essa disciplina já existe";
-                        }
-                    });
-                });
-            });
-        });
-
-        const form_criarcurso = document.createElement("form");
-        const h2_criar_curso = document.createElement("h2");
-        const nome_cur = document.createElement("input");
-        const p_cur = document.createElement("p");
-        const enviarcurso = document.createElement("input");
-
-        h2_criar_curso.innerText = "Criar Curso";
-
-        nome_cur.setAttribute("type", "text");
-        nome_cur.setAttribute("placeholder", "nome do curso");
-        nome_cur.required = true;
-        enviarcurso.setAttribute("type", "submit");
-
-        form_criarcurso.appendChild(h2_criar_curso);
-        form_criarcurso.appendChild(nome_cur);
-        form_criarcurso.appendChild(p_cur);
-        form_criarcurso.appendChild(enviarcurso);
-        cur_conteiner.appendChild(form_criarcurso);
-
-        form_criarcurso.addEventListener('submit', (e) => {
-            adicionarcurso(nome_cur.value).then(resultado => {
-                e.preventDefault();
-                if(resultado.confirm){
-                    adicionarcursorcurso(nome_cur.value);
-                    mostrarcursos(cur_conteiner);
-                } else {
-                    p_cur.innerText = resultado.mensagem;
-                }
-            });
+                atualizardisciplinas();
+            })
         });
     });
-
-
 }
 
-//excluir curso
+//mostrar disciplinas
+function atualizardisciplinas(){
+    const dis_conteiner = document.getElementById("disciplinas-conteiner");
 
+    dis_conteiner.innerHTML = '';
+
+    buscardisciplinas().then(disciplinas => {
+        disciplinas.forEach(disciplina => {
+            const h2_dis = document.createElement("h2");
+
+            h2_dis.innerText = `${disciplina[1]}(${disciplina[2]})périodo`;
+            h2_dis.classList.add("disciplina");
+
+            dis_conteiner.appendChild(h2_dis);
+
+            h2_dis.addEventListener('click', (e) => {
+
+                selec_dis = disciplina;
+                
+                trocartela(
+                    document.getElementById("gerenciar-disciplinas"),
+                    document.getElementById("gerenciar-turmas")
+                );
+
+                atualizarturmas();
+            })
+        });
+    });
+}
+
+//mostrar turmas
+function atualizarturmas(){
+    const tur_conteiner = document.getElementById("turmas-conteiner");
+
+    tur_conteiner.innerHTML = '';
+
+    buscarturmas().then(turmas => {
+        turmas.forEach(turma => {
+            const h2_tur = document.createElement("h2");
+
+            h2_tur.innerText = `${disciplina[1]}`;
+            h2_tur.classList.add("turma");
+
+            tur_conteiner.appendChild(h2_dis);
+
+            h2_tur.addEventListener('click', (e) => {
+
+                selec_tur = turma;
+                
+                trocartela(
+                    document.getElementById("gerenciar-turmas"),
+                    document.getElementById("gerenciar-notas")
+                );
+
+                atualizarnotas();
+            })
+        });
+    });
+}
 
 // ======== GERENCIAMENTO DE DISCIPLINAS ========
 
@@ -429,7 +472,24 @@ async function buscarinstituicoes(){
 }
 
 //adicionar instituição
-async function enviarnstituicao(nome_instituicao){
+async function enviarinstituicao(nome_instituicao){
+    try{
+        const response = await fetch('http://localhost:3000/adicionarinstituicao', {
+            method : "POST",
+            headers : { "Content-Type" : "application/json" },
+            body : JSON.stringify({ nome_instituicao, id_usuario : usuario[0] })
+        });
+
+        const resultado = await response.json();
+
+        return resultado;
+    } catch(err){
+        console.log(err);
+    }
+}
+
+//apagar instituição
+async function excluirinstituicao(nome_instituicao){
     try{
         const response = await fetch('http://localhost:3000/adicionarinstituicao', {
             method : "POST",
@@ -609,6 +669,8 @@ async function buscarnotas(){
 
 //tela inicial(login)
 fluxotelas();
+
+
 
 /*
 -funções de exclusão

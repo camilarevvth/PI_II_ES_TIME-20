@@ -56,7 +56,8 @@ CREATE TABLE notadez.disciplinas (
   id_disciplina NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   sigla_disciplina VARCHAR2(20) NOT NULL,
   nome_disciplina VARCHAR2(100) NOT NULL,
-  periodo VARCHAR2(20) NOT NULL   -- CORRIGIDO! DATE NÃO FAZ SENTIDO
+  periodo VARCHAR2(20) NOT NULL,   -- CORRIGIDO! DATE NÃO FAZ SENTIDO
+  FOREIGN KEY (id_curso) REFERENCES notadez.cursos(id_curso)
 );
 
 -------------------------------------------------------------------------------

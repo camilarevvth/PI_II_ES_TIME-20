@@ -7,11 +7,11 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import * as oracledb from 'oracledb';
-import { Parser } from "json2csv";
-import multer from "multer";
-import csv from "csv-parser";
-import fs from "fs";
-import  upload  from "../upload";
+//import { Parser } from "json2csv";
+//import multer from "multer";
+//import csv from "csv-parser";
+//import fs from "fs";
+//import  upload  from "../upload";
 
 const app = express();
 const port: number = 3000;
@@ -637,6 +637,7 @@ app.post('/excluirturma', async (req: Request, res: Response) => {
     }
 });
 
+/*
 app.post('/importaralunos', async (req: Request, res: Response) => {
   const filePath = req.body.file.path;
   const alunos: any[] = [];
@@ -678,7 +679,7 @@ app.post('/importaralunos', async (req: Request, res: Response) => {
         });
       }
     });
-});
+});*/
 
 //buscar tabela de notas
 app.post('/buscarnotas', async (req: Request, res: Response) => {
