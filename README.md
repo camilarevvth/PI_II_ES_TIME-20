@@ -1,7 +1,21 @@
 # Sistema NotaDez
 
 ## Descrição
-Sistema para gerenciamento de notas acadêmicas desenvolvido como Projeto Integrador 2.
+Descrição do Projeto
+
+O NotaDez é um sistema web desenvolvido para facilitar a gestão de notas e informações de turmas acadêmicas. Ele permite que docentes se cadastrem e organizem suas disciplinas, turmas e estudantes de maneira simples e eficiente. Através da plataforma, os professores podem:
+
+Gerenciar instituições, cursos, disciplinas e turmas, incluindo a criação e exclusão de turmas.
+
+Cadastrar e importar alunos para turmas via arquivos CSV .
+
+Cadastrar componentes de nota, como provas e atividades, e calcular automaticamente as notas finais dos alunos com base em uma fórmula escolhida pelo docente.
+
+Auditoria de notas é uma parte do trabalho na qual especifica quem foi o aluno que tirou a nota especificada da disciplina.
+
+Exportar as notas para arquivos CSV 
+
+O sistema foi desenvolvido utilizando Node.js com TypeScript para o backend, HTML, CSS,  e um banco de dados (Oracle) para armazenamento de dados.
 
 ## Equipe
 - Camila Fernandes Costacurta — RA: 25012949
@@ -80,6 +94,7 @@ npm run dev
 - A importação CSV considera apenas as 2 primeiras colunas (matrícula e nome)
 - Notas devem estar entre 0.00 e 10.00
 - A exportação CSV só funciona quando todas as notas foram lançadas
+
 
 
 
