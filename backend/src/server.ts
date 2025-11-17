@@ -1,6 +1,17 @@
+/*
+    Autor: Gustavo Santos de Oliveira
+    Arquivo: server.ts
+    Descrição: 
+    */
+
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import * as oracledb from 'oracledb';
+import { Parser } from "json2csv";
+import multer from "multer";
+import csv from "csv-parser";
+import fs from "fs";
+import  upload  from "../upload";
 
 const app = express();
 const port: number = 3000;
@@ -626,29 +637,84 @@ app.post('/excluirturma', async (req: Request, res: Response) => {
     }
 });
 
+app.post('/importaralunos', async (req: Request, res: Response) => {
+  const filePath = req.body.file.path;
+  const alunos: any[] = [];
+
+  fs.createReadStream(filePath)
+    .pipe(csv())
+    .on('data', (linha:any) => {
+      // Espera-se colunas: nome_aluno
+      const { nome_aluno } = linha;
+      if (nome_aluno && nome_aluno.trim() !== "") {
+        alunos.push({ nome_aluno });
+      }
+    })
+    .on('end', async () => {
+      const conn = await oracledb.getConnection();
+
+      try {
+        for (const aluno of alunos) {
+          await conn.execute(
+            `
+            INSERT INTO notadez.alunos (nome_aluno)
+            VALUES (:nome_aluno)
+            `,
+            { nome_aluno: aluno.nome_aluno }
+          );
+        }
+
+        await conn.commit();
+        res.send({
+          sucesso: true,
+          mensagem: `${alunos.length} alunos importados com sucesso!`
+        });
+
+      } catch (err: any) {
+        console.error(err);
+        res.status(500).send({
+          sucesso: false,
+          erro: err.message
+        });
+      }
+    });
+});
+
 //buscar tabela de notas
 app.post('/buscarnotas', async (req: Request, res: Response) => {
-  const { id_turma, id_disciplina } = req.body;
+    
+        const { id_turma, id_disciplina } = req.body;
 
-  const conn = await  oracledb.getConnection();
+        const conn = await  oracledb.getConnection();
 
   try {
+    //ra, aluno, componente, p1, p2, p3
     const result = await conn.execute(
-      `
-      SELECT A.ra_aluno, N.valor_final, T.nome_turma, C.nome_componente FROM notadez.auditoria_notas A
+      `SELECT A.ra_aluno, id_componente, p1, p2, p3, valor_final FROM notadez.auditoria_notas A
       JOIN notadez.turma T ON A.id_turma = T.id_turma
       JOIN notadez.componentes_nota C ON C.id_disciplina = A.id_disciplina
       JOIN notadez.notas N ON N.ra_aluno = A.ra_aluno 
-      AND N.id_componente = A.id_componente WHERE A.ra_aluno = :ra_aluno
-      `,
-      { ra_aluno }
+      AND N.id_componente = A.id_componente 
+      WHERE T.id_turma = :id_turma AND C.id_turma = :id_turma`,
+      { id_turma, id_disciplina }
     );
 
+    
     return res.json(result.rows);
   } catch (err) {
     console.error(err);
     return res.status(500).send('Erro ao buscar notas');
   }
+  const parser = new Parser();
+  const csv = parser.parse(rsult.rows);
+  
+
+  res.header("Content-Type", "text/csv");
+  
+
+  res.header("Content-Type", "text/csv");
+  res.attachment("notas.csv");
+  return res.send(csv);
 });
 /*maticula, nome, nota, turma, disciplina*/ 
 

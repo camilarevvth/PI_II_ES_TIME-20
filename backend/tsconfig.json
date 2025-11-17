@@ -1,4 +1,8 @@
-{
+/*
+    Autor: Camila Fernandes Costacurta
+    Arquivo: tsconfig.json
+    Descrição:  
+*/{
   "compilerOptions":{
     "target": "es2020",
     "module": "commonjs",

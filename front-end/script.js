@@ -1,4 +1,8 @@
-//dados temporarios
+/*
+    Autor: Gustavo Santos de Oliveira
+    Arquivo: script.js
+    Descrição:  
+*///dados temporarios
 let usuario = null;
 let selec_ins = null;
 let selec_cur = null;
@@ -173,6 +177,7 @@ function mostrarcursos(cur_conteiner){
 
 //excluir curso
 
+
 // ======== GERENCIAMENTO DE DISCIPLINAS ========
 
 //mostrar disciplinas
@@ -225,35 +230,48 @@ function inserirdisciplina(){
 }
 
 //mostrar turmas ao selecionar a disciplina
-function mostrarturmas(dis_conteiner){
-
-    let tur_conteiner = disciplina.querySelector(".turma-conteiner");
-
+function mostrarturmas(){
+    const dis_conteiner = document.getElementById("disciplina-conteiner");
+    const tur_conteiner = dis_conteiner.querySelector(".turma-conteiner");
     tur_conteiner.innerHTML = "";
 
-    buscarturmas().then(resultado => {
-        resultado.rows.forEach(turma => {
+    buscarturmas().then(turmas => {
+        turmas.forEach(turma => {
+            const h3 = document.createElement("h3");
+            h3.innerText = `${turma[1]} (${turma[2]}) ${turma[3]}`;
 
+            h3.addEventListener("click", () => {
+                selec_tur = turma;
+                trocartela(
+                    document.getElementById("gerenciar-disciplinas"),
+                    document.getElementById("gerenciar-notas")
+                );
+                atualizarnotas();
+            });
+
+            tur_conteiner.appendChild(h3);
         });
     });
 }
+
 
 //==gerenciamento de notas==
 //atualizar tabela
 function atualizarnotas(){
-    const tab_conteiner = document.getElementById("tabela-corpo");
     const tabela = document.getElementById("tabela");
+    tabela.innerHTML = ""; // limpa tabela
 
-    tab_conteiner.innerHTML = '';
-
-    buscarnotas().then( inforamcoes => {
-        inforamcoes.forEach(aluno => {
+    buscarnotas().then(informacoes => {
+        informacoes.forEach(aluno => {
             const linha = tabela.insertRow();
 
-            
+            linha.insertCell(0).innerText = aluno.MATRICULA;
+            linha.insertCell(1).innerText = aluno.NOME;
+            linha.insertCell(2).innerText = aluno.VALOR_FINAL;
         });
     });
 }
+
 
 //adicionar aluno
 function inseriraluno(){
@@ -273,9 +291,73 @@ function inseriraluno(){
 
 }
 
-//editar peso
+//adicionar componente
+async function adicionarcomponente(nome, peso, idTurma) {
+    try {
+        const response = await fetch("http://localhost:3000/adicionarcomponente", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                nome_componente: nome,
+                peso_componente: peso,
+                id_turma: idTurma
+            })
+        });
+
+        const result = await response.json();
+        console.log("Componente adicionado:", result);
+        return result;
+    } catch (error) {
+        console.error("Erro ao adicionar componente:", error);
+    }
+}
+
+
 
 //calcular nota final
+async function calcularnotafinal(matricula) {
+    try {
+        const response = await fetch("http://localhost:3000/calcularnotafinal", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ matricula })
+        });
+
+        const result = await response.json();
+        console.log("Nota final calculada:", result.valor_final);
+        return result.valor_final;
+    } catch (error) {
+        console.error("Erro ao calcular nota final:", error);
+    }
+}
+
+
+//editar nota
+async function editarnota(matricula, idComponente, novaNota) {
+    try {
+        const response = await fetch("http://localhost:3000/editarnota", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                matricula: matricula,
+                id_componente: idComponente,
+                valor_nota: novaNota
+            })
+        });
+
+        const result = await response.json();
+        console.log("Nota editada:", result);
+
+        //recalcular nota final automaticamente
+        await calcularnotafinal(matricula);
+        await atualizarnotas();
+        return result;
+
+    } catch (error) {
+        console.error("Erro ao editar nota:", error);
+    }
+}
+
 
 // ======== VALIDAÇÕES E GERENCIAMENTO DE DADOS========
 //registro de usuarios
@@ -490,21 +572,36 @@ async function adicionarturma(nome_tur, car_hor, car_dia){
 }
 
 //excluir turma
-async function excluirturma(nome_tur){
-    const id_dis = selec_dis[0];
-
+async function excluirturma(id_turma){
     try{
         const response = await fetch('http://localhost:3000/excluirturma', {
             method: 'POST',
             headers: {
                 "Content-Type" : "application/json"
             },
-            body: JSON.stringify({ id_dis, nome_tur })
+            body: JSON.stringify({ id_turma })
         });
-        
-        const resultado = await response.json();
 
-        return response.mensagem;
+        const resultado = await response.json();
+        return resultado;
+    } catch(err){
+        console.log(err);
+    }
+}
+
+async function buscarnotas(){
+    const id_turma = selec_tur[0];
+    const id_disciplina = selec_dis[0];
+
+    try{
+        const response = await fetch('http://localhost:3000/buscarnotas', {
+            method : "POST",
+            headers : { "Content-Type" : "application/json" },
+            body : JSON.stringify({ id_turma })
+        });
+
+        const resultado = await response.json();
+        return resultado.rows;
     } catch(err){
         console.log(err);
     }
