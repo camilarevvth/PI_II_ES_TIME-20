@@ -50,7 +50,8 @@ form {
 input[type="text"],
 input[type="email"],
 input[type="password"],
-input[type="tel"] {
+input[type="tel"],
+input[type="number"] {
     width: 100%;
     padding: 12px;
     margin: 8px 0 18px 0;
@@ -60,6 +61,16 @@ input[type="tel"] {
     font-size: 15px;
     transition: all 0.2s ease;
     box-sizing: border-box;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
 }
 
 input::placeholder {
@@ -235,3 +246,4 @@ tbody tr:hover {
         font-size: 13px;
     }
 }
+
