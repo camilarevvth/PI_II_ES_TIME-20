@@ -4,10 +4,10 @@ NotaDez
 
 ## Integrantes
 - **Camila Fernandes Costacurta** — RA: 25012949  
-- **Bernardo Castro Brandão de Oliveira** — RA: 25014953 
+- **Bernardo Castro Brandão de Oliveira** — RA: 25014953
 - **Demétrius valverde Ferreira corradi Junqueira** — RA: 25015035
-- **Gustavo Santos de Oliveira** - RA:000000
-- **Matheus Azevedo Teixeira** -  RA:000000
+- **Gustavo Santos de Oliveira** — RA: 25004239
+- **Matheus Azevedo Teixeira** - RA:25014927
 
 ## 1. Objetivo
  plataforma web para professores gerenciarem turmas, alunos e nota.
