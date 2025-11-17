@@ -4,6 +4,10 @@
     Descrição: Protótipo CSS do sistema NotaDez. Contém a estilização de telas de login, cadastro de usuário, cadastro de instituições, disciplinas/turmas, cadastro de alunos, painel de auditoria e botões de exportação. 
 */
 
+/* ========================================================= */
+/* ==================== LOGO E BODY ======================== */
+/* ========================================================= */
+
 #title {
     max-width: 320px;
     display:block;
@@ -32,6 +36,10 @@ h2 {
     border-left: 4px solid #4a6fa5;
     padding-left: 12px;
 }
+
+/* ========================================================= */
+/* ======================= FORMULÁRIOS ==================== */
+/* ========================================================= */
 
 .form {
     background: #ffffff;
@@ -84,6 +92,10 @@ input:focus {
     outline: none;
 }
 
+/* ========================================================= */
+/* ======================== BOTÕES ========================= */
+/* ========================================================= */
+
 button,
 input[type="button"],
 input[type="submit"] {
@@ -102,6 +114,7 @@ input[type="submit"] {
     box-shadow: 0 3px 8px rgba(0,0,0,0.08);
 }
 
+/* Botões principais (submit, enviar-login, enviar-cadastro) */
 input[type="submit"],
 button[type="submit"],
 button#enviar-login,
@@ -121,6 +134,7 @@ button#adicionar-turma:hover {
     box-shadow: 0 6px 14px rgba(0,0,0,0.15);
 }
 
+/* Botões secundários (voltar, excluir, outros auxiliares) */
 button:not([type="submit"]):not(#enviar-login):not(#enviar-cadastro):not(#adicionar-turma),
 input[type="button"] {
     background: #d6dce4;
@@ -133,6 +147,34 @@ input[type="button"]:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 14px rgba(0,0,0,0.12);
 }
+
+/* Classe específica para botões secundários (voltar, apagar, cancelar) */
+.botao-voltar {
+    background: #d6dce4;             
+    color: #2e2e2e;                  
+    border: none;                    
+    border-radius: 8px;               
+    padding: 12px 28px;               
+    font-size: 15px;                  
+    font-weight: 600;                
+    cursor: pointer;                  
+    transition: 0.25s ease;           
+    display: inline-flex;             
+    align-items: center;
+    justify-content: center;
+    gap: 6px;                         
+    box-shadow: 0 3px 8px rgba(0,0,0,0.08); 
+}
+
+.botao-voltar:hover {
+    background: #c3ccd7;              
+    transform: translateY(-2px);      
+    box-shadow: 0 6px 14px rgba(0,0,0,0.12); 
+}
+
+/* ========================================================= */
+/* ====================== LISTAS =========================== */
+/* ========================================================= */
 
 ul {
     list-style-type: none;
@@ -152,6 +194,10 @@ li:last-child {
     border-bottom: none;
 }
 
+/* ========================================================= */
+/* ====================== VISIBILIDADE ==================== */
+/* ========================================================= */
+
 .suspenso {
     display: none;
 }
@@ -159,6 +205,10 @@ li:last-child {
 .visivel {
     display: block;
 }
+
+/* ========================================================= */
+/* ====================== LAYOUT TURMAS =================== */
+/* ========================================================= */
 
 #gerenciar-turmas {
     display: flex;
@@ -175,6 +225,10 @@ li:last-child {
 #quadro-notas {
     width: 100%;
 }
+
+/* ========================================================= */
+/* ====================== TABELAS ========================= */
+/* ========================================================= */
 
 table {
     width: 100%;
@@ -201,6 +255,10 @@ tbody tr:hover {
     background: #f3f6fb;
 }
 
+/* ========================================================= */
+/* ====================== OPÇÕES ========================== */
+/* ========================================================= */
+
 .opcao-nome {
     background: white;
     padding: 6px;
@@ -213,6 +271,10 @@ tbody tr:hover {
     flex-wrap: wrap;
     gap: 10px;
 }
+
+/* ========================================================= */
+/* ====================== RESPONSIVO ====================== */
+/* ========================================================= */
 
 @media (max-width: 900px) {
     #gerenciar-turmas {
@@ -246,4 +308,3 @@ tbody tr:hover {
         font-size: 13px;
     }
 }
-
