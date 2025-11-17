@@ -49,23 +49,27 @@ npm install
 
 3. Configure o banco de dados:
    - Execute o script `oracle.sql` no Oracle Database
-   - Ajuste as credenciais em `backend.ts` (linha 16-20)
+   - Ajuste as credenciais em `src/server.ts` 
 
 4. Inicie o servidor:
 ```bash
 npm start
 ```
 
-5. Abra o arquivo `parte.html` no navegador
+5. Abra o arquivo `front-end/index.html` no navegador
 
 ## Estrutura do Projeto
 ```
 backend/
-├── backend.ts          # Servidor backend com todas as rotas
-├── parte.html          # Interface frontend
+├── src/
+     └── server.ts       # Servidor backend com todas as rotas
 ├── oracle.sql          # Script de criação do banco de dados
-├── package.json        # Dependências do projeto
-└── tsconfig.json       # Configuração TypeScript
+├── package.json
+└── tsconfig.json
+
+front-end/
+└── index.html          # Interface frontend
+
 ```
 
 ## Funcionalidades
@@ -81,7 +85,7 @@ backend/
 ## Configuração do Banco de Dados
 O sistema utiliza o usuário `NOTADEZ` no Oracle Database. Certifique-se de:
 1. Criar o usuário conforme o script `oracle.sql`
-2. Ajustar a string de conexão em `backend.ts` conforme seu ambiente
+2. Ajustar a string de conexão em `src/server.ts` conforme seu ambiente
 
 ## Desenvolvimento
 Para desenvolvimento com hot-reload:
