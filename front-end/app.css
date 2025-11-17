@@ -33,7 +33,7 @@ h2 {
     padding-left: 12px;
 }
 
-form {
+.form {
     background: #ffffff;
     padding: 22px;
     border-radius: 10px;
@@ -224,7 +224,7 @@ tbody tr:hover {
         width: 100%;
     }
 
-    form {
+    #form {
         padding: 18px;
     }
 

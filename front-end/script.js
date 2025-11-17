@@ -14,7 +14,7 @@ let selec_tur = null;
 document.getElementById("enviar-instituicao").addEventListener('click', (e) => {
     const nome = document.getElementById("nome-instituicao").value;
 
-    adicionarinstituicao(nome).then(resultado => {
+    enviarinstituicao(nome).then(resultado => {
         if(resultado.confirm){
             atualizarinstituicoes();
             document.getElementById("confirm-instituicao").innerText = "instituição adicionada";
@@ -37,22 +37,83 @@ document.getElementById("excluir-instituicao").addEventListener('click', (e) => 
 });
 
 document.getElementById("enviar-curso").addEventListener('click', (e) => {
-    
+    const nome = document.getElementById("nome-curso").value;
+
+    enviarcurso(nome).then(resultado => {
+        if(resultado.confirm){
+            atualizarcursos();
+            document.getElementById("confirm-curso").innerText = resultado.mensagem;
+        } else {
+            document.getElementById("confirm-curso").innerText = resultado.mensagem;
+        }
+    });
 });
 document.getElementById("excluir-curso").addEventListener('click', (e) => {
-    e.preventDefault();
+    const nome = document.getElementById("nome-curso").value;
+
+    excluircurso(nome).then(resultado => {
+        if(resultado.confirm){
+            atualizarcursos();
+            document.getElementById("confirm-curso").innerText = resultado.mensagem;
+        } else {
+            document.getElementById("confirm-curso").innerText = resultado.mensagem;
+        }
+    });
 });
+
 document.getElementById("enviar-disciplina").addEventListener('click', (e) => {
-    
+    const sigla = document.getElementById("sigla-disciplina").value;
+    const nome = document.getElementById("nome-disciplina").value;
+    const periodo = document.getElementById("periodo-disciplina").value;
+
+    enviardiscplina(sigla, nome, periodo).then(resultado => {
+        if(resultado.confirm){
+            atualizardisciplinas();
+            document.getElementById("confirm-disciplina").innerText = resultado.mensagem;
+        } else {
+            document.getElementById("confirm-disciplina").innerText = resultado.mensagem;
+        }
+    });
 });
 document.getElementById("excluir-disciplina").addEventListener('click', (e) => {
-    e.preventDefault();
+    const nome = document.getElementById("nome-disciplina").value;
+
+    excluirdisciplina(nome).then(resultado => {
+        if(resultado.confirm){
+            atualizardisciplinas();
+            document.getElementById("confirm-disciplina").innerText = resultado.mensagem;
+        } else {
+            document.getElementById("confirm-disciplina").innerText = resultado.mensagem;
+        }
+    });
 });
+
 document.getElementById("enviar-turma").addEventListener('click', (e) => {
-    
+    const nome = document.getElementById("nome-turma").value;
+    const horario = document.getElementById("horario-turma").value;
+    const local = document.getElementById("local-turma").value;
+    const dia = document.getElementById("dia-turma").value;
+
+    enviardiscplina(nome, horario, local, dia).then(resultado => {
+        if(resultado.confirm){
+            atualizarturmas();
+            document.getElementById("confirm-turma").innerText = resultado.mensagem;
+        } else {
+            document.getElementById("confirm-turma").innerText = resultado.mensagem;
+        }
+    });
 });
 document.getElementById("excluir-turma").addEventListener('click', (e) => {
-    
+    const nome = document.getElementById("nome-turma").value;
+
+    excluirturma(nome).then(resultado => {
+        if(resultado.confirm){
+            atualizarturmas();
+            document.getElementById("confirm-turma").innerText = resultado.mensagem;
+        } else {
+            document.getElementById("confirm-turma").innerText = resultado.mensagem;
+        }
+    });
 });
 
 // ======== FLUXO DE TELAS ========
@@ -99,7 +160,7 @@ function fluxotelas(){
     });
 }
 
-// ======== GERENCIAMENTO DE INSTITUIÇÕES ========
+// ======== GERENCIAMENTO DE TELAS ========
 
 //mostrar instituicoes
 function atualizarinstituicoes(){
@@ -221,83 +282,6 @@ function atualizarturmas(){
     });
 }
 
-// ======== GERENCIAMENTO DE DISCIPLINAS ========
-
-//mostrar disciplinas
-function atualizardisciplinas(){
-
-    const dis_conteiner = document.getElementById("disciplina-conteiner");
-
-    dis_conteiner.innerHTML = "";
-
-    buscardisciplinas().then(resultado => {
-        resultado.rows.forEach(disciplina => {
-            const div_dis = document.createElement("div");
-            const h2_dis = document.createElement("h2");
-            const tur_conteiner = document.createElement("div");
-
-            h2_dis.innerText = `${disciplina[1]}(${disciplina[2]})`;
-            div_dis.appendChild(h2_dis);
-            div_dis.appendChild(tur_conteiner);
-
-            dis_conteiner.appendChild(div_dis);
-
-            h2_dis.addEventListener('click', (e) => {
-                if(selec_dis != null){
-                    if(selec_dis == disciplina){
-                        tur_conteiner.innerHTML = '';
-                    } else {
-                        selec_dis = disciplina;
-
-                        mostrarturmas();
-                    }
-                } else {
-                    selec_dis = disciplina;
-
-                    mostrarturmas();
-                }
-            });
-        });
-    });
-
-    
-}
-
-//inserir disciplinas
-function inserirdisciplina(){
-    const form_disciplina = document.getElementById("form-disciplina").value;
-
-    
-
-    atualizardisciplinas();
-}
-
-//mostrar turmas ao selecionar a disciplina
-function mostrarturmas(){
-    const dis_conteiner = document.getElementById("disciplina-conteiner");
-    const tur_conteiner = dis_conteiner.querySelector(".turma-conteiner");
-    tur_conteiner.innerHTML = "";
-
-    buscarturmas().then(turmas => {
-        turmas.forEach(turma => {
-            const h3 = document.createElement("h3");
-            h3.innerText = `${turma[1]} (${turma[2]}) ${turma[3]}`;
-
-            h3.addEventListener("click", () => {
-                selec_tur = turma;
-                trocartela(
-                    document.getElementById("gerenciar-disciplinas"),
-                    document.getElementById("gerenciar-notas")
-                );
-                atualizarnotas();
-            });
-
-            tur_conteiner.appendChild(h3);
-        });
-    });
-}
-
-
 //==gerenciamento de notas==
 //atualizar tabela
 function atualizarnotas(){
@@ -314,7 +298,6 @@ function atualizarnotas(){
         });
     });
 }
-
 
 //adicionar aluno
 function inseriraluno(){
@@ -354,8 +337,6 @@ async function adicionarcomponente(nome, peso, idTurma) {
         console.error("Erro ao adicionar componente:", error);
     }
 }
-
-
 
 //calcular nota final
 async function calcularnotafinal(matricula) {
@@ -457,7 +438,7 @@ async function buscarinstituicoes(){
     const id_usu = usuario[0];
 
     try{
-        const response = await fetch('http://localhost:3000/buscartodasinstituicoes', {
+        const response = await fetch('http://localhost:3000/buscarinstituicoes', {
             method : "POST",
             headers : { "Content-Type" : "application/json" },
             body : JSON.stringify({ id_docente : id_usu })
@@ -548,9 +529,30 @@ async function adicionarcurso(nome_cur){
     }
 }
 
+//apagar curso
+async function excluircurso(nome_cur){
+    const id_ins = selec_ins[0];
+
+    try{
+        const response = await fetch('http://localhost:3000/apagarcurso', {
+            method: 'POST',
+            headers: {
+                "Content-Type" : "application/json"
+            },
+            body: JSON.stringify({ id_ins, nome_cur })
+        });
+
+        const resultado = await response.json();
+
+        return resultado;
+    } catch(err){
+        console.log(err);
+    }
+}
+
 //==gerenciamento de disciplinas==
 //buscar disciplinas
-async function buscardisciplinas(){
+async function buscardisciplinas(nome_dis){
     const id_cur = selec_cur[0];
 
     try{
@@ -564,7 +566,7 @@ async function buscardisciplinas(){
 
         const resultado = await response.json();
 
-        return resultado.disciplinas;
+        return resultado.rows;
     } catch(err){
         console.log(err);
     }
@@ -585,7 +587,28 @@ async function adicionardiscplina(nome_dis){
 
         const resultado = await response.json();
 
-        return resultado.mensagem;
+        return resultado;
+    } catch(err){
+
+    }
+}
+
+//apagar disciplinas
+async function adicionardiscplina(nome_dis){
+    const id_cur = selec_cur[0];
+
+    try{
+         const response = await fetch('http://localhost:3000/apagardisciplina', {
+            method: 'POST',
+            headers: {
+                "Content-Type" : "application/json"
+            },
+            body: JSON.stringify({ id_cur, nome_dis })
+        });
+
+        const resultado = await response.json();
+
+        return resultado;
     } catch(err){
 
     }
@@ -611,6 +634,7 @@ async function buscarturmas(){
     }
 }
 
+//adicionar turma
 async function adicionarturma(nome_tur, car_hor, car_dia){
     const id_dis = selec_dis[0];
 
@@ -632,14 +656,15 @@ async function adicionarturma(nome_tur, car_hor, car_dia){
 }
 
 //excluir turma
-async function excluirturma(id_turma){
+async function excluirturma(nome_turma){
+    id_dis = selec_dis[0];
     try{
         const response = await fetch('http://localhost:3000/excluirturma', {
             method: 'POST',
             headers: {
                 "Content-Type" : "application/json"
             },
-            body: JSON.stringify({ id_turma })
+            body: JSON.stringify({ nome_turma, id_dis })
         });
 
         const resultado = await response.json();

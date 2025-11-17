@@ -115,109 +115,24 @@ app.post('/login', async (req: Request, res: Response) => {
 //  ||                             ||
 //--\/GERENCIAMENTO DE INSTITUIÇÕES\/--
 
-//buscar todas as instituições
+//buscar instituições
 
-app.post('/buscartodasinstituicoes', async (req: Request, res: Response) => {
-    const id_docente = req.body.id_docente;
-    let con = null;
+app.post('/buscarinstituicoes', async (req: Request, res: Response) => {
+    const id_usu = req.body.id_usu;
+    const con = await oracledb.getConnection();
 
-    try {
-        con = await oracledb.getConnection();
+    try{
+        const sql = `SELECT * FROM NOTADEZ.INSTITUICOES I
+        JOIN NOTADEZ.CADASTRO C ON I.id_instituicao = C.id_instituicao
+        JOIN NOTADEZ.DOCENTES D ON C.id_docente = D.id_docente
+        WHERE id_docente = :id_usu`;
 
-        // Busca instituições relacionadas ao docente através da tabela CADASTROS
-        const comando: string = `SELECT i.* FROM NOTADEZ.DOCENTES D 
-                                 INNER JOIN NOTADEZ.CADASTROS C ON D.ID_DOCENTE = C.ID_DOCENTE 
-                                 INNER JOIN NOTADEZ.INSTITUICOES I ON C.ID_INSTITUICAO = I.ID_INSTITUICAO 
-                                 WHERE D.ID_DOCENTE = :id_docente`;
-        const result = await con.execute(comando, { id_docente });
-
-        res.json({ rows: result.rows });
-
-    } catch (err) {
-        console.error("Erro ao buscar instituições:", err);
-        res.status(500);
-        res.json({ message: "algo deu errado ao buscar instituições" });
-    } finally {
-        if (con) {
-            await con.close();
-        }
-    }
-});
-
-
-app.post('/adicionarinstituicao', async (req: Request, res: Response) => {
-    const { nome_instituicao, id_usuario: id_docente } = req.body;
-    let con: oracledb.Connection | null = null;
-    let confirm = false;
-
-    try {
-        con = await oracledb.getConnection();
-
-        // Insere instituição
-        const insertSQL = `
-            INSERT INTO NOTADEZ.INSTITUICOES (NOME_INSTITUICAO)
-            VALUES (:nome_instituicao)
-        `;
-
-        await con.execute(insertSQL, { nome_instituicao }, { autoCommit: true });
-
-        // Busca ID da instituição
-        const selectSQL = `
-            SELECT ID_INSTITUICAO
-            FROM NOTADEZ.INSTITUICOES
-            WHERE NOME_INSTITUICAO = :nome_instituicao
-        `;
-
-        const idResult = await con.execute(selectSQL, { nome_instituicao }, {});
-
-        const rows = idResult.rows as any[];
-        if (!rows || rows.length === 0) {
-            throw new Error("Instituição não encontrada após inserção");
-        }
-
-        const id_instituicao = rows[0][0];
-
-        // Relaciona com docente
-        const cadSQL = `
-            INSERT INTO NOTADEZ.CADASTROS (ID_DOCENTE, ID_INSTITUICAO)
-            VALUES (:id_docente, :id_instituicao)
-        `;
-
-        await con.execute(cadSQL, { id_docente, id_instituicao }, { autoCommit: true });
-
-        confirm = true;
-        res.json({ confirm });
-
-    } catch (err) {
-        console.error("Erro ao adicionar instituição:", err);
-        res.json({ confirm });
-    } finally {
-        if (con) await con.close();
-    }
-});
-
-//buscar cursos
-app.post('/buscarcursos', async (req: Request, res: Response) => {
-    const id_ins = req.body.id_ins;
-    let con = null;
-
-    try {
-        con = await oracledb.getConnection();
-
-        const comando: string = `SELECT C.* FROM NOTADEZ.CURSOS C 
-                                 INNER JOIN NOTADEZ.CADASTROS CAD ON C.ID_CURSO = CAD.ID_CURSO 
-                                 WHERE CAD.ID_INSTITUICAO = :id_ins`;
-        const resultado = await con.execute(comando, { id_ins });
-
-        res.json({ rows: resultado.rows });
-
-    } catch (err) {
-        console.error("Erro ao buscar cursos:", err);
-        res.status(500);
-        res.json({ message: "Erro ao buscar cursos" });
-    } finally {
-        if (con) {
-            await con.close();
+        const resultado = await con.execute(sql, { id_usu });
+    } catch(err){
+        console.log(err);
+    } finally{
+        if(con){
+            con.close();
         }
     }
 });
@@ -268,7 +183,7 @@ app.post('/adicionarcurso', async (req: Request, res: Response) => {
         res.json({ confirm, message: "Curso adicionado com sucesso" });
 
     } catch (err) {
-        console.error("Erro ao adicionar curso:", err);
+        console.error(err);
         res.status(500).json({ confirm, message: "Erro ao adicionar curso" });
 
     } finally {
