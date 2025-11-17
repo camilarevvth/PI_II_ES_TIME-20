@@ -3,7 +3,6 @@
     Arquivo: index.html
     Descrição: 
 -->
-    
 
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -37,7 +36,7 @@
         <p id="login-confirm"></p>
         <button id="enviar-login" type="button">entrar</button><br><br>
         <!-- Botão para ir para a tela de cadastro -->
-        <button id="voltar-cadastro" type="button">Criar conta</button>
+        <button id="voltar-cadastro" type="button" class="botao-voltar">Criar conta</button>
       </div>
     </div>
 
@@ -55,7 +54,7 @@
         <p id="cadastro-resultado"></p>
         <button id="enviar-cadastro" type="button" value="Cadastrar">cadastrar</button> <br><br>
         <!-- Botão para voltar para a tela de login -->
-        <button id="voltar-login" type="button">Voltar</button>
+        <button id="voltar-login" type="button" class="botao-voltar">Voltar</button>
       </div>
     </div>
   </div>
@@ -75,7 +74,7 @@
       <input id="nome-instituicao" type="text" placeholder="Nome(Puc Campinas)">
       <p id="confirm-instituicao"></p>
       <button id="enviar-instituicao">Criar instituição</button>
-      <button id="excluir-instituicao">Excluir por nome</button>
+      <button id="excluir-instituicao" class="botao-voltar">Excluir por nome</button>
     </div>
   </div>
 
@@ -92,7 +91,7 @@
       <input id="nome-curso" type="text" placeholder="nome(Engenharia de Software)">
       <p id="confirm-curso"></p>
       <button id="enviar-curso">Criar Curso</button>
-      <button id="excluir-curso">Excluir por Nome</button>
+      <button id="excluir-curso" class="botao-voltar">Excluir por Nome</button>
       </div>
   </div>
 
@@ -111,7 +110,7 @@
       <input id="periodo-disciplina" type="number" placeholder="período">
       <p id="confirm-disciplina"></p>
       <button id="enviar-disciplina">Criar Disciplina</button>
-      <button id="excluir-disciplina">Excluir por Nome</button>
+      <button id="excluir-disciplina" class="botao-voltar">Excluir por Nome</button>
     </div>
   </div>
 
@@ -131,7 +130,7 @@
       <input id="local-turma" type="text" placeholder="local">
       <p id="confirm-turma"></p>
       <button id="enviar-turma">Criar Turma</button>
-      <button id="excluir-turma">Excluir por Nome</button>
+      <button id="excluir-turma" class="botao-voltar">Excluir por Nome</button>
       </div>
   </div>
 
@@ -155,7 +154,7 @@
             <input type="text" id="matricula-aluno" placeholder="Matrícula" >
             <input type="text" id="nome-aluno" placeholder="Nome" >
             <input type="submit" id="enviar-aluno">
-             <button>apagar aluno</button>
+             <button class="botao-voltar">apagar aluno</button>
           </form>
         </div>
       </div>
@@ -193,8 +192,8 @@
             <input type="text" id="peso-porcentagem">
             <div>
               <!-- Botões para escolher entre média aritmética ou ponderada -->
-              <button>Aritmética</button>
-              <button>Ponderada</button>
+              <button class="botao-voltar">Aritmética</button>
+              <button class="botao-voltar">Ponderada</button>
             </div>
             <input type="submit">
           </form>
@@ -209,7 +208,7 @@
       <!-- Botões de importação e exportação de dados -->
       <div id="importacoes-e-exportacoes">
         <button id="exportar-csv">Exportar CSV</button>
-        <button id="importar-csv">Importar CSV</button>
+        <button id="importar-csv" class="botao-voltar">Importar CSV</button>
       </div>
 
       <!-- Tabela principal que mostra os alunos e suas notas -->
