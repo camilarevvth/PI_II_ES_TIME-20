@@ -5,7 +5,7 @@ NotaDez
 ## Integrantes
 - **Camila Fernandes Costacurta** — RA: 25012949  
 - **Bernardo Castro Brandão de Oliveira** — RA: 25014953 
-- **Demétrius valverde Ferreira corradi Junqueira** — RA: 000000
+- **Demétrius valverde Ferreira corradi Junqueira** — RA: 25015035
 - **Gustavo Santos de Oliveira** - RA:000000
 - **Matheus Azevedo Teixeira** -  RA:000000
 
