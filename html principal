@@ -1,53 +1,46 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <link type="text/css" rel="stylesheet" href="./app.css">
   <title>N0TADEZ</title>
-  <!-- Logo que aparece na aba do navegador -->
-  <img href="Screenshot_20251114_112300_ibisPaint_X_1_-removebg-preview.png">
 </head>
+
 <body>
-  <!-- Logo principal do sistema que aparece no topo da página -->
   <img id="title" src="0-removebg-preview.png" alt="N0TADEZ Logo Principal">
+  
+  <!-- Header quando logado -->
+  <div id="header-logado" class="suspenso">
+    <h1>N0TADEZ</h1>
+    <button id="btn-logout" type="button">Sair</button>
+  </div>
 
   <!-- ========================================================= -->
   <!-- ======================== LOGIN =========================== -->
   <!-- ========================================================= -->
-  
-  <!-- Container principal para login e cadastro de usuários -->
-  <!-- A classe "suspenso" esconde essa div quando não estamos nessa tela -->
-  <div id="registrousuarios" class="suspenso">
-    
-    <!-- Formulário de login -->
-    <div id="login" class="">
+  <div id="registrousuarios">
+
+    <div id="login">
       <h2 id="registrousuarios_titulo">Login</h2>
       <div id="form-login">
-        <!-- Campos do formulário de login -->
         <input id="login-email" type="email" placeholder="E-mail" required><br>
         <input id="login-senha" type="password" placeholder="Senha" required><br>
-        <!-- Aqui aparece mensagem de erro ou sucesso do login -->
         <p id="login-confirm"></p>
         <button id="enviar-login" type="button">entrar</button><br><br>
-        <!-- Botão para ir para a tela de cadastro -->
         <button id="voltar-cadastro" type="button">Criar conta</button>
       </div>
     </div>
 
-    <!-- Formulário de cadastro -->
-    <!-- Também começa suspenso (escondido), só aparece quando o usuário clica em "Criar conta" -->
     <div id="cadastro" class="suspenso">
       <h2 id="registrousuarios_titulo">Cadastro</h2>
       <div id="form-cadastro">
-        <!-- Campos do formulário de cadastro -->
         <input id="cadastronome" type="text" placeholder="Nome completo" required><br>
         <input id="cadastroemail" type="email" placeholder="E-mail" required><br>
         <input id="cadastrotelefone" type="tel" placeholder="Telefone celular" required><br>
         <input id="cadastrosenha" type="password" placeholder="Senha" required><br>
-        <!-- Aqui aparece a mensagem de sucesso ou erro do cadastro -->
         <p id="cadastro-resultado"></p>
         <button id="enviar-cadastro" type="button" value="Cadastrar">cadastrar</button> <br><br>
-        <!-- Botão para voltar para a tela de login -->
         <button id="voltar-login" type="button">Voltar</button>
       </div>
     </div>
@@ -56,45 +49,35 @@
   <!-- ========================================================= -->
   <!-- ========== INSTITUIÇÃO / CURSOS ========================= -->
   <!-- ========================================================= -->
-  
-  <!-- Tela de gerenciamento de instituições -->
-  <!-- Começa suspenso (escondido), só aparece depois do login -->
   <div id="gerenciar-instituicoes" class="suspenso">
+
     <div id="instituicoes">
+
       <h2>Instituições</h2>
-      <!-- Container onde vamos listar as instituições cadastradas -->
-      <!-- O JavaScript vai preencher isso dinamicamente -->
+
       <div id="instituicao-conteiner">
       </div>
 
-      <!-- Formulário para cadastrar uma nova instituição -->
       <div>
         <form id="form-instituicao">
           <h3>Cadastro de Instituições</h3>
           <input id="instituicao-nome" type="text" placeholder="Instituição" required><br>
-          <!-- Mensagem de confirmação ou erro ao cadastrar instituição -->
           <p id="instituicao-comfirm"></p>
-          <button id="enviar-instituicao">criar</button>
+          <button id="enviar-instituicao" type="button">criar</button>
         </form>
       </div>
+
     </div>
   </div>
 
   <!-- ========================================================= -->
   <!-- ========== TURMAS / DISCILPINAS ========================= -->
   <!-- ========================================================= -->
-  
-  <!-- Tela de gerenciamento de disciplinas e turmas -->
-  <!-- Também começa suspensa, aparece quando selecionamos uma instituição -->
   <div id="gerenciar-disciplinas" class="suspenso">
-    
-    <!-- Seção de disciplinas -->
     <div id="disciplinas">
-      <!-- Container onde vamos listar as disciplinas cadastradas -->
+
       <div id="disciplina-conteiner">
       </div>
-
-      <!-- Formulário para criar uma nova disciplina -->
       <div>
         <form id="form-disciplina">
           <h2>Criar Disciplina</h2>
@@ -102,82 +85,60 @@
           <input id="sigla-disciplina" type="text" placeholder="Sigla" required><br>
           <input id="codigo" type="text" placeholder="Código do curso" required><br>
           <input id="periodo-disciplina" type="text" placeholder="Período da disciplina" required><br><br>
-          <!-- Mensagem de confirmação ao criar disciplina -->
           <p id="disciplina-confirm"></p>
           <input type="submit" placeholder="adicionar">
         </form>
       </div>
+
     </div>
 
-    <!-- Seção de turmas -->
     <div id="turmas">
-      <!-- Container onde vamos listar as turmas cadastradas -->
       <div id="turma_conteiner">
       </div>
-
-      <!-- Formulário para criar uma nova turma -->
-      <div>
-        <h2>Criar turma</h2>
-        <input type="text" placeholder="Horário da turma" required><br>
-        <input type="text" placeholder="Dia da turma" required><br>
-        <input type="text" placeholder="Local da turma" required><br>
-        <button type="button">Adicionar nova turma</button><br><br>
-      </div>
     </div>
+
   </div>
 
   <!-- ========================================================= -->
   <!-- ========== GERENCIAMENTO DE TURMAS ====================== -->
   <!-- ========================================================= -->
-  
-  <!-- Tela principal de gerenciamento de notas -->
-  <!-- Essa é a tela que aparece por padrão quando a página carrega -->
-  <div id="gerenciar-turmas" class="">
-    
-    <!-- Painel lateral com configurações e opções -->
+  <div id="gerenciar-turmas" class="suspenso">
     <div id="configuracoes-notas">
-      
-      <!-- Seção de cadastro de alunos -->
+
+
       <div id="opcao-cadastrar-aluno" class="opcao">
         <h3 class="opcao-nome">Cadastro de Alunos</h3>
         <div class="opcao">
-          <form>
-            <!-- Formulário para adicionar aluno manualmente -->
-            <input type="text" id="matricula-aluno" placeholder="Matrícula" >
-            <input type="text" id="nome-aluno" placeholder="Nome" >
-            <input type="submit" id="enviar-aluno">
+          <form id="form-aluno">
+            <input type="text" id="matricula-aluno" placeholder="Matrícula" required>
+            <input type="text" id="nome-aluno" placeholder="Nome" required>
+            <button type="button" id="enviar-aluno">Adicionar Aluno</button>
           </form>
         </div>
       </div>
 
-      <!-- Seção para configurar pesos dos componentes de nota -->
       <h3 class="opcao-nome">Adicionar Peso ao Componente</h3>
       <div id="opcao-notas" class="">
         <div class="opcao">
           <form>
-            <!-- Seleciona qual componente vai receber o peso (P1, P2, P3) -->
             <select>
               <option>p1</option>
               <option>p2</option>
               <option>p3</option>
             </select>
-            <!-- Input para digitar o peso em porcentagem -->
             <input type="text" placeholder="digite o peso em porcentagem">
             <input type="submit">
           </form>
-          <!-- Botão de teste (provavelmente para testar funcionalidade) -->
           <button onclick="inseriraluno()">a</button>
         </div>
       </div>
 
-      <!-- Seção de cálculo de notas finais -->
       <h3 class="opcao-nome">Cálculo Notas Finais</h3>
       <div id="opcao-medias" class="opcao">
         <div class="opcao">
           <form>
             <h4>Média Final</h4>
             <div>
-              <!-- Botões para escolher entre média aritmética ou ponderada -->
               <button>Aritmética</button>
               <button>Ponderada</button>
             </div>
@@ -187,39 +148,28 @@
       </div>
     </div>
 
-    <!-- Área principal com o quadro de notas -->
+
     <div id="quadro-notas">
       <h2>Quadro de Notas</h2>
-      
-      <!-- Botões de importação e exportação de dados -->
       <div id="importacoes-e-exportacoes">
         <button id="exportar-csv">Exportar CSV</button>
         <button id="importar-csv">Importar CSV</button>
       </div>
-
-      <!-- Tabela principal que mostra os alunos e suas notas -->
       <table id="tabela" border="1">
-        <!-- Cabeçalho da tabela -->
         <thead id="tabela-cabeca">
           <tr>
             <th>Matrícula</th>
             <th>Nome</th>
-            <!-- Colunas dos componentes de nota (P1, P2, P3) -->
             <td>P1</td>
             <td>P2</td>
             <td>P3</td>
-            <!-- Coluna da nota final calculada -->
             <td>Final</td>
           </tr>
         </thead>
-        <!-- Corpo da tabela onde ficam os dados dos alunos -->
-        <!-- O JavaScript vai preencher isso dinamicamente -->
         <tbody id="tabela-corpo">
-          <!-- Exemplo de linha (dados de teste) -->
           <tr>
             <td>11111</td>
             <td>Gustas</td>
-            <!-- "-" indica que a nota ainda não foi lançada -->
             <td>-</td>
             <td>-</td>
             <td>-</td>
@@ -229,9 +179,11 @@
       </table>
     </div>
     <br>
+
   </div>
 
 </body>
-<!-- Link para o arquivo JavaScript com toda a lógica da aplicação -->
 <script src="./script.js"></script>
+
 </html>
+
