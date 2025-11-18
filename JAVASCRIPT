@@ -1,0 +1,214 @@
+// ==============================================
+// Sistema de gerenciamento de instituições, cursos, disciplinas, turmas e notas
+// Autor: Gustavo
+// ==============================================
+
+// Variáveis globais para guardar informações do usuário e seleções
+let usuario = null;       // Guarda dados do usuário logado
+let selec_ins = null;     // Guarda a instituição selecionada
+let selec_cur = null;     // Guarda o curso selecionado
+let selec_dis = null;     // Guarda a disciplina selecionada
+let selec_tur = null;     // Guarda a turma selecionada
+
+// ==============================================
+// FLUXO DE TELAS
+// ==============================================
+
+// Função que troca de uma tela para outra
+function trocartela(pritela, segtela){
+    pritela.classList.add("suspenso");   // Esconde a primeira tela
+    segtela.classList.remove("suspenso"); // Mostra a segunda tela
+}
+
+// Configura os eventos do fluxo de telas (login, cadastro)
+function fluxotelas(){
+    // Botão "voltar" do cadastro para o login
+    document.getElementById("voltar-login").addEventListener("click", () => trocartela(
+            document.getElementById("cadastro"),
+            document.getElementById("login")
+        ));
+
+    // Botão "voltar" do login para o cadastro
+    document.getElementById("voltar-cadastro").addEventListener("click", () => trocartela(
+            document.getElementById("login"),
+            document.getElementById("cadastro")
+        ));
+
+    // Botão de enviar cadastro
+    document.getElementById("enviar-cadastro").addEventListener("click", () => {
+        comfirmarcadastro().then(resultado => { // Chama a função que cadastra no backend
+            if(resultado){
+                // Se cadastrou com sucesso, faz login automático
+                const email = document.getElementById("cadastroemail").value;
+                const senha = document.getElementById("cadastrosenha").value;
+                
+                comfirmarlogin(email, senha).then(loginResultado => {
+                    if(loginResultado && loginResultado.confirm){
+                        usuario = loginResultado.usuario; // Guarda dados do usuário
+
+                        // Mostra telas internas e esconde login/cadastro
+                        document.getElementById("registrousuarios").classList.add("suspenso");
+                        document.getElementById("title").style.display = "none";
+                        document.getElementById("header-logado").classList.remove("suspenso");
+                        document.getElementById("gerenciar-instituicoes").classList.remove("suspenso");
+                        
+                        // Configura botão de criar instituição
+                        const btnEnviarInstituicao = document.getElementById("enviar-instituicao");
+                        if(btnEnviarInstituicao) {
+                            btnEnviarInstituicao.addEventListener("click", (e) => {
+                                e.preventDefault();
+                                inseririnstituicao();
+                            });
+                        }
+                        
+                        // Evita que o formulário seja enviado de forma tradicional
+                        const formInstituicao = document.getElementById("form-instituicao");
+                        if(formInstituicao) {
+                            formInstituicao.addEventListener("submit", (e) => {
+                                e.preventDefault();
+                                inseririnstituicao();
+                            });
+                        }
+
+                        atualizarinstituicoes(); // Atualiza a lista de instituições
+                    } else {
+                        // Se o login automático falhar, volta para login
+                        trocartela(
+                            document.getElementById("cadastro"),
+                            document.getElementById("login")
+                        );
+                        document.getElementById("login-confirm").innerText = "Cadastro realizado! Faça login.";
+                        document.getElementById("login-confirm").style.color = "green";
+                    }
+                });
+            }
+        });
+    });
+
+    // Botão de enviar login
+    document.getElementById("enviar-login").addEventListener("click", () => { 
+        const email = document.getElementById("login-email").value.trim();
+        const senha = document.getElementById("login-senha").value.trim();
+        
+        // Validação básica
+        if(!email || !senha){
+            document.getElementById("login-confirm").innerText = "Por favor, preencha email e senha";
+            document.getElementById("login-confirm").style.color = "red";
+            return;
+        }
+        
+        comfirmarlogin().then(resultado => {
+            if(resultado && resultado.confirm){
+                usuario = resultado.usuario;
+                document.getElementById("login-confirm").innerText = resultado.mensagem || "Login realizado com sucesso!";
+                document.getElementById("login-confirm").style.color = "green";
+                
+                // Mostra a tela de instituições e esconde login/cadastro
+                document.getElementById("registrousuarios").classList.add("suspenso");
+                document.getElementById("title").style.display = "none";
+                document.getElementById("header-logado").classList.remove("suspenso");
+                document.getElementById("gerenciar-instituicoes").classList.remove("suspenso");
+                
+                // Configura botão de criar instituição
+                const btnEnviarInstituicao = document.getElementById("enviar-instituicao");
+                if(btnEnviarInstituicao) {
+                    btnEnviarInstituicao.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        inseririnstituicao();
+                    });
+                }
+                
+                const formInstituicao = document.getElementById("form-instituicao");
+                if(formInstituicao) {
+                    formInstituicao.addEventListener("submit", (e) => {
+                        e.preventDefault();
+                        inseririnstituicao();
+                    });
+                }
+
+                atualizarinstituicoes(); // Atualiza instituições
+            } else {
+                document.getElementById("login-confirm").innerText = "Email ou senha incorretos. Não tem conta? Clique em 'Criar conta' para se cadastrar.";
+                document.getElementById("login-confirm").style.color = "red";
+            }
+        });
+    });
+}
+
+// ==============================================
+// Funções principais de CRUD (criar, buscar, atualizar)
+// ==============================================
+
+// Função para atualizar lista de instituições
+function atualizarinstituicoes(){
+    const ins_conteiner = document.getElementById("instituicao-conteiner");
+    ins_conteiner.innerHTML = '';
+
+    buscarinstituicoes().then(instituicoes => {
+        if(instituicoes && instituicoes.length > 0){
+            instituicoes.forEach(instituicao => {
+                const div_ins = document.createElement("div");
+                const h2_ins = document.createElement("h2");
+                const cur_conteiner = document.createElement("div");
+
+                h2_ins.innerText = instituicao[1];
+                h2_ins.classList.add("instituicao");
+                cur_conteiner.classList.add("curso-conteiner");
+
+                div_ins.appendChild(h2_ins);
+                div_ins.appendChild(cur_conteiner);
+                ins_conteiner.appendChild(div_ins);
+
+                // Selecionar instituição e mostrar cursos
+                h2_ins.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    if(cur_conteiner.innerHTML != ''){
+                        cur_conteiner.innerHTML = '';
+                        selec_ins = null;
+                    } else {
+                        selec_ins = instituicao;
+                        mostrarcursos(cur_conteiner);
+                    }
+                });
+            });
+        }
+    });
+}
+
+// Função para criar nova instituição
+function inseririnstituicao(){
+    const nome_instituicao = document.getElementById("instituicao-nome").value;
+
+    if(!nome_instituicao || nome_instituicao.trim() === ''){
+        document.getElementById("instituicao-comfirm").innerText = "Digite o nome da instituição";
+        document.getElementById("instituicao-comfirm").style.color = "red";
+        return;
+    }
+
+    document.getElementById("instituicao-comfirm").innerText = "Criando instituição...";
+    document.getElementById("instituicao-comfirm").style.color = "blue";
+
+    enviarnstituicao(nome_instituicao).then(resultado => {
+        if(resultado && resultado.confirm){
+            document.getElementById("instituicao-comfirm").innerText = "Instituição criada com sucesso!";
+            document.getElementById("instituicao-comfirm").style.color = "green";
+            document.getElementById("instituicao-nome").value = '';
+            atualizarinstituicoes();
+        } else{
+            document.getElementById("instituicao-comfirm").innerText = resultado?.message || "Erro ao criar instituição";
+            document.getElementById("instituicao-comfirm").style.color = "red";
+        }
+    }).catch(err => {
+        document.getElementById("instituicao-comfirm").innerText = "Erro ao conectar com o servidor.";
+        document.getElementById("instituicao-comfirm").style.color = "red";
+    });
+}
+
+
+
+// Inicializa fluxo de telas
+fluxotelas();
+
+// Autor: Gustavo
