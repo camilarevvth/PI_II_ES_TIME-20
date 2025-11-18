@@ -60,11 +60,9 @@ app.post('/cadastrar', async (req, res) => {
         // Obtém uma conexão do Pool
         con = await oracledb.getConnection();
 
-        // Comando SQL para inserir um novo docente na tabela DOCENTE
-        const resultado = await con.execute(`INSERT INTO NOTADEZ.DOCENTE(NOME_DOCENTE, EMAIL_DOCENTE, SENHA, TELEFONE_DOCENTE) VALUES(:nome, :email, :senha, :telefone)`,
-            // Parâmetros de bind (evita SQL Injection)
-            { nome, email, senha, telefone },
-            { autoCommit: true }); // Confirma a transação automaticamente
+        const resultado = await con.execute(`INSERT INTO NOTADEZ.DOCENTES(NOME_DOCENTE, EMAIL_DOCENTE, SENHA, TELEFONE_DOCENTE) VALUES(:nome, :email, :senha, :telefone)`, //execução da conexão e do comando sql(oracle)
+            { nome, email, senha, telefone }, //foranecer os dados necessarios
+            { autoCommit: true }); //salvar a alteração no banco
 
         confirm = true;
 
@@ -97,8 +95,7 @@ app.post('/login', async (req: Request, res: Response) => {
     try {
         con = await oracledb.getConnection();
 
-        // Comando SQL para verificar se existe um docente com o email e senha fornecidos
-        const result = await con.execute(`SELECT * FROM NOTADEZ.DOCENTE WHERE EMAIL_DOCENTE = :email AND SENHA = :senha`,
+        const result = await con.execute(`SELECT * FROM NOTADEZ.DOCENTES WHERE EMAIL_DOCENTE = :email AND SENHA = :senha`,
             { email, senha });
 
         // Verifica se algum registro foi retornado
@@ -118,12 +115,151 @@ app.post('/login', async (req: Request, res: Response) => {
     } catch (err) {
         console.error("Erro no login:", err);
         res.status(500);
-        res.json({
-            confirm: false,
-            error: "Erro ao realizar login"
-        });
+        res.json({ error: "Erro ao realizar login" });
+    }
+});
+
+//  ||                             ||
+//  ||                             ||
+//--\/GERENCIAMENTO DE INSTITUIÇÕES\/--
+
+//adicionar instituição
+app.post('/adicionarinstituicao', async (req: Request, res: Response) => {
+    const { nome_instituicao, id_usuario } = req.body;
+    let con: oracledb.Connection | null = null;
+    let confirm = false;
+
+    try {
+        con = await oracledb.getConnection();
+
+        // Inserir instituição
+        const insertSQL = `
+            INSERT INTO NOTADEZ.INSTITUICOES (NOME_INSTITUICAO)
+            VALUES (:nome_instituicao)
+        `;
+
+        await con.execute(insertSQL, { nome_instituicao }, { autoCommit: true });
+
+        // Buscar ID da instituição criada
+        const selectSQL = `
+            SELECT ID_INSTITUICAO
+            FROM NOTADEZ.INSTITUICOES
+            WHERE NOME_INSTITUICAO = :nome_instituicao
+        `;
+
+        const idResult = await con.execute(selectSQL, { nome_instituicao });
+        const rows = idResult.rows as any[];
+
+        if (!rows || rows.length === 0) {
+            throw new Error("Erro ao recuperar ID da instituição recém criada");
+        }
+
+        const id_instituicao = rows[0][0];
+
+        // Criar relacionamento com docente
+        const relationSQL = `
+            INSERT INTO NOTADEZ.CADASTRO (ID_INSTITUICAO, ID_DOCENTE)
+            VALUES (:id_instituicao, :id_usuario)
+        `;
+
+        await con.execute(relationSQL, { id_instituicao, id_usuario }, { autoCommit: true });
+
+        confirm = true;
+        res.json({ confirm, message: "Instituição adicionada com sucesso" });
+
+    } catch (err) {
+        console.error("Erro ao adicionar instituição:", err);
+        res.status(500).json({ confirm, message: "Erro ao adicionar instituição ou instituição já existe" });
     } finally {
-        if (con) {
+        if (con) await con.close();
+    }
+});
+
+//excluir instituição
+app.post('/excluirinstituicao', async (req: Request, res: Response) => {
+    const { nome_instituicao, id_usuario } = req.body;
+    let con: oracledb.Connection | null = null;
+    let confirm = false;
+
+    try {
+        con = await oracledb.getConnection();
+
+        // Buscar ID da instituição
+        const selectSQL = `
+            SELECT ID_INSTITUICAO
+            FROM NOTADEZ.INSTITUICOES
+            WHERE NOME_INSTITUICAO = :nome_instituicao
+        `;
+
+        const idResult = await con.execute(selectSQL, { nome_instituicao });
+        const rows = idResult.rows as any[];
+
+        if (!rows || rows.length === 0) {
+            return res.json({ confirm: false, message: "Instituição não encontrada" });
+        }
+
+        const id_instituicao = rows[0][0];
+
+        // Verificar se tem cursos cadastrados
+        const verificarSQL = `
+            SELECT COUNT(*) FROM NOTADEZ.CURSOS
+            WHERE ID_INSTITUICAO = :id_instituicao
+        `;
+
+        const verificarCursos = await con.execute(verificarSQL, { id_instituicao });
+        const cursosRows = verificarCursos.rows as any[];
+
+        if (cursosRows[0][0] > 0) {
+            return res.json({
+                confirm: false,
+                message: "Não é possível excluir instituição que possui cursos cadastrados"
+            });
+        }
+
+        // Remover relacionamento
+        await con.execute(
+            `DELETE FROM NOTADEZ.CADASTRO WHERE ID_INSTITUICAO = :id_instituicao AND ID_DOCENTE = :id_usuario`,
+            { id_instituicao, id_usuario },
+            { autoCommit: true }
+        );
+
+        // Remover instituição
+        await con.execute(
+            `DELETE FROM NOTADEZ.INSTITUICOES WHERE ID_INSTITUICAO = :id_instituicao`,
+            { id_instituicao },
+            { autoCommit: true }
+        );
+
+        confirm = true;
+        res.json({ confirm, message: "Instituição excluída com sucesso" });
+
+    } catch (err) {
+        console.error("Erro ao excluir instituição:", err);
+        res.status(500).json({ confirm, message: "Erro ao excluir instituição" });
+    } finally {
+        if (con) await con.close();
+    }
+});
+
+//buscar instituições
+app.post('/buscarinstituicoes', async (req: Request, res: Response) => {
+    const id_docente = req.body.id_docente;
+    let con: oracledb.Connection | null = null;
+
+    try{
+        con = await oracledb.getConnection();
+        const sql = `SELECT * FROM NOTADEZ.INSTITUICOES I
+        JOIN NOTADEZ.CADASTRO C ON I.id_instituicao = C.id_instituicao
+        JOIN NOTADEZ.DOCENTES D ON C.id_docente = D.id_docente
+        WHERE C.id_docente = :id_docente`;
+
+        const resultado = await con.execute(sql, { id_docente });
+        res.json({ rows: resultado.rows });
+    } catch(err){
+        console.log(err);
+        res.status(500).json({ message: "Erro ao buscar instituições" });
+    } finally{
+        if(con){
             await con.close();
         }
     }
@@ -173,184 +309,16 @@ app.post('/adicionarinstituicao', async (req: Request, res: Response) => {
     try {
         con = await oracledb.getConnection();
 
-        // 1. Insere a nova instituição na tabela INSTITUICOES
+        // Inserir a instituição diretamente
         const insertSQL = `
-            INSERT INTO NOTADEZ.INSTITUICOES (NOME_INSTITUICAO)
-            VALUES (:nome_instituicao)
-        `;
-        await con.execute(insertSQL, { nome_instituicao }, { autoCommit: true });
-
-        // 2. Busca o ID (chave primária) da instituição recém-inserida
-        // NOTA: Em produção, seria melhor usar uma sequência (SEQUENCE) ou RETURNING INTO.
-        const selectSQL = `
-            SELECT ID_INSTITUICAO
-            FROM NOTADEZ.INSTITUICOES
-            WHERE NOME_INSTITUICAO = :nome_instituicao
+            INSERT INTO NOTADEZ.INSTITUICOES (NOME_INSTITUICAO, ID_DOCENTE)
+            VALUES (:nome_instituicao, :id_docente)
         `;
 
-        const idResult = await con.execute(selectSQL, { nome_instituicao }, {});
-
-        const rows = idResult.rows as any[];
-        if (!rows || rows.length === 0) {
-            throw new Error("Instituição não encontrada após inserção");
-        }
-
-        const id_instituicao = rows[0][0];
-
-        // 3. Relaciona a nova instituição com o docente na tabela CADASTROS
-        const cadSQL = `
-            INSERT INTO NOTADEZ.CADASTROS (ID_DOCENTE, ID_INSTITUICAO)
-            VALUES (:id_docente, :id_instituicao)
-        `;
-
-        await con.execute(cadSQL, { id_docente, id_instituicao }, { autoCommit: true });
+        await con.execute(insertSQL, { nome_instituicao, id_docente }, { autoCommit: true });
 
         confirm = true;
-        res.json({ confirm });
-
-    } catch (err) {
-        console.error("Erro ao adicionar instituição:", err);
-        res.json({ confirm });
-    } finally {
-        if (con) await con.close();
-    }
-});
-
-// Rota para excluir uma instituição
-app.post('/excluirinstituicao', async (req: Request, res: Response) => {
-    const { id_instituicao } = req.body;
-    let con: any = null;
-    let confirm: boolean = false;
-
-    try {
-        con = await oracledb.getConnection();
-
-        // 1. Verifica se a instituição tem cursos cadastrados (regra de negócio)
-        const verificarCursos = await con.execute(
-            `SELECT COUNT(*) FROM NOTADEZ.CADASTROS WHERE ID_INSTITUICAO = :id_instituicao AND ID_CURSO IS NOT NULL`,
-            { id_instituicao }
-        );
-
-        const temCursos = verificarCursos.rows![0][0] > 0;
-
-        if (temCursos) {
-            // Se houver cursos, impede a exclusão
-            return res.json({
-                confirm: false,
-                message: "Não é possível excluir instituição que possui cursos cadastrados"
-            });
-        }
-
-        // 2. Inicia Transação para garantir atomicidade:
-
-        // Remove relacionamento na tabela CADASTROS
-        await con.execute(
-            `DELETE FROM NOTADEZ.CADASTROS WHERE ID_INSTITUICAO = :id_instituicao`,
-            { id_instituicao },
-            { autoCommit: false } // Não commita ainda
-        );
-
-        // Remove a instituição (tabela INSTITUICOES)
-        await con.execute(
-            `DELETE FROM NOTADEZ.INSTITUICOES WHERE ID_INSTITUICAO = :id_instituicao`,
-            { id_instituicao },
-            { autoCommit: false } // Não commita ainda
-        );
-
-        await con.commit(); // Confirma ambas as operações
-        confirm = true;
-
-        return res.json({
-            confirm,
-            message: "Instituição excluída com sucesso"
-        });
-
-    } catch (err) {
-        console.error("Erro ao excluir instituição:", err);
-        if (con) await con.rollback(); // Desfaz a transação em caso de erro
-        return res.status(500).json({
-            confirm: false,
-            message: "Erro ao excluir instituição"
-        });
-    } finally {
-        if (con) await con.close();
-    }
-});
-
-// Rota para buscar todos os cursos de uma instituição
-app.post('/buscarcursos', async (req: Request, res: Response) => {
-    const id_ins = req.body.id_ins; // ID da Instituição
-    let con = null;
-
-    try {
-        con = await oracledb.getConnection();
-
-        // Comando SQL que busca cursos relacionados à instituição através da tabela CADASTROS
-        const comando: string = `SELECT C.* FROM NOTADEZ.CURSOS C 
-                                     INNER JOIN NOTADEZ.CADASTROS CAD ON C.ID_CURSO = CAD.ID_CURSO 
-                                     WHERE CAD.ID_INSTITUICAO = :id_ins`;
-        const resultado = await con.execute(comando, { id_ins });
-
-        res.json({ rows: resultado.rows });
-
-    } catch (err) {
-        console.error("Erro ao buscar cursos:", err);
-        res.status(500);
-        res.json({ message: "Erro ao buscar cursos" });
-    } finally {
-        if (con) {
-            await con.close();
-        }
-    }
-});
-
-// Rota para adicionar um novo curso e relacioná-lo a uma instituição
-app.post('/adicionarcurso', async (req: Request, res: Response) => {
-    const { id_ins, nome_cur } = req.body; // ID da Instituição e Nome do Curso
-    let con: oracledb.Connection | null = null;
-    let confirm = false;
-
-    try {
-        con = await oracledb.getConnection();
-
-        // 1. Inserir o curso na tabela CURSOS
-        const insertSQL = `
-            INSERT INTO NOTADEZ.CURSOS (NOME_CURSO)
-            VALUES (:nome_cur)
-        `;
-
-        await con.execute(insertSQL, { nome_cur }, { autoCommit: true });
-
-        // 2. Buscar o ID do curso criado
-        const selectSQL = `
-            SELECT ID_CURSO
-            FROM NOTADEZ.CURSOS
-            WHERE NOME_CURSO = :nome_cur
-        `;
-
-        const idResult = await con.execute(selectSQL, { nome_cur });
-        const rows = idResult.rows as any[];
-
-        if (!rows || rows.length === 0) {
-            throw new Error("Erro ao recuperar ID do curso recém criado");
-        }
-
-        const id_curso = rows[0][0];
-
-        // 3. Relacionar o curso com a instituição na tabela CADASTROS (atualizando o ID_CURSO)
-        const updateSQL = `
-            UPDATE NOTADEZ.CADASTROS
-            SET ID_CURSO = :id_curso
-            WHERE ID_INSTITUICAO = :id_ins
-            -- NOTA: Esta lógica parece incompleta, pois a tabela CADASTROS é uma tabela N:M.
-            -- A atualização deve ser mais específica, ou um novo registro deveria ser inserido.
-            -- Mantendo o seu padrão de UPDATE, mas é uma área para revisão no modelo de dados.
-        `;
-
-        await con.execute(updateSQL, { id_curso, id_ins }, { autoCommit: true });
-
-        confirm = true;
-        res.json({ confirm, message: "Curso adicionado com sucesso" });
+        res.json({ confirm, message: "Instituição adicionada com sucesso" });
 
     } catch (err) {
         console.error("Erro ao adicionar curso:", err);
@@ -364,16 +332,30 @@ app.post('/adicionarcurso', async (req: Request, res: Response) => {
 
 // Rota para excluir um curso
 app.post('/excluircurso', async (req: Request, res: Response) => {
-    const { id_curso } = req.body;
+    const { nome_cur, id_ins } = req.body;
     let con: oracledb.Connection | null = null;
     let confirm = false;
 
     try {
         con = await oracledb.getConnection();
 
-        // 1. Verifica se o curso possui disciplinas cadastradas (regra de negócio)
+        // Buscar ID do curso pelo nome
+        const selectSQL = `
+            SELECT ID_CURSO FROM NOTADEZ.CURSOS
+            WHERE NOME_CURSO = :nome_cur
+        `;
+
+        const idResult = await con.execute(selectSQL, { nome_cur });
+        const idRows = idResult.rows as any[];
+
+        if (!idRows || idRows.length === 0) {
+            return res.json({ confirm: false, message: "Curso não encontrado" });
+        }
+
+        const id_curso = idRows[0][0];
+
         const verificarSQL = `
-            SELECT COUNT(*) FROM NOTADEZ.DISCIPLINA_INSTITUICAO
+            SELECT COUNT(*) FROM NOTADEZ.DISCIPLINAS
             WHERE ID_CURSO = :id_curso
         `;
 
@@ -389,14 +371,17 @@ app.post('/excluircurso', async (req: Request, res: Response) => {
             });
         }
 
-        // 2. Remove o relacionamento do curso na tabela CADASTROS (setando ID_CURSO para NULL)
-        const desvincularSQL = `
-            UPDATE NOTADEZ.CADASTROS
-            SET ID_CURSO = NULL
-            WHERE ID_CURSO = :id_curso
+        // Verificar se o curso pertence à instituição antes de excluir
+        const verificarInstSQL = `
+            SELECT COUNT(*) FROM NOTADEZ.CURSOS
+            WHERE ID_CURSO = :id_curso AND ID_INSTITUICAO = :id_ins
         `;
-
-        await con.execute(desvincularSQL, { id_curso }, { autoCommit: true });
+        const verificarInst = await con.execute(verificarInstSQL, { id_curso, id_ins });
+        const instRows = verificarInst.rows as any[];
+        
+        if (instRows[0][0] === 0) {
+            return res.json({ confirm: false, message: "Curso não pertence a esta instituição" });
+        }
 
         // 3. Remove o curso da tabela CURSOS
         const deleteSQL = `
@@ -418,27 +403,125 @@ app.post('/excluircurso', async (req: Request, res: Response) => {
     }
 });
 
-
-// Rota para buscar todas as disciplinas de um curso
-app.post('/buscardisciplinas', async (req: Request, res: Response) => {
-    const id_cur = req.body.id_cur; // ID do Curso
-    let con = null;
+//buscar cursos
+app.post('/buscarcursos', async (req: Request, res: Response) => {
+    const { id_ins } = req.body;
+    let con: oracledb.Connection | null = null;
 
     try {
         con = await oracledb.getConnection();
 
-        // Comando SQL que busca disciplinas relacionadas ao curso através da tabela DISCIPLINA_INSTITUICAO
-        const comando: string = `SELECT D.* FROM NOTADEZ.DISCIPLINA D 
-                                     INNER JOIN NOTADEZ.DISCIPLINA_INSTITUICAO DI ON D.ID_DISCIPLINA = DI.ID_DISCIPLINA 
-                                     WHERE DI.ID_CURSO = :id_cur`;
-        const resultado = await con.execute(comando, { id_cur });
+        const sql = `
+            SELECT C.* FROM NOTADEZ.CURSOS C
+            WHERE C.ID_INSTITUICAO = :id_ins
+        `;
+
+        const resultado = await con.execute(sql, { id_ins });
+        res.json({ rows: resultado.rows });
+
+    } catch (err) {
+        console.error("Erro ao buscar cursos:", err);
+        res.status(500).json({ message: "Erro ao buscar cursos" });
+    } finally {
+        if (con) await con.close();
+    }
+});
+
+//apagar curso (alias para compatibilidade)
+app.post('/apagarcurso', async (req: Request, res: Response) => {
+    // Chama a mesma lógica de excluircurso
+    const { nome_cur, id_ins } = req.body;
+    let con: oracledb.Connection | null = null;
+    let confirm = false;
+
+    try {
+        con = await oracledb.getConnection();
+
+        const selectSQL = `
+            SELECT ID_CURSO FROM NOTADEZ.CURSOS
+            WHERE NOME_CURSO = :nome_cur
+        `;
+
+        const idResult = await con.execute(selectSQL, { nome_cur });
+        const idRows = idResult.rows as any[];
+
+        if (!idRows || idRows.length === 0) {
+            return res.json({ confirm: false, message: "Curso não encontrado" });
+        }
+
+        const id_curso = idRows[0][0];
+
+        const verificarSQL = `
+            SELECT COUNT(*) FROM NOTADEZ.DISCIPLINAS
+            WHERE ID_CURSO = :id_curso
+        `;
+
+        const verificarDisciplinas = await con.execute(verificarSQL, { id_curso });
+        const rows = verificarDisciplinas.rows as any[];
+
+        if (rows[0][0] > 0) {
+            return res.json({
+                confirm: false,
+                message: "Não é possível excluir curso que possui disciplinas cadastradas"
+            });
+        }
+
+        // Verificar se o curso pertence à instituição antes de excluir
+        const verificarInstSQL = `
+            SELECT COUNT(*) FROM NOTADEZ.CURSOS
+            WHERE ID_CURSO = :id_curso AND ID_INSTITUICAO = :id_ins
+        `;
+        const verificarInst = await con.execute(verificarInstSQL, { id_curso, id_ins });
+        const instRows = verificarInst.rows as any[];
+        
+        if (instRows[0][0] === 0) {
+            return res.json({ confirm: false, message: "Curso não pertence a esta instituição" });
+        }
+
+        const deleteSQL = `
+            DELETE FROM NOTADEZ.CURSOS
+            WHERE ID_CURSO = :id_curso
+        `;
+
+        await con.execute(deleteSQL, { id_curso }, { autoCommit: true });
+
+        confirm = true;
+        res.json({ confirm, message: "Curso excluído com sucesso" });
+
+    } catch (err) {
+        console.error("Erro ao excluir curso:", err);
+        res.status(500).json({ confirm, message: "Erro ao excluir curso" });
+    } finally {
+        if (con) await con.close();
+    }
+});
+
+
+//buscar disciplinas
+app.post('/buscardisciplinas', async (req: Request, res: Response) => {
+    const { id_cur, nome_dis } = req.body;
+    let con: oracledb.Connection | null = null;
+
+    try {
+        con = await oracledb.getConnection();
+
+        let comando: string = `SELECT D.* FROM NOTADEZ.DISCIPLINAS D 
+                                 WHERE D.ID_CURSO = :id_cur`;
+        
+        const binds: any = { id_cur };
+        
+        if (nome_dis) {
+            comando += ` AND D.NOME_DISCIPLINA = :nome_dis`;
+            binds.nome_dis = nome_dis;
+        }
+        
+        const resultado = await con.execute(comando, binds);
 
         res.json({ disciplinas: resultado.rows, rows: resultado.rows });
 
     } catch (err) {
         console.error("Erro ao buscar disciplinas:", err);
-        res.status(500);
-        res.json({ message: "Erro ao buscar disciplinas" });
+        res.status(500).json({ message: "Erro ao buscar disciplinas" });
     } finally {
         if (con) {
             await con.close();
@@ -448,46 +531,33 @@ app.post('/buscardisciplinas', async (req: Request, res: Response) => {
 
 // Rota para adicionar uma nova disciplina
 app.post('/adicionardisciplina', async (req: Request, res: Response) => {
-    // ID do Curso, Nome, Sigla, Período, ID da Instituição e ID do Docente
-    const { id_cur, nome_dis, sigla_dis = '', codigo_dis = '', periodo_dis = '', id_instituicao, id_docente } = req.body;
+    const { id_cur, nome_dis, sigla_dis = '', codigo_dis = '', periodo_dis = '' } = req.body;
     let con: oracledb.Connection | null = null;
     let confirm = false;
 
     try {
         con = await oracledb.getConnection();
 
-        // 1. Inserir a nova disciplina na tabela DISCIPLINA
-        const insertSQL = `
-            INSERT INTO NOTADEZ.DISCIPLINA (NOME_DISCIPLINA, SIGLA_DISCIPLINA, PERIODO)
-            VALUES (:nome_dis, :sigla_dis, :periodo_dis)
+        // Buscar id_instituicao do curso
+        const selectCursoSQL = `
+            SELECT ID_INSTITUICAO
+            FROM NOTADEZ.CURSOS
+            WHERE ID_CURSO = :id_cur
         `;
+        const cursoResult = await con.execute(selectCursoSQL, { id_cur });
+        const cursoRows = cursoResult.rows as any[];
 
-        await con.execute(insertSQL, { nome_dis, sigla_dis, periodo_dis }, { autoCommit: true });
-
-        // 2. Buscar ID da disciplina inserida
-        const selectSQL = `
-            SELECT ID_DISCIPLINA
-            FROM NOTADEZ.DISCIPLINA
-            WHERE NOME_DISCIPLINA = :nome_dis
-        `;
-
-        const idResult = await con.execute(selectSQL, { nome_dis });
-        const rows = idResult.rows as any[];
-
-        if (!rows || rows.length === 0) {
-            throw new Error("Erro ao recuperar disciplina recém criada");
+        if (!cursoRows || cursoRows.length === 0) {
+            throw new Error("Curso não encontrado");
         }
 
-        const id_disciplina = rows[0][0];
-
-        // 3. Criar relacionamento na tabela DISCIPLINA_INSTITUICAO
-        const relationSQL = `
-            INSERT INTO NOTADEZ.DISCIPLINA_INSTITUICAO
-            (ID_DISCIPLINA, ID_INSTITUICAO, ID_CURSO, ID_DOCENTE)
-            VALUES (:id_disciplina, :id_instituicao, :id_cur, :id_docente)
+        // Inserir disciplina diretamente com id_curso
+        const insertSQL = `
+            INSERT INTO NOTADEZ.DISCIPLINAS (NOME_DISCIPLINA, SIGLA_DISCIPLINA, PERIODO, ID_CURSO)
+            VALUES (:nome_dis, :sigla_dis, :periodo_dis, :id_cur)
         `;
 
-        await con.execute(relationSQL, { id_disciplina, id_instituicao, id_cur, id_docente }, { autoCommit: true });
+        await con.execute(insertSQL, { nome_dis, sigla_dis, periodo_dis, id_cur }, { autoCommit: true });
 
         confirm = true;
         res.json({ confirm, message: "Disciplina adicionada com sucesso" });
@@ -503,14 +573,29 @@ app.post('/adicionardisciplina', async (req: Request, res: Response) => {
 
 // Rota para excluir uma disciplina
 app.post('/excluirdisciplina', async (req: Request, res: Response) => {
-    const { id_disciplina } = req.body;
+    const { nome_dis, id_cur } = req.body;
     let con: oracledb.Connection | null = null;
     let confirm = false;
 
     try {
         con = await oracledb.getConnection();
 
-        // 1. Verifica se a disciplina tem turmas cadastradas (regra de negócio)
+        // Buscar ID da disciplina pelo nome
+        const selectSQL = `
+            SELECT ID_DISCIPLINA FROM NOTADEZ.DISCIPLINAS
+            WHERE NOME_DISCIPLINA = :nome_dis AND ID_CURSO = :id_cur
+        `;
+
+        const idResult = await con.execute(selectSQL, { nome_dis, id_cur });
+        const idRows = idResult.rows as any[];
+
+        if (!idRows || idRows.length === 0) {
+            return res.json({ confirm: false, message: "Disciplina não encontrada" });
+        }
+
+        const id_disciplina = idRows[0][0];
+
+        // Verifica se a disciplina tem turmas cadastradas
         const verificarTurmasSQL = `
             SELECT COUNT(*) 
             FROM NOTADEZ.TURMA_DISCIPLINA 
@@ -529,16 +614,9 @@ app.post('/excluirdisciplina', async (req: Request, res: Response) => {
             });
         }
 
-        // 2. Remove relacionamentos na tabela DISCIPLINA_INSTITUICAO
-        const deleteRelacionamentoSQL = `
-            DELETE FROM NOTADEZ.DISCIPLINA_INSTITUICAO 
-            WHERE ID_DISCIPLINA = :id_disciplina
-        `;
-        await con.execute(deleteRelacionamentoSQL, { id_disciplina }, { autoCommit: true });
-
-        // 3. Remove a disciplina da tabela DISCIPLINA
+        // Remove disciplina (a foreign key id_curso já garante a relação)
         const deleteDisciplinaSQL = `
-            DELETE FROM NOTADEZ.DISCIPLINA 
+            DELETE FROM NOTADEZ.DISCIPLINAS 
             WHERE ID_DISCIPLINA = :id_disciplina
         `;
         await con.execute(deleteDisciplinaSQL, { id_disciplina }, { autoCommit: true });
@@ -555,9 +633,62 @@ app.post('/excluirdisciplina', async (req: Request, res: Response) => {
     }
 });
 
-//  ||                           ||
-//  ||                           ||
-//--\/ GERENCIAMENTO DE TURMAS \/--
+//apagar disciplina (alias para compatibilidade)
+app.post('/apagardisciplina', async (req: Request, res: Response) => {
+    // Chama a mesma lógica de excluirdisciplina
+    const { nome_dis, id_cur } = req.body;
+    let con: oracledb.Connection | null = null;
+    let confirm = false;
+
+    try {
+        con = await oracledb.getConnection();
+
+        const selectSQL = `
+            SELECT ID_DISCIPLINA FROM NOTADEZ.DISCIPLINAS
+            WHERE NOME_DISCIPLINA = :nome_dis AND ID_CURSO = :id_cur
+        `;
+
+        const idResult = await con.execute(selectSQL, { nome_dis, id_cur });
+        const idRows = idResult.rows as any[];
+
+        if (!idRows || idRows.length === 0) {
+            return res.json({ confirm: false, message: "Disciplina não encontrada" });
+        }
+
+        const id_disciplina = idRows[0][0];
+
+        const verificarTurmasSQL = `
+            SELECT COUNT(*) 
+            FROM NOTADEZ.TURMA_DISCIPLINA 
+            WHERE ID_DISCIPLINA = :id_disciplina
+        `;
+
+        const verificarTurmas = await con.execute(verificarTurmasSQL, { id_disciplina });
+        const rows = verificarTurmas.rows as any[];
+
+        if (rows && rows.length > 0 && rows[0][0] > 0) {
+            return res.json({
+                confirm: false,
+                message: "Não é possível excluir disciplina que possui turmas cadastradas"
+            });
+        }
+
+        const deleteDisciplinaSQL = `
+            DELETE FROM NOTADEZ.DISCIPLINAS 
+            WHERE ID_DISCIPLINA = :id_disciplina
+        `;
+        await con.execute(deleteDisciplinaSQL, { id_disciplina }, { autoCommit: true });
+
+        confirm = true;
+        return res.json({ confirm, message: "Disciplina excluída com sucesso" });
+
+    } catch (err) {
+        console.error("Erro ao excluir disciplina:", err);
+        return res.status(500).json({ confirm, message: "Erro ao excluir disciplina" });
+    } finally {
+        if (con) await con.close();
+    }
+});
 
 // Rota para buscar todas as turmas associadas a uma disciplina
 app.post('/buscarturmas', async (req: Request, res: Response) => {
@@ -567,12 +698,10 @@ app.post('/buscarturmas', async (req: Request, res: Response) => {
     try {// Obtém a conexão com o banco Oracle
 con = await oracledb.getConnection();
 
-// Cria o comando SQL para buscar turmas de uma determinada disciplina
-const comando: string = `SELECT T.* FROM NOTADEZ.TURMA T 
-                         INNER JOIN NOTADEZ.TURMA_DISCIPLINA TD ON T.ID_TURMA = TD.ID_TURMA 
-                         WHERE TD.ID_DISCIPLINA = :id_dis`;
-// Executa o comando, passando o parâmetro id_dis para evitar SQL injection
-const resultado = await con.execute(comando, { id_dis });
+        const comando: string = `SELECT T.* FROM NOTADEZ.TURMAS T 
+                                 INNER JOIN NOTADEZ.TURMA_DISCIPLINA TD ON T.ID_TURMA = TD.ID_TURMA 
+                                 WHERE TD.ID_DISCIPLINA = :id_dis`;
+        const resultado = await con.execute(comando, { id_dis });
 
 // Retorna o resultado como JSON para o cliente
 res.json({ rows: resultado.rows });
@@ -594,79 +723,82 @@ res.json({ rows: resultado.rows });
 app.post('/adicionarturma', async (req: Request, res: Response) => {
     // Extrai dados enviados pelo cliente
     const { id_dis, nome_tur, car_hor, car_dia } = req.body;
-    let con: any = null;
+    let con = null;
     let confirm: boolean = false;
 
     try {
-        // Obtém conexão com o Oracle
         con = await oracledb.getConnection();
 
-        // SQL para inserir nova turma
-        const insertSQL = `
-            INSERT INTO NOTADEZ.TURMA (NOME_TURMA, LOCAL_AULA, HORARIO_AULA)
-            VALUES (:nome_tur, :local_aula, :horario_aula)
+        const comando = `
+            INSERT INTO NOTADEZ.TURMAS (NOME_TURMA, LOCAL_AULA, HORARIO_AULA, DIA_AULA)
+            VALUES (:nome_tur, :local_aula, :horario_aula, :dia_aula)
+            RETURNING ID_TURMA INTO :id_turma
         `;
-        // Executa o insert, passando parâmetros e realizando commit automático
-        await con.execute(insertSQL,
-            { nome_tur, local_aula: car_dia, horario_aula: car_hor },
-            { autoCommit: true });
 
-        // Busca o ID da turma recém-criada
-        const selectSQL = `
-            SELECT ID_TURMA
-            FROM NOTADEZ.TURMA
-            WHERE NOME_TURMA = :nome_tur AND LOCAL_AULA = :local_aula AND HORARIO_AULA = :horario_aula
-        `;
-        const idResult = await con.execute(selectSQL, { nome_tur, local_aula: car_dia, horario_aula: car_hor });
-        const rows = idResult.rows as any[];
+        const bindVars = {
+            nome_tur,
+            local_aula: car_dia,
+            horario_aula: car_hor,
+            dia_aula: car_dia, // Usando car_dia como dia_aula também
+            id_turma: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT }
+        };
 
-        // Se não encontrar o ID, lança erro
-        if (!rows || rows.length === 0) {
-            throw new Error("Erro ao recuperar ID da turma recém criada");
-        }
+        const result: any = await con.execute(comando, bindVars, { autoCommit: true });
+        const id_turma = result.outBinds.id_turma[0];
 
-        // Pega o ID da primeira linha (única) retornada
-        const id_turma = rows[0][0];
-
-        // Insere relacionamento turma-disciplina
         await con.execute(
-            `INSERT INTO NOTADEZ.TURMA_DISCIPLINA(ID_TURMA, ID_DISCIPLINA)
+            `INSERT INTO NOTADEZ.TURMA_DISCIPLINA (ID_TURMA, ID_DISCIPLINA)
              VALUES (:id_turma, :id_dis)`,
             { id_turma, id_dis },
             { autoCommit: true }
         );
 
-        // Confirma sucesso e envia mensagem para o cliente
         confirm = true;
-        res.json({ confirm, message: "Turma adicionada com sucesso" });
+        return res.json({ confirm, message: "Turma adicionada com sucesso" });
 
     } catch (err) {
-        // Caso ocorra erro, loga e retorna 500
         console.error("Erro ao adicionar turma:", err);
-        res.status(500).json({ confirm, message: "Erro ao adicionar turma" });
+        return res.status(500).json({ confirm, message: "Erro ao adicionar turma" });
     } finally {
-        // Fecha conexão
         if (con) await con.close();
     }
 });
 
-// ------------------ excluir turma ------------------ //
+// excluir turma
 app.post('/excluirturma', async (req: Request, res: Response) => {
-    const { id_turma } = req.body;
-    let con: any = null;
+    const { nome_turma, id_dis } = req.body;
+    let con: oracledb.Connection | null = null;
+    let confirm = false;
 
     try {
         // Conexão com Oracle
         con = await oracledb.getConnection();
 
-        // Verifica se existem notas associadas à turma
+        // Buscar ID da turma pelo nome
+        const selectSQL = `
+            SELECT T.ID_TURMA FROM NOTADEZ.TURMAS T
+            INNER JOIN NOTADEZ.TURMA_DISCIPLINA TD ON T.ID_TURMA = TD.ID_TURMA
+            WHERE T.NOME_TURMA = :nome_turma AND TD.ID_DISCIPLINA = :id_dis
+        `;
+
+        const idResult = await con.execute(selectSQL, { nome_turma, id_dis });
+        const idRows = idResult.rows as any[];
+
+        if (!idRows || idRows.length === 0) {
+            return res.json({ confirm: false, message: "Turma não encontrada" });
+        }
+
+        const id_turma = idRows[0][0];
+
+        // Verifica notas vinculadas
         const verificarNotas = await con.execute(
             `SELECT COUNT(*) FROM NOTADEZ.NOTAS WHERE ID_TURMA = :id_turma`,
             { id_turma }
         );
 
-        // Se existir alguma nota, não permite exclusão
-        const temNotas = verificarNotas.rows![0][0] > 0;
+        const rows = verificarNotas.rows as any[];
+        const temNotas = rows && rows.length > 0 && rows[0][0] > 0;
+
         if (temNotas) {
             return res.json({
                 confirm: false,
@@ -674,17 +806,17 @@ app.post('/excluirturma', async (req: Request, res: Response) => {
             });
         }
 
-        // Deleta registros relacionados sem commit automático
-        await con.execute(`DELETE FROM NOTADEZ.MATRICULA WHERE ID_TURMA = :id_turma`, { id_turma }, { autoCommit: false });
+        // Delete sem autoCommit
+        await con.execute(`DELETE FROM NOTADEZ.MATRICULAM WHERE ID_TURMA = :id_turma`, { id_turma }, { autoCommit: false });
         await con.execute(`DELETE FROM NOTADEZ.TURMA_DISCIPLINA WHERE ID_TURMA = :id_turma`, { id_turma }, { autoCommit: false });
-        await con.execute(`DELETE FROM NOTADEZ.TURMA WHERE ID_TURMA = :id_turma`, { id_turma }, { autoCommit: false });
+        await con.execute(`DELETE FROM NOTADEZ.TURMAS WHERE ID_TURMA = :id_turma`, { id_turma }, { autoCommit: false });
 
         // Realiza commit manual após todos os deletes
         await con.commit();
 
-        // Retorna sucesso
+        confirm = true;
         return res.json({
-            confirm: true,
+            confirm,
             message: "Turma excluída com sucesso"
         });
 
@@ -759,20 +891,328 @@ app.post('/importarcsv', async (req: Request, res: Response) => {
 
         // Confirma sucesso e retorna quantidade adicionada/ignorada
         confirm = true;
-        res.json({
-            confirm,
-            message: `Importação concluída: ${adicionados} adicionados, ${ignorados} ignorados`,
-            adicionados,
-            ignorados
-        });
+        res.json({ confirm, adicionados, ignorados });
 
     } catch (err) {
         console.error("Erro ao importar CSV:", err);
-        res.status(500).json({ confirm, message: "Erro ao importar CSV" });
+        res.status(500).json({ confirm: false, message: "Erro ao importar alunos" });
     } finally {
         if (con) await con.close();
     }
 });
+
+//buscar tabela de notas
+app.post('/buscarnotas', async (req: Request, res: Response) => {
+    const { id_turma, id_disciplina } = req.body;
+    let conn: oracledb.Connection | null = null;
+
+    try {
+        conn = await oracledb.getConnection();
+        
+        // Query para buscar notas (ajustada para o schema correto)
+        const result = await conn.execute(
+            `SELECT DISTINCT AL.RA_ALUNO as MATRICULA, AL.NOME_ALUNO as NOME, N.VALOR_FINAL
+             FROM NOTADEZ.ALUNOS AL
+             LEFT JOIN NOTADEZ.MATRICULAM M ON AL.RA_ALUNO = M.RA_ALUNO
+             LEFT JOIN NOTADEZ.NOTAS N ON AL.RA_ALUNO = N.RA_ALUNO AND N.ID_TURMA = M.ID_TURMA
+             WHERE M.ID_TURMA = :id_turma
+             ORDER BY AL.NOME_ALUNO`,
+            { id_turma }
+        );
+
+        return res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Erro ao buscar notas' });
+    } finally {
+        if (conn) await conn.close();
+    }
+});
+
+//  ||                            ||
+//  ||                            ||
+//--\/GERENCIAMENTO DE NOTAS\/--
+
+//adicionar aluno
+app.post('/adicionaraluno', async (req: Request, res: Response) => {
+    const { matricula, nome, peso } = req.body;
+    let con: oracledb.Connection | null = null;
+    let confirm = false;
+
+    try {
+        con = await oracledb.getConnection();
+
+        // Verificar se aluno já existe pelo nome (ra_aluno é auto-incremento)
+        const verificarSQL = `SELECT COUNT(*) FROM NOTADEZ.ALUNOS WHERE NOME_ALUNO = :nome`;
+        const verificar = await con.execute(verificarSQL, { nome });
+        const existe = (verificar.rows as any[])[0][0] > 0;
+
+        if (!existe) {
+            // Inserir aluno (ra_aluno será gerado automaticamente)
+            await con.execute(
+                `INSERT INTO NOTADEZ.ALUNOS (NOME_ALUNO) VALUES (:nome)`,
+                { nome },
+                { autoCommit: true }
+            );
+        }
+
+        confirm = true;
+        res.json({ confirm, message: "Aluno adicionado com sucesso" });
+
+    } catch (err) {
+        console.error("Erro ao adicionar aluno:", err);
+        res.status(500).json({ confirm, message: "Erro ao adicionar aluno" });
+    } finally {
+        if (con) await con.close();
+    }
+});
+
+//adicionar componente
+app.post('/adicionarcomponente', async (req: Request, res: Response) => {
+    const { nome_componente, sigla_componente, peso_componente, id_turma } = req.body;
+    let con: oracledb.Connection | null = null;
+    let confirm = false;
+
+    try {
+        con = await oracledb.getConnection();
+
+        // Buscar id_disciplina da turma
+        const selectDisSQL = `
+            SELECT ID_DISCIPLINA FROM NOTADEZ.TURMA_DISCIPLINA
+            WHERE ID_TURMA = :id_turma
+        `;
+        const disResult = await con.execute(selectDisSQL, { id_turma });
+        const disRows = disResult.rows as any[];
+
+        if (!disRows || disRows.length === 0) {
+            return res.json({ confirm: false, message: "Turma não encontrada" });
+        }
+
+        const id_disciplina = disRows[0][0];
+
+        // Inserir componente (sem peso_componente e id_turma, que não existem no schema)
+        const insertSQL = `
+            INSERT INTO NOTADEZ.COMPONENTES_NOTA (NOME_COMPONENTE, SIGLA_COMPONENTE, DESCRICAO, ID_DISCIPLINA)
+            VALUES (:nome_componente, :sigla_componente, :descricao, :id_disciplina)
+        `;
+
+        const descricao = peso_componente ? `Peso: ${peso_componente}` : '';
+        await con.execute(insertSQL, { nome_componente, sigla_componente, descricao, id_disciplina }, { autoCommit: true });
+
+        confirm = true;
+        res.json({ confirm, message: "Componente adicionado com sucesso" });
+
+    } catch (err) {
+        console.error("Erro ao adicionar componente:", err);
+        res.status(500).json({ confirm, message: "Erro ao adicionar componente" });
+    } finally {
+        if (con) await con.close();
+    }
+});
+
+//calcular nota final
+app.post('/calcularnotafinal', async (req: Request, res: Response) => {
+    const { matricula, id_turma, id_disciplina } = req.body;
+    let con: oracledb.Connection | null = null;
+
+    try {
+        con = await oracledb.getConnection();
+
+        // Buscar todas as notas do aluno para os componentes da turma
+        const notasSQL = `
+            SELECT N.VALOR_FINAL
+            FROM NOTADEZ.NOTAS N
+            WHERE N.RA_ALUNO = :matricula AND N.ID_TURMA = :id_turma
+        `;
+
+        const notasResult = await con.execute(notasSQL, { matricula, id_turma });
+        const notasRows = notasResult.rows as any[];
+
+        if (!notasRows || notasRows.length === 0) {
+            return res.json({ valor_final: 0, message: "Nenhuma nota encontrada" });
+        }
+
+        // Calcular média aritmética (já que não temos pesos no schema)
+        let somaNotas = 0;
+        let quantidade = 0;
+
+        notasRows.forEach((row: any) => {
+            const nota = row[0] || 0;
+            somaNotas += nota;
+            quantidade++;
+        });
+
+        const valor_final = quantidade > 0 ? somaNotas / quantidade : 0;
+
+        // Nota: No schema, NOTAS requer RA_ALUNO, ID_COMPONENTE e ID_TURMA
+        // Como não temos um componente específico aqui, vamos buscar o primeiro componente da turma
+        const selectComponenteSQL = `
+            SELECT CN.ID_COMPONENTE FROM NOTADEZ.COMPONENTES_NOTA CN
+            JOIN NOTADEZ.TURMA_DISCIPLINA TD ON CN.ID_DISCIPLINA = TD.ID_DISCIPLINA
+            WHERE TD.ID_TURMA = :id_turma
+            AND ROWNUM = 1
+        `;
+        const compResult = await con.execute(selectComponenteSQL, { id_turma });
+        const compRows = compResult.rows as any[];
+        
+        if (!compRows || compRows.length === 0) {
+            return res.json({ valor_final, message: "Nota calculada, mas nenhum componente encontrado para salvar" });
+        }
+        
+        const id_componente = compRows[0][0];
+
+        // Atualizar ou inserir nota final
+        const updateSQL = `
+            MERGE INTO NOTADEZ.NOTAS N
+            USING (SELECT :matricula as RA_ALUNO, :id_componente as ID_COMPONENTE, :id_turma as ID_TURMA FROM DUAL) T
+            ON (N.RA_ALUNO = T.RA_ALUNO AND N.ID_COMPONENTE = T.ID_COMPONENTE AND N.ID_TURMA = T.ID_TURMA)
+            WHEN MATCHED THEN UPDATE SET VALOR_FINAL = :valor_final
+            WHEN NOT MATCHED THEN INSERT (RA_ALUNO, ID_COMPONENTE, ID_TURMA, VALOR_FINAL) VALUES (:matricula, :id_componente, :id_turma, :valor_final)
+        `;
+
+        await con.execute(updateSQL, { matricula, id_componente, id_turma, valor_final }, { autoCommit: true });
+
+        res.json({ valor_final, message: "Nota final calculada com sucesso" });
+
+    } catch (err) {
+        console.error("Erro ao calcular nota final:", err);
+        res.status(500).json({ message: "Erro ao calcular nota final" });
+    } finally {
+        if (con) await con.close();
+    }
+});
+
+//editar nota
+app.put('/editarnota', async (req: Request, res: Response) => {
+    const { matricula, id_componente, valor_nota } = req.body;
+    let con: oracledb.Connection | null = null;
+    let confirm = false;
+
+    try {
+        con = await oracledb.getConnection();
+
+        // Buscar id_turma do componente (através da disciplina)
+        const selectTurmaSQL = `
+            SELECT TD.ID_TURMA FROM NOTADEZ.TURMA_DISCIPLINA TD
+            JOIN NOTADEZ.COMPONENTES_NOTA CN ON TD.ID_DISCIPLINA = CN.ID_DISCIPLINA
+            WHERE CN.ID_COMPONENTE = :id_componente
+        `;
+        const turmaResult = await con.execute(selectTurmaSQL, { id_componente });
+        const turmaRows = turmaResult.rows as any[];
+        
+        if (!turmaRows || turmaRows.length === 0) {
+            return res.json({ confirm: false, message: "Componente não encontrado ou não vinculado a uma turma" });
+        }
+        
+        const id_turma = turmaRows[0][0];
+
+        // Atualizar ou inserir nota (usando valor_final, não valor_nota)
+        const updateSQL = `
+            MERGE INTO NOTADEZ.NOTAS N
+            USING (SELECT :matricula as RA_ALUNO, :id_componente as ID_COMPONENTE, :id_turma as ID_TURMA FROM DUAL) T
+            ON (N.RA_ALUNO = T.RA_ALUNO AND N.ID_COMPONENTE = T.ID_COMPONENTE AND N.ID_TURMA = T.ID_TURMA)
+            WHEN MATCHED THEN UPDATE SET VALOR_FINAL = :valor_nota
+            WHEN NOT MATCHED THEN INSERT (RA_ALUNO, ID_COMPONENTE, ID_TURMA, VALOR_FINAL) VALUES (:matricula, :id_componente, :id_turma, :valor_nota)
+        `;
+
+        await con.execute(updateSQL, { matricula, id_componente, id_turma, valor_nota }, { autoCommit: true });
+
+        confirm = true;
+        res.json({ confirm, message: "Nota editada com sucesso" });
+
+    } catch (err) {
+        console.error("Erro ao editar nota:", err);
+        res.status(500).json({ confirm, message: "Erro ao editar nota" });
+    } finally {
+        if (con) await con.close();
+    }
+});
+
+/*maticula, nome, nota, turma, disciplina*/ 
+
+initconnection().then(() => {
+    app.listen(port, () => {
+        console.log("servidor criado!-porta 3000");
+    })
+});
+
+
+/*
+//-----------ANOTAÇÕES-----------//
+__códigos de status http:
+
+2xx: requisições bem sucedidas
+200: ok, requisição encontrada
+201: recurso criado com sucesso
+202: recurso aceito para procedimento
+204: bem sucedido, mas não tem recursos(por exemplo: get)
+
+4xx: erros ao solicitar requisição, não podem ser processadas
+400: requisição encontrada, mas há erros de sintax ou formatação
+401: requisição encontrada, mas mas não foi aceita(ex: senha incorreta)
+403: requisição encontrada, mas o servidor se recusa a aceitar, diferente de 401(autenticação) o úsuario apenas não tem permissão para entrar
+404: a requisição não foi encontrada(não chegou ao servidor por falha na conexão com a internet por exemplo)
+
+5xx: erros do próprio servidor
+500: erro genérico(como de sintax)
+501: o servidor não possui ou não suporta uma função necessária para a requisição
+503: o servidor está em manutenção
+
+__acesso ao banco:
+1-baixar oracle database EX(o servidor do banco de dados oracle).
+
+2-definir senha ao executar setup.
+
+3-baixar oracle instant-client(conexão para o node oracledb).
+
+4-baixar extensão oracle sql developer for vscode(ferramenta para aplicações sql).
+
+5-criar conexão pela extensão(preencher requisitos:
+-username: system       (padrão no oracle database EX)
+-password:              (senha definida anteriormente)
+-hostname: localhost    (endereço)
+-port: 1521             (porta padrão para o banco oracle)
+-service name: XEPDB1   (rota padrão)
+)
+6-rodar oracle.sql.
+7 - async function initconnection(){ 
+try{
+    oracledb.initOracleClient({//acessar o client(local)
+        libDir : "caminho para o oracle instant-client"
+    });
+} catch (err){
+    console.log("já inicializado ou erro");
+    console.log(err);
+}
+
+return await oracledb.createPool({
+        user: "<nome do usuário>",
+        password: "<senha do usuário>",
+        connectString: "<rota>",
+        poolMin: 1,
+        poolMax: 5,
+        poolIncrement: 1
+    });
+}
+
+rota modelo
+
+app.post('/', async (req: Request, res: Response) => {
+    const id_ins = req.body.id_ins;
+
+    const con = await oracledb.getConnection();
+    try{
+        const comando:string = '';
+
+        const resultado = await con.execute(comando);
+
+    } catch(err){
+        console.error(err);
+    } finally {
+        if (con) await con.close();
+    }
+});
+*/
 
 // ------------------ adicionar aluno ------------------ //
 app.post('/adicionaraluno', async (req: Request, res: Response) => {
