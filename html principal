@@ -1,189 +1,205 @@
+<!--Autor: Camila Fernandes Costacurta--!>
+
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR"> <!-- Define que a página está em Português do Brasil -->
 
 <head>
-  <meta charset="UTF-8">
-  <link type="text/css" rel="stylesheet" href="./app.css">
-  <title>N0TADEZ</title>
+  <meta charset="UTF-8"> <!-- Suporte a acentos e caracteres especiais -->
+  <link type="text/css" rel="stylesheet" href="./app.css"> <!-- Importa o arquivo CSS externo -->
+  <title>N0TADEZ</title> <!-- Nome que aparece na aba do navegador -->
 </head>
 
 <body>
+  <!-- Logo principal do sistema -->
   <img id="title" src="0-removebg-preview.png" alt="N0TADEZ Logo Principal">
   
-  <!-- Header quando logado -->
-  <div id="header-logado" class="suspenso">
+  <!-- Header que aparece SOMENTE quando o usuário está logado -->
+  <div id="header-logado" class="suspenso"> <!-- 'suspenso' esconde o elemento -->
     <h1>N0TADEZ</h1>
-    <button id="btn-logout" type="button">Sair</button>
+    <button id="btn-logout" type="button">Sair</button> <!-- Botão de logout -->
   </div>
 
   <!-- ========================================================= -->
   <!-- ======================== LOGIN =========================== -->
   <!-- ========================================================= -->
+
+  <!-- Área onde fica o login e cadastro de usuários -->
   <div id="registrousuarios">
 
+    <!-- Tela de LOGIN -->
     <div id="login">
       <h2 id="registrousuarios_titulo">Login</h2>
+
       <div id="form-login">
+        <!-- Campos para o usuário digitar e-mail e senha -->
         <input id="login-email" type="email" placeholder="E-mail" required><br>
         <input id="login-senha" type="password" placeholder="Senha" required><br>
+        
+        <!-- Local onde aparece mensagem de erro ou sucesso -->
         <p id="login-confirm"></p>
-        <button id="enviar-login" type="button">entrar</button><br><br>
+
+        <!-- Botão que envia o login -->
+        <button id="enviar-login" type="button">Entrar</button><br><br>
+
+        <!-- Vai para a tela de cadastro -->
         <button id="voltar-cadastro" type="button">Criar conta</button>
       </div>
     </div>
 
-    <div id="cadastro" class="suspenso">
+    <!-- Tela de CADASTRO -->
+    <div id="cadastro" class="suspenso"> <!-- começa escondida -->
       <h2 id="registrousuarios_titulo">Cadastro</h2>
+
       <div id="form-cadastro">
+        <!-- Campos para criar conta -->
         <input id="cadastronome" type="text" placeholder="Nome completo" required><br>
         <input id="cadastroemail" type="email" placeholder="E-mail" required><br>
         <input id="cadastrotelefone" type="tel" placeholder="Telefone celular" required><br>
         <input id="cadastrosenha" type="password" placeholder="Senha" required><br>
+        
+        <!-- Mensagem de confirmação -->
         <p id="cadastro-resultado"></p>
-        <button id="enviar-cadastro" type="button" value="Cadastrar">cadastrar</button> <br><br>
+
+        <!-- Botão para cadastrar usuário -->
+        <button id="enviar-cadastro" type="button">Cadastrar</button><br><br>
+
+        <!-- Voltar para tela de login -->
         <button id="voltar-login" type="button">Voltar</button>
       </div>
     </div>
   </div>
 
   <!-- ========================================================= -->
-  <!-- ========== INSTITUIÇÃO / CURSOS ========================= -->
+  <!-- ==================== INSTITUIÇÕES ======================= -->
   <!-- ========================================================= -->
-  <div id="gerenciar-instituicoes" class="suspenso">
-
+  <div id="gerenciar-instituicoes" class="suspenso"> <!-- Área que será exibida depois do login -->
     <div id="instituicoes">
-
       <h2>Instituições</h2>
 
-      <div id="instituicao-conteiner">
-      </div>
+      <!-- Lista onde aparecerão as instituições criadas dinamicamente pelo JS -->
+      <div id="instituicao-conteiner"></div>
 
+      <!-- Formulário de criação de instituição -->
       <div>
         <form id="form-instituicao">
           <h3>Cadastro de Instituições</h3>
-          <input id="instituicao-nome" type="text" placeholder="Instituição" required><br>
+          <input id="instituicao-nome" type="text" placeholder="Nome da Instituição" required><br>
           <p id="instituicao-comfirm"></p>
-          <button id="enviar-instituicao" type="button">criar</button>
+          <button id="enviar-instituicao" type="button">Criar Instituição</button>
         </form>
       </div>
-
     </div>
   </div>
 
   <!-- ========================================================= -->
-  <!-- ========== TURMAS / DISCILPINAS ========================= -->
+  <!-- ===================== DISCIPLINAS ======================= -->
   <!-- ========================================================= -->
   <div id="gerenciar-disciplinas" class="suspenso">
     <div id="disciplinas">
+      <h2>Disciplinas</h2>
 
-      <div id="disciplina-conteiner">
-      </div>
+      <!-- Lista de disciplinas dinâmica -->
+      <div id="disciplina-conteiner"></div>
+
+      <!-- Form de criação de disciplina -->
       <div>
         <form id="form-disciplina">
           <h2>Criar Disciplina</h2>
           <input id="nome-disciplina" type="text" placeholder="Nome da disciplina" required><br>
           <input id="sigla-disciplina" type="text" placeholder="Sigla" required><br>
-          <input id="codigo" type="text" placeholder="Código do curso" required><br>
+          <input id="codigo-disciplina" type="text" placeholder="Código do curso"><br>
           <input id="periodo-disciplina" type="text" placeholder="Período da disciplina" required><br><br>
           <p id="disciplina-confirm"></p>
-          <input type="submit" placeholder="adicionar">
+          <button type="submit">Adicionar Disciplina</button>
         </form>
       </div>
-
     </div>
 
+    <!-- Área onde aparecerão as turmas da disciplina selecionada -->
     <div id="turmas">
-      <div id="turma_conteiner">
-      </div>
+      <div id="turma_conteiner"></div>
     </div>
-
   </div>
 
   <!-- ========================================================= -->
-  <!-- ========== GERENCIAMENTO DE TURMAS ====================== -->
+  <!-- ================= GERENCIAMENTO DE NOTAS ================ -->
   <!-- ========================================================= -->
+  
   <div id="gerenciar-turmas" class="suspenso">
+
+    <!-- Painel lateral com recursos -->
     <div id="configuracoes-notas">
 
-
+      <!-- Cadastro de alunos da turma -->
       <div id="opcao-cadastrar-aluno" class="opcao">
         <h3 class="opcao-nome">Cadastro de Alunos</h3>
-        <div class="opcao">
-          <form id="form-aluno">
-            <input type="text" id="matricula-aluno" placeholder="Matrícula" required>
-            <input type="text" id="nome-aluno" placeholder="Nome" required>
-            <button type="button" id="enviar-aluno">Adicionar Aluno</button>
-          </form>
-        </div>
+        <form id="form-aluno">
+          <input type="text" id="matricula-aluno" placeholder="Matrícula" required>
+          <input type="text" id="nome-aluno" placeholder="Nome completo" required>
+          <p id="confirm-aluno"></p>
+          <button type="button" id="enviar-aluno">Adicionar Aluno</button>
+        </form>
       </div>
 
-      <h3 class="opcao-nome">Adicionar Peso ao Componente</h3>
-      <div id="opcao-notas" class="">
-        <div class="opcao">
-          <form>
-            <select>
-              <option>p1</option>
-              <option>p2</option>
-              <option>p3</option>
-            </select>
-            <input type="text" placeholder="digite o peso em porcentagem">
-            <input type="submit">
-          </form>
-          <button onclick="inseriraluno()">a</button>
-        </div>
+      <!-- Peso das avaliações -->
+      <div id="opcao-notas" class="opcao">
+        <h3 class="opcao-nome">Adicionar Peso ao Componente</h3>
+        <form id="form-componente">
+          <select id="peso-componente">
+            <option value="P1">P1</option>
+            <option value="P2">P2</option>
+            <option value="P3">P3</option>
+          </select>
+          <input type="number" id="peso-valor" placeholder="Peso em porcentagem" min="0" max="100" step="0.1">
+          <p id="confirm-componente"></p>
+          <button type="button" id="enviar-componente">Adicionar Componente</button>
+        </form>
       </div>
 
-      <h3 class="opcao-nome">Cálculo Notas Finais</h3>
+      <!-- Cálculo de média final -->
       <div id="opcao-medias" class="opcao">
-        <div class="opcao">
-          <form>
-            <h4>Média Final</h4>
-            <div>
-              <button>Aritmética</button>
-              <button>Ponderada</button>
-            </div>
-            <input type="submit">
-          </form>
-        </div>
+        <h3 class="opcao-nome">Cálculo Notas Finais</h3>
+        <form id="form-media-final">
+          <h4>Média Final</h4>
+          <button type="button" id="btn-media-aritmetica">Aritmética</button>
+          <button type="button" id="btn-media-ponderada">Ponderada</button>
+          <p id="confirm-media"></p>
+        </form>
       </div>
     </div>
 
-
+    <!-- Painel principal onde aparece a tabela -->
     <div id="quadro-notas">
       <h2>Quadro de Notas</h2>
+
+      <!-- Botões para exportar e importar CSV -->
       <div id="importacoes-e-exportacoes">
-        <button id="exportar-csv">Exportar CSV</button>
-        <button id="importar-csv">Importar CSV</button>
+        <button id="exportar-csv" type="button">Exportar CSV</button>
+        <button id="importar-csv" type="button">Importar CSV</button>
       </div>
+
+      <!-- Tabela onde alunos e notas são exibidos -->
       <table id="tabela" border="1">
         <thead id="tabela-cabeca">
           <tr>
             <th>Matrícula</th>
             <th>Nome</th>
-            <td>P1</td>
-            <td>P2</td>
-            <td>P3</td>
-            <td>Final</td>
+            <th>P1</th>
+            <th>P2</th>
+            <th>P3</th>
+            <th>Final</th>
           </tr>
         </thead>
         <tbody id="tabela-corpo">
-          <tr>
-            <td>11111</td>
-            <td>Gustas</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-          </tr>
+          <!-- Conteúdo dinâmico -->
         </tbody>
       </table>
     </div>
-    <br>
-
   </div>
 
 </body>
+
+<!-- Importação do arquivo JavaScript -->
 <script src="./script.js"></script>
 
 </html>
-
