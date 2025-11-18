@@ -46,17 +46,31 @@ cd backend
 ```bash
 npm install
 ```
+3. Baixar o OracleXE
+ https://www.oracle.com/database/technologies/xe-downloads.html
+durante a instalação definir a senha do banco
 
-3. Configure o banco de dados:
+5. Baixar o instant-client
+   https://www.oracle.com/database/technologies/instant-client/downloads.html
+   Baixar a extensão oracle sql developer
+   Criar conexão
+   Preencher as credenciais:
+   username: System
+   Password: (Senha definida anteriormente)
+   Porta 1521
+   Hostname: Localhost
+   Iniciar conexão
+
+7. Configure o banco de dados:
    - Execute o script `oracle.sql` no Oracle Database
    - Ajuste as credenciais em `src/server.ts` 
 
-4. Inicie o servidor:
+8. Inicie o servidor:
 ```bash
 npm start
 ```
 
-5. Abra o arquivo `front-end/index.html` no navegador
+8. Abra o arquivo `front-end/index.html` no navegador
 
 ## Estrutura do Projeto
 ```
@@ -98,6 +112,7 @@ npm run dev
 - A importação CSV considera apenas as 2 primeiras colunas (matrícula e nome)
 - Notas devem estar entre 0.00 e 10.00
 - A exportação CSV só funciona quando todas as notas foram lançadas
+
 
 
 
