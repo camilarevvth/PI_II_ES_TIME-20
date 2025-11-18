@@ -1,222 +1,63 @@
 /*
     Autor: Demetrius Valverde Ferreira Corradi Junqueira e Matheus Azevedo Teixeira
     Arquivo: app.css
-    Descrição: Protótipo CSS do sistema NotaDez. Contém a estilização de telas de login, cadastro de usuário, cadastro de instituições, disciplinas/turmas, cadastro de alunos, painel de auditoria e botões de exportação. 
+    Descrição: Protótipo CSS do sistema NotaDez.
 */
 
-/* ==================== LOGO ==================== */
-#title { /* Seleciona o elemento com id="title" */
-    max-width: 320px; /* Define largura máxima do logo */
-    display: block; /* Exibe como bloco */
-    margin: 20px auto 30px auto; /* Margem: topo 20px, direita/centro automática, inferior 30px, esquerda automática */
+/* Título principal */
+#title {
+    max-width: 320px; /* largura máxima do título */
+    display: block; /* garante que seja um bloco */
+    margin: 0 auto 25px auto; /* centraliza horizontalmente e adiciona margem inferior */
 }
 
-/* Esconde o logo quando o formulário de registro de usuários está ativo e com classe suspenso */
-body:has(#registrousuarios.suspenso) #title {
-    display: none; /* Não exibe o logo */
+/* Estilo geral do corpo da página */
+body {
+    font-family: 'Verdana', sans-serif; /* fonte principal */
+    background-image: linear-gradient(to right, #e8ecf3, #cfd5df); /* gradiente de fundo */
+    color: #2e2e2e; /* cor do texto */
+    padding: 25px; /* espaçamento interno da página */
+    line-height: 1.65; /* altura das linhas */
+    display: flex; /* layout flexível */
+    flex-direction: column; /* empilha elementos verticalmente */
+    align-items: center; /* centraliza horizontalmente */
 }
 
-/* ==================== BODY ==================== */
-body { /* Seleciona o elemento body da página */
-    font-family: 'Verdana', sans-serif; /* Fonte principal da página */
-    background-image: linear-gradient(to right, #e8ecf3, #cfd5df); /* Fundo degradê horizontal */
-    color: #2e2e2e; /* Cor do texto padrão */
-    padding: 25px; /* Espaçamento interno do body */
-    line-height: 1.65; /* Altura de linha do texto */
-    margin: 0; /* Remove a margem padrão do body */
-    min-height: 100vh; /* Garante que o body ocupe no mínimo a altura da tela */
+/* Estilo de todos os títulos */
+h1, h2, h3, h4 {
+    font-family: 'Segoe UI', sans-serif;
 }
 
-/* ==================== HEADER LOGADO ==================== */
-#header-logado { /* Cabeçalho visível quando usuário está logado */
-    background: white; /* Cor de fundo branco */
-    padding: 15px 30px; /* Espaçamento interno: 15px topo/baixo, 30px esquerda/direita */
-    margin: -25px -25px 25px -25px; /* Margens negativas para compensar padding do body */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Sombra suave */
-    display: flex; /* Layout flexível */
-    justify-content: space-between; /* Distribui itens igualmente com espaço entre eles */
-    align-items: center; /* Alinha verticalmente os itens ao centro */
-}
-
-/* Oculta o header se a classe suspenso estiver ativa */
-#header-logado.suspenso {
-    display: none; /* Não exibe o header */
-}
-
-/* Estilo do título dentro do header */
-#header-logado h1 {
-    margin: 0; /* Remove margem padrão */
-    color: #4a6fa5; /* Azul para o texto */
-    font-size: 24px; /* Tamanho da fonte */
-}
-
-/* Botão de logout */
-#btn-logout {
-    background: #dc3545; /* Fundo vermelho */
-    color: white; /* Cor do texto branco */
-    border: none; /* Sem borda */
-    padding: 8px 20px; /* Espaçamento interno do botão */
-    border-radius: 5px; /* Bordas arredondadas */
-    cursor: pointer; /* Cursor muda para mãozinha */
-    font-weight: 600; /* Fonte semi-negrito */
-}
-
-/* Hover no botão de logout */
-#btn-logout:hover {
-    background: #c82333; /* Vermelho mais escuro ao passar o mouse */
-}
-
-/* ==================== TITULOS ==================== */
-h1, h2, h3, h4 { /* Seleciona todos os títulos */
-    font-family: 'Segoe UI', sans-serif; /* Fonte específica para títulos */
-}
-
-/* Estilo específico para h2 */
+/* Estilo específico de h2 */
 h2 {
-    margin-top: 0; /* Remove margem superior */
-    margin-bottom: 20px; /* Define margem inferior */
-    color: #3a3a3a; /* Cor cinza escuro */
-    border-left: 4px solid #4a6fa5; /* Barra azul à esquerda */
-    padding-left: 12px; /* Espaço entre barra e texto */
-    font-size: 24px; /* Tamanho da fonte */
+    margin-top: 30px;
+    margin-bottom: 12px;
+    color: #3a3a3a;
+    border-left: 4px solid #4a6fa5; /* linha à esquerda do título */
+    padding-left: 12px;
 }
 
-/* ==================== FORMULÁRIOS ==================== */
-form { /* Seleciona todos os formulários */
-    background: #ffffff; /* Fundo branco */
-    padding: 22px; /* Espaçamento interno */
-    border-radius: 10px; /* Cantos arredondados */
-    margin-bottom: 32px; /* Margem inferior */
-    border: 1px solid #d7d7d7; /* Borda cinza clara */
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05); /* Sombra sutil */
+/* Formulários */
+.form {
+    background: #ffffff;
+    padding: 22px;
+    border-radius: 10px;
+    margin-bottom: 32px;
+    border: 1px solid #d7d7d7;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    width: 100%;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box; /* inclui padding na largura total */
 }
 
-/* Inputs gerais dentro de formulários */
+/* Inputs (text, email, password, telefone, número) */
 input[type="text"],
 input[type="email"],
 input[type="password"],
-input[type="tel"] { /* Seleciona tipos de input específicos */
-    width: 100%; /* Ocupa toda largura do container */
-    padding: 12px; /* Espaçamento interno */
-    margin: 8px 0 18px 0; /* Margens: topo 8px, direita 0, baixo 18px, esquerda 0 */
-    border-radius: 6px; /* Bordas arredondadas */
-    border: 1px solid #bfc6cf; /* Borda cinza */
-    background-color: #f2f4f7; /* Fundo cinza claro */
-    font-size: 15px; /* Tamanho da fonte */
-    transition: all 0.2s ease; /* Animação suave para alterações */
-}
-
-/* Placeholder dos inputs */
-input::placeholder {
-    color: #5b5b5b; /* Cor cinza escuro */
-}
-
-/* Efeito de foco nos inputs */
-input:focus {
-    border-color: #4a6fa5; /* Borda azul quando ativo */
-    background: #ffffff; /* Fundo branco */
-    box-shadow: 0 0 0 0.15rem rgba(74, 111, 165, 0.25); /* Sombra azul suave ao redor */
-    outline: none; /* Remove outline padrão */
-}
-
-/* ==================== BOTÕES ==================== */
-
-/* Botões principais */
-input[type="submit"],
-button[type="submit"],
-button#enviar-login,
-button#enviar-cadastro,
-button#adicionar-turma { /* Botões de ação principal */
-    background: #4a6fa5; /* Azul */
-    border: none; /* Sem borda */
-    padding: 12px 28px; /* Espaçamento interno */
-    border-radius: 6px; /* Bordas arredondadas */
-    color: white; /* Texto branco */
-    cursor: pointer; /* Cursor mãozinha */
-    margin-top: 10px; /* Margem superior */
-    font-weight: 600; /* Fonte semi-negrito */
-    transition: 0.2s; /* Animação suave */
-    font-size: 15px; /* Tamanho da fonte */
-}
-
-/* Hover nos botões principais */
-input[type="submit"]:hover,
-button[type="submit"]:hover {
-    background: #3b5a86; /* Azul mais escuro */
-    transform: translateY(-1px); /* Eleva levemente o botão */
-}
-
-/* Botões secundários */
-input[type="button"],
-button { /* Botões auxiliares */
-    background: #d4dae2; /* Cinza claro */
-    border: none; /* Sem borda */
-    padding: 10px 24px; /* Espaçamento interno */
-    border-radius: 6px; /* Bordas arredondadas */
-    cursor: pointer; /* Cursor mãozinha */
-    font-size: 14px; /* Tamanho da fonte */
-    font-weight: 600; /* Semi-negrito */
-    transition: 0.2s; /* Transição suave */
-    margin-right: 6px; /* Margem direita */
-}
-
-/* Hover nos botões secundários */
-input[type="button"]:hover,
-button:hover {
-    background: #b9c2ce; /* Cinza mais escuro */
-}
-
-/* ==================== LISTAS ==================== */
-ul { /* Lista não ordenada */
-    list-style-type: none; /* Remove marcadores padrão */
-    padding: 0; /* Remove padding */
-    margin-bottom: 25px; /* Margem inferior */
-    background: #ffffff; /* Fundo branco */
-    border-radius: 8px; /* Cantos arredondados */
-    border: 1px solid #dcdcdc; /* Borda cinza clara */
-}
-
-li { /* Itens da lista */
-    padding: 12px 20px; /* Espaçamento interno */
-    border-bottom: 1px solid #f1f1f1; /* Linha separadora */
-}
-
-li:last-child { /* Último item da lista */
-    border-bottom: none; /* Remove borda inferior */
-}
-
-/* ==================== TELAS E CONTAINERS ==================== */
-.suspenso { /* Classe que oculta elementos */
-    display: none;
-}
-
-.visivel { /* Classe que mostra elementos */
-    display: block;
-}
-
-#registrousuarios { /* Container do formulário de registro de usuário */
-    max-width: 500px; /* Largura máxima */
-    margin: 0 auto; /* Centraliza horizontalmente */
-    padding: 20px; /* Espaçamento interno */
-}
-
-#registrousuarios.suspenso { /* Oculta registro se suspenso */
-    display: none;
-}
-
-/* ==================== FORMULÁRIOS LOGIN E CADASTRO ==================== */
-#form-login,
-#form-cadastro { /* Formulários de login e cadastro */
-    background: #ffffff;
-    padding: 30px;
-    border-radius: 10px;
-    margin-top: 20px;
-    border: 1px solid #d7d7d7;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-}
-
-#form-login input,
-#form-cadastro input { /* Inputs dentro desses formulários */
+input[type="tel"],
+input[type="number"] {
     width: 100%;
     padding: 12px;
     margin: 8px 0 18px 0;
@@ -224,56 +65,199 @@ li:last-child { /* Último item da lista */
     border: 1px solid #bfc6cf;
     background-color: #f2f4f7;
     font-size: 15px;
+    transition: all 0.2s ease;
     box-sizing: border-box;
 }
 
-#form-login button,
-#form-cadastro button { /* Botões dentro desses formulários */
+/* Remove os botões de incremento de input number */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Placeholder */
+input::placeholder {
+    color: #5b5b5b;
+}
+
+/* Estilo quando o input está focado */
+input:focus {
+    border-color: #4a6fa5;
+    background: #ffffff;
+    box-shadow: 0 0 0 0.15rem rgba(74, 111, 165, 0.25);
+    outline: none;
+}
+
+/* Botões e inputs de botão */
+button,
+input[type="button"],
+input[type="submit"] {
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: 0.25s ease;
+    letter-spacing: 0.3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+}
+
+/* Botões de envio com destaque */
+input[type="submit"],
+button[type="submit"],
+button#enviar-login,
+button#enviar-cadastro,
+button#adicionar-turma {
+    background: linear-gradient(135deg, #4a6fa5, #375780);
+    color: white;
+}
+
+/* Efeito hover nos botões de envio */
+input[type="submit"]:hover,
+button[type="submit"]:hover,
+button#enviar-login:hover,
+button#enviar-cadastro:hover,
+button#adicionar-turma:hover {
+    background: linear-gradient(135deg, #3d5f8f, #2f4d72);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+}
+
+/* Botões secundários */
+button:not([type="submit"]):not(#enviar-login):not(#enviar-cadastro):not(#adicionar-turma),
+input[type="button"] {
+    background: #d6dce4;
+    color: #2e2e2e;
+}
+
+/* Hover dos botões secundários */
+button:not([type="submit"]):not(#enviar-login):not(#enviar-cadastro):not(#adicionar-turma):hover,
+input[type="button"]:hover {
+    background: #c3ccd7;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+}
+
+/* Listas */
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin-bottom: 25px;
+    background: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #dcdcdc;
+}
+
+li {
+    padding: 12px 20px;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+li:last-child {
+    border-bottom: none;
+}
+
+/* Classes de visibilidade */
+.suspenso {
+    display: none !important;
+}
+
+.visivel {
+    display: block;
+}
+
+/* Gerenciamento de turmas */
+#gerenciar-turmas {
+    display: flex;
     width: 100%;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    gap: 30px;
+    justify-content: center;
+    align-items: flex-start;
 }
 
-#form-login button:last-child,
-#form-cadastro button:last-child { /* Último botão do formulário */
-    margin-top: 5px; /* Margem específica */
+#configuracoes-notas {
+    width: 40%;
 }
 
-#login-confirm,
-#cadastro-resultado { /* Mensagens de erro ou resultado */
-    color: #d32f2f; /* Vermelho */
-    font-size: 14px;
-    margin: 10px 0;
-    min-height: 20px; /* Evita que a tela “salte” ao aparecer mensagem */
+#quadro-notas {
+    width: 100%;
 }
 
-/* ==================== GERENCIAMENTO DE TURMAS ==================== */
-#gerenciar-turmas { /* Container principal de turmas */
-    display: flex; /* Layout flexível */
-    width: 100%; /* Largura total */
-    gap: 30px; /* Espaço entre colunas */
-    padding: 20px;
+/* Tabelas */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
-#gerenciar-turmas.suspenso { /* Oculta se suspenso */
-    display: none;
+thead th {
+    background: #4a6fa5;
+    color: white;
+    padding: 12px;
+    font-weight: 600;
 }
 
-#gerenciar-instituicoes.suspenso,
-#gerenciar-disciplinas.suspenso { /* Oculta se suspenso */
-    display: none;
+tbody td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #ececec;
 }
 
-#gerenciar-instituicoes,
-#gerenciar-disciplinas { /* Containers principais */
-    padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto; /* Centraliza horizontalmente */
+tbody tr:hover {
+    background: #f3f6fb;
 }
 
-/* ==================== CONTINUAÇÃO: CAIXA DE CONFIGURAÇÕES ==================== */
-/* ... e assim por diante ... */
+/* Opções dentro de blocos */
+.opcao-nome {
+    background: white;
+    padding: 6px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
 
+.opcao div {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Responsividade para telas médias */
+@media (max-width: 900px) {
+    #gerenciar-turmas {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #configuracoes-notas, #quadro-notas {
+        width: 100%;
+    }
+
+    #form {
+        padding: 18px;
+    }
+
+    input, button {
+        font-size: 14px;
+    }
+}
+
+/* Responsividade para telas pequenas */
+@media (max-width: 600px) {
+    #title {
+        max-width: 250px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
 
     table thead {
         font-size: 13px;
