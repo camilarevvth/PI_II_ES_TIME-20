@@ -1,0 +1,130 @@
+/*
+    Autor: Bernardo Castro Brandao de Oliveira
+    Arquivo: script_banco.sql
+    Descrição: Criação do usuário, tablespace e estrutura de tabelas para o sistema NotaDez.
+*/
+
+-- ================================
+-- CRIAÇÃO DO USUÁRIO E TABLESPACE
+-- ================================
+
+-- Cria o usuário chamado 'notadez' com a senha 'secretmypass'
+create user notadez identified by secretmypass;
+
+-- Concede permissões básicas ao usuário
+-- connect: permite login
+-- resource: permite criar objetos básicos
+-- create table/view/sequence/trigger: permite criar tabelas, visões, sequências e triggers
+grant connect, resource, create table, create view, create sequence, create trigger to notadez;
+
+-- Cria um tablespace físico chamado DATA para armazenar os dados
+-- O arquivo inicial terá 100MB e crescerá automaticamente se necessário
+create tablespace data datafile 'C:\app\Usuario\product\21c\oradata\XE\data.dbf'
+size 100M autoextend on;
+
+-- Define o tablespace padrão e temporário do usuário
+alter user notadez default tablespace data temporary tablespace temp;
+
+-- Permite que o usuário use espaço ilimitado no tablespace DATA
+alter user notadez quota unlimited on data;
+
+-------------------------------------------------------------------------------
+-- TABELA DOCENTES
+-------------------------------------------------------------------------------
+
+CREATE TABLE notadez.docentes (
+   id_docente NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY, -- ID automático
+   nome_docente VARCHAR2(100) NOT NULL,                       -- Nome completo do docente
+   email_docente VARCHAR2(100) UNIQUE,                        -- Email único
+   senha VARCHAR2(100) NOT NULL,                              -- Senha de login
+   telefone_docente VARCHAR2(20),                             -- Telefone opcional
+   data_cadastro DATE DEFAULT CURRENT_DATE                    -- Data do cadastro padrão
+);
+
+-------------------------------------------------------------------------------
+-- TABELA INSTITUIÇÕES
+-------------------------------------------------------------------------------
+
+CREATE TABLE notadez.instituicoes (
+  id_instituicao NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY, -- ID gerado automaticamente
+  nome_instituicao VARCHAR2(100) NOT NULL                         -- Nome da instituição
+);
+
+-------------------------------------------------------------------------------
+-- TABELA CURSOS
+-------------------------------------------------------------------------------
+
+CREATE TABLE notadez.cursos (
+  id_curso NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,  -- ID do curso
+  nome_curso VARCHAR2(100) NOT NULL,                         -- Nome do curso
+  id_instituicao NUMBER NOT NULL,                            -- FK para instituição
+  FOREIGN KEY (id_instituicao) REFERENCES notadez.instituicoes(id_instituicao)
+);
+
+-------------------------------------------------------------------------------
+-- TABELA DISCIPLINAS
+-------------------------------------------------------------------------------
+
+CREATE TABLE notadez.disciplinas (
+  id_disciplina NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY, -- ID da disciplina
+  sigla_disciplina VARCHAR2(20) NOT NULL,                        -- Código da matéria
+  nome_disciplina VARCHAR2(100) NOT NULL,                        -- Nome completo
+  periodo VARCHAR2(20) NOT NULL                                  -- Semestre ou período
+);
+
+-------------------------------------------------------------------------------
+-- TABELA TURMAS
+-------------------------------------------------------------------------------
+
+CREATE TABLE notadez.turmas (
+  id_turma NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY, -- ID da turma
+  nome_turma VARCHAR2(100) NOT NULL,                        -- Nome da turma
+  horario_aula VARCHAR2(20) NOT NULL,                       -- Horário das aulas
+  local_aula VARCHAR2(100) NOT NULL,                        -- Sala ou bloco
+  dia_aula VARCHAR2(20) NOT NULL                             -- Dia da semana
+);
+
+-------------------------------------------------------------------------------
+-- TABELA ALUNOS
+-------------------------------------------------------------------------------
+
+CREATE TABLE notadez.alunos (
+  ra_aluno NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY, -- R.A. do aluno
+  nome_aluno VARCHAR2(100) NOT NULL                         -- Nome completo
+);
+
+-------------------------------------------------------------------------------
+-- TABELA COMPONENTES DE NOTA
+-------------------------------------------------------------------------------
+
+CREATE TABLE notadez.componentes_nota (
+  id_componente NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY, -- ID do componente
+  id_disciplina NUMBER NOT NULL,                                -- FK da disciplina
+  nome_componente VARCHAR2(100) NOT NULL,                       -- Ex: Prova 1, Trabalho
+  descricao VARCHAR2(255) NOT NULL,                             -- Descrição detalhada
+  sigla_componente VARCHAR2(20) NOT NULL,                       -- Ex: P1, APS
+  FOREIGN KEY (id_disciplina) REFERENCES notadez.disciplinas(id_disciplina)
+);
+
+-------------------------------------------------------------------------------
+-- TABELA FORMULA NOTA FINAL
+-------------------------------------------------------------------------------
+
+CREATE TABLE notadez.formula_nota_final (
+  id_formula NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY, -- ID da fórmula
+  id_disciplina NUMBER NOT NULL,                              -- Disciplina relacionada
+  tipo_formula VARCHAR2(50) NOT NULL,                         -- Tipo: Aritmética ou Ponderada
+  peso_p1 NUMBER,                                             -- Peso P1
+  peso_p2 NUMBER,                                             -- Peso P2
+  peso_p3 NUMBER,                                             -- Peso P3
+  formula_text VARCHAR2(255),                                 -- Texto da fórmula
+  FOREIGN KEY (id_disciplina) REFERENCES notadez.disciplinas(id_disciplina)
+);
+
+-------------------------------------------------------------------------------
+-- TABELA NOTAS DE ALUNOS
+-------------------------------------------------------------------------------
+
+CREATE TABLE notadez.notas (
+  id_nota NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,  -- ID da nota
+  ra_al_
