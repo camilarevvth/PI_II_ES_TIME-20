@@ -1,140 +1,316 @@
+
 /*
     Autor: Gustavo Santos de Oliveira
-    Arquivo: server.ts
-    Descrição: API RESTful utilizando Express e TypeScript para conectar-se ao Oracle DB,
-               gerenciando autenticação de docentes e a estrutura de Instituições, Cursos e Disciplinas.
+    Arquivo: script.js
+    Descrição: Este arquivo contém todas as funções e interações do sistema.
 */
 
-// Importa o framework Express para criar o servidor web e as tipagens Request e Response
-import express, { Request, Response } from 'express';
+// ==== VARIÁVEIS GLOBAIS ====
+// Guardam informações importantes que serão usadas em várias partes do código
+let usuario = null;       // guarda dados do usuário logado
+let selec_ins = null;     // guarda a instituição selecionada
+let selec_cur = null;     // guarda o curso selecionado
+let selec_dis = null;     // guarda a disciplina selecionada
+let selec_tur = null;     // guarda a turma selecionada
 
-// Importa o CORS para permitir requisições de origens diferentes
-import cors from 'cors';
+// ==== FUNÇÕES DE EVENT LISTENERS ====
+// Função para inicializar todos os botões da página
+function inicializarEventListeners() {
 
-// Importa o driver OracleDB para conectar ao banco Oracle
-import * as oracledb from 'oracledb';
+    // ===== INSTITUIÇÕES =====
+    // Pega o botão "Enviar Instituição" e adiciona uma função que roda quando clicado
+    const enviarInstituicaoBtn = document.getElementById("enviar-instituicao");
+    if (enviarInstituicaoBtn) {
+        enviarInstituicaoBtn.addEventListener('click', (e) => {
+            e.preventDefault(); // impede que o botão faça ação padrão (tipo recarregar a página)
+            const nome = document.getElementById("nome-instituicao").value; // pega o nome digitado
 
-// Cria a aplicação Express
-const app = express();
-
-// Define a porta onde o servidor vai rodar
-const port: number = 3000;
-
-// Função assíncrona para inicializar a conexão com o Oracle e criar o Pool de Conexões
-async function initconnection() {
-    try {
-        // Inicializa o cliente Oracle no caminho especificado localmente
-        oracledb.initOracleClient({
-            libDir: "C:/client_oracle/instantclient-basiclite-windows.x64-23.9.0.25.07/instantclient_23_9"
+            enviarinstituicao(nome).then(resultado => { // chama a função que envia os dados pro backend
+                if(resultado && resultado.confirm){
+                    atualizarinstituicoes(); // atualiza a lista de instituições na tela
+                    document.getElementById("confirm-instituicao").innerText = "instituição adicionada";
+                } else {
+                    document.getElementById("confirm-instituicao").innerText = "não foi possivel criar a instituição";
+                }
+            });
         });
-    } catch (err) {
-        // Se o cliente já estiver inicializado ou ocorrer outro erro, apenas loga
-        console.log("já inicializado ou erro");
-        console.log(err);
     }
 
-    // Cria e retorna o pool de conexões com as credenciais e parâmetros de conexão
-    return await oracledb.createPool({
-        user: "NOTADEZ",               // Usuário do banco
-        password: "secretmypass",      // Senha (em produção, deve vir de variáveis de ambiente)
-        connectString: "localhost:1521/XEPDB1", // String de conexão
-        poolMin: 1,                    // Número mínimo de conexões
-        poolMax: 5,                    // Número máximo de conexões
-        poolIncrement: 1               // Incremento de conexões quando necessário
-    });
+    // Botão para excluir instituição (mesma lógica que enviar)
+    const excluirInstituicaoBtn = document.getElementById("excluir-instituicao");
+    if (excluirInstituicaoBtn) {
+        excluirInstituicaoBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const nome = document.getElementById("nome-instituicao").value;
+
+            excluirinstituicao(nome).then(resultado => {
+                if(resultado && resultado.confirm){
+                    atualizarinstituicoes();
+                    document.getElementById("confirm-instituicao").innerText = "instituição excluida";
+                } else {
+                    document.getElementById("confirm-instituicao").innerText = "não foi possivel excluir a instituição";
+                }
+            });
+        });
+    }
+
+    // ===== CURSOS =====
+    // Mesmo padrão dos botões de instituição, só muda o nome e a função chamada
+    const enviarCursoBtn = document.getElementById("enviar-curso");
+    if (enviarCursoBtn) {
+        enviarCursoBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const nome = document.getElementById("nome-curso").value;
+
+            enviarcurso(nome).then(resultado => {
+                if(resultado && resultado.confirm){
+                    atualizarcursos();
+                    document.getElementById("confirm-curso").innerText = resultado.mensagem || "Curso adicionado";
+                } else {
+                    document.getElementById("confirm-curso").innerText = resultado ? resultado.mensagem : "Erro ao adicionar curso";
+                }
+            });
+        });
+    }
+
+    // Botão excluir curso
+    const excluirCursoBtn = document.getElementById("excluir-curso");
+    if (excluirCursoBtn) {
+        excluirCursoBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const nome = document.getElementById("nome-curso").value;
+
+            excluircurso(nome).then(resultado => {
+                if(resultado && resultado.confirm){
+                    atualizarcursos();
+                    document.getElementById("confirm-curso").innerText = resultado.mensagem || "Curso excluído";
+                } else {
+                    document.getElementById("confirm-curso").innerText = resultado ? resultado.mensagem : "Erro ao excluir curso";
+                }
+            });
+        });
+    }
+
+    // ===== DISCIPLINAS =====
+    const enviarDisciplinaBtn = document.getElementById("enviar-disciplina");
+    if (enviarDisciplinaBtn) {
+        enviarDisciplinaBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const sigla = document.getElementById("sigla-disciplina").value;
+            const nome = document.getElementById("nome-disciplina").value;
+            const periodo = document.getElementById("periodo-disciplina").value;
+
+            enviardiscplina(sigla, nome, periodo).then(resultado => {
+                if(resultado && resultado.confirm){
+                    atualizardisciplinas();
+                    document.getElementById("confirm-disciplina").innerText = resultado.mensagem || "Disciplina adicionada";
+                } else {
+                    document.getElementById("confirm-disciplina").innerText = resultado ? resultado.mensagem : "Erro ao adicionar disciplina";
+                }
+            });
+        });
+    }
+
+    const excluirDisciplinaBtn = document.getElementById("excluir-disciplina");
+    if (excluirDisciplinaBtn) {
+        excluirDisciplinaBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const nome = document.getElementById("nome-disciplina").value;
+
+            excluirdisciplina(nome).then(resultado => {
+                if(resultado && resultado.confirm){
+                    atualizardisciplinas();
+                    document.getElementById("confirm-disciplina").innerText = resultado.mensagem || "Disciplina excluída";
+                } else {
+                    document.getElementById("confirm-disciplina").innerText = resultado ? resultado.mensagem : "Erro ao excluir disciplina";
+                }
+            });
+        });
+    }
+
+    // ===== TURMAS =====
+    const enviarTurmaBtn = document.getElementById("enviar-turma");
+    if (enviarTurmaBtn) {
+        enviarTurmaBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const nome = document.getElementById("nome-turma").value;
+            const horario = document.getElementById("horario-turma").value;
+            const local = document.getElementById("local-turma").value;
+            const dia = document.getElementById("dia-turma").value;
+
+            adicionarturma(nome, horario, local, dia).then(resultado => {
+                if(resultado && resultado.confirm){
+                    atualizarturmas();
+                    document.getElementById("confirm-turma").innerText = resultado.mensagem || "Turma adicionada";
+                } else {
+                    document.getElementById("confirm-turma").innerText = resultado ? resultado.mensagem : "Erro ao adicionar turma";
+                }
+            });
+        });
+    }
+
+    const excluirTurmaBtn = document.getElementById("excluir-turma");
+    if (excluirTurmaBtn) {
+        excluirTurmaBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const nome = document.getElementById("nome-turma").value;
+
+            excluirturma(nome).then(resultado => {
+                if(resultado && resultado.confirm){
+                    atualizarturmas();
+                    document.getElementById("confirm-turma").innerText = resultado.mensagem || "Turma excluída";
+                } else {
+                    document.getElementById("confirm-turma").innerText = resultado ? resultado.mensagem : "Erro ao excluir turma";
+                }
+            });
+        });
+    }
+
+    // ===== ALUNOS =====
+    const enviarAlunoBtn = document.getElementById("enviar-aluno");
+    if (enviarAlunoBtn) {
+        enviarAlunoBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const matricula = document.getElementById("matricula-aluno").value;
+            const nome = document.getElementById("nome-aluno").value;
+
+            adicionaraluno(matricula, nome).then(resultado => {
+                if(resultado && resultado.confirm){
+                    atualizarnotas();
+                    const confirmAluno = document.getElementById("confirm-aluno");
+                    if (confirmAluno) {
+                        confirmAluno.innerText = resultado.mensagem || "Aluno adicionado";
+                    }
+                } else {
+                    const confirmAluno = document.getElementById("confirm-aluno");
+                    if (confirmAluno) {
+                        confirmAluno.innerText = resultado ? resultado.mensagem : "Erro ao adicionar aluno";
+                    }
+                }
+            });
+        });
+    }
+
+    // ===== COMPONENTES =====
+    const enviarComponenteBtn = document.getElementById("enviar_componente");
+    if (enviarComponenteBtn) {
+        enviarComponenteBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const nome = document.getElementById("nome-componente").value;
+            const sigla = document.getElementById("sigla-componente").value;
+            const peso = document.getElementById("peso-componente") ? document.getElementById("peso-componente").value : null;
+
+            adicionarcomponente(nome, sigla, peso).then(resultado => {
+                if(resultado && resultado.confirm){
+                    atualizarnotas();
+                    const confirmComponente = document.getElementById("confirm-componente");
+                    if (confirmComponente) {
+                        confirmComponente.innerText = resultado.mensagem || "Componente adicionado";
+                    }
+                } else {
+                    const confirmComponente = document.getElementById("confirm-componente");
+                    if (confirmComponente) {
+                        confirmComponente.innerText = resultado ? resultado.mensagem : "Erro ao adicionar componente";
+                    }
+                }
+            });
+        });
+    }
 }
 
-// ------------------ MIDDLEWARES ------------------
+// ==== FLUXO DE TELAS ====
+// Funções que mostram ou escondem seções da página
+function trocartela(pritela, segtela){
+    pritela.classList.add("suspenso"); // esconde a tela atual
+    segtela.classList.remove("suspenso"); // mostra a próxima tela
+}
 
-// Permite que a API processe corpos de requisição JSON
-app.use(express.json());
-
-// Habilita o CORS para permitir requisições de outras origens
-app.use(cors());
-
-// ------------------ ROTAS DE USUÁRIO ------------------
-
-// Rota de Cadastro de Docente
-app.post('/cadastrar', async (req, res) => {
-    // Recebe dados do corpo da requisição
-    const nome = req.body.nome;
-    const email = req.body.email;
-    const senha = req.body.senha;
-    const telefone = req.body.telefone;
-
-    // Inicializa flag de confirmação e conexão
-    let confirm: boolean = false;
-    let con = null;
-
-    try {
-        // Obtém uma conexão do pool
-        con = await oracledb.getConnection();
-
-        // Executa a query de inserção do docente
-        const resultado = await con.execute(
-            `INSERT INTO NOTADEZ.DOCENTES(NOME_DOCENTE, EMAIL_DOCENTE, SENHA, TELEFONE_DOCENTE) VALUES(:nome, :email, :senha, :telefone)`,
-            { nome, email, senha, telefone }, // Parâmetros da query
-            { autoCommit: true }              // Commit automático
-        );
-
-        // Marca cadastro como realizado
-        confirm = true;
-
-        // Retorna resposta JSON para o front-end
-        res.json({
-            confirm,
-            message: "cadastro realizado com sucesso"
-        });
-
-    } catch (err) {
-        // Em caso de erro, loga no console e retorna status 500
-        console.error("Erro no cadastro:", err);
-        res.status(500);
-        res.json({
-            confirm,
-            message: "erro ao cadastrar: " + (err instanceof Error ? err.message : "usuario já cadastrado")
-        });
-    } finally {
-        // Sempre fecha a conexão
-        if (con) {
-            await con.close();
-        }
+function fluxotelas(){
+    // Botão voltar do cadastro pro login
+    const voltarLoginBtn = document.getElementById("voltar-login");
+    if (voltarLoginBtn) {
+        voltarLoginBtn.addEventListener("click", () => trocartela(
+                document.getElementById("cadastro"),
+                document.getElementById("login")
+            ));
     }
-});
 
-// Rota de Login de Docente
-app.post('/login', async (req: Request, res: Response) => {
-    const email = req.body.email;
-    const senha = req.body.senha;
-    let con = null;
+    // Botão voltar do login pro cadastro
+    const voltarCadastroBtn = document.getElementById("voltar-cadastro");
+    if (voltarCadastroBtn) {
+        voltarCadastroBtn.addEventListener("click", () => trocartela(
+                document.getElementById("login"),
+                document.getElementById("cadastro")
+            ));
+    }
 
-    try {
-        // Obtém conexão do pool
-        con = await oracledb.getConnection();
+    // Botão para cadastrar usuário
+    const enviarCadastroBtn = document.getElementById("enviar-cadastro");
+    if (enviarCadastroBtn) {
+        enviarCadastroBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            comfirmarcadastro();
+        });
+    }
 
-        // Executa query para verificar se usuário existe
-        const result = await con.execute(
-            `SELECT * FROM NOTADEZ.DOCENTES WHERE EMAIL_DOCENTE = :email AND SENHA = :senha`,
-            { email, senha }
-        );
+    // Botão para login
+    const enviarLoginBtn = document.getElementById("enviar-login");
+    if (enviarLoginBtn) {
+        enviarLoginBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            comfirmarlogin().then(resultado => {
+                if(resultado && resultado.confirm){
+                    usuario = resultado.usuario;
+                    const loginConfirm = document.getElementById("login-confirm");
+                    if (loginConfirm) {
+                        loginConfirm.innerText = resultado.mensagem || "Login realizado com sucesso";
+                    }
 
-        // Se encontrou algum usuário, retorna sucesso
-        if (result.rows!.length > 0) {
-            return res.json({
-                mensagem: "sucesso ao fazer login",
-                confirm: true,
-                usuario: result.rows![0] // Retorna o primeiro usuário encontrado
+                    trocartela(
+                        document.getElementById("login"),
+                        document.getElementById("gerenciar-instituicoes"));
+
+                    atualizarinstituicoes();
+                } else {
+                    const loginConfirm = document.getElementById("login-confirm");
+                    if (loginConfirm) {
+                        loginConfirm.innerText = resultado ? resultado.mensagem : "Erro ao fazer login";
+                    }
+                    console.log(resultado ? resultado.mensagem : "Erro desconhecido");
+                }
             });
-        }
-
-        // Se não encontrou usuário
-        res.json({
-            confirm: false,
-            mensagem: "email ou senha incorretos..."
         });
-    } catch (err) {
-        console.error("Erro no login:", err);
-        res.status(500);
-        res.json({ error: "Erro ao realizar login" });
     }
-});
+}
+
+// ==== INICIALIZAÇÃO ====
+// Chama todas as funções quando a página carrega
+function inicializar() {
+    fluxotelas();               // configura o fluxo das telas
+    inicializarEventListeners(); // adiciona todos os event listeners
+}
+
+// Espera o DOM carregar, se já carregou executa imediatamente
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', inicializar);
+} else {
+    inicializar();
+}
+
+/*
+OBS: Estrutura dos arquivos do projeto
+
+/backend
+    |- dist             // arquivos compilados
+    |- src              // código-fonte
+        |- server.ts    // servidor Node.js
+    |- oracle.sql       // scripts do banco de dados
+    |- package.json     // dependências e scripts
+    |- package-lock.json
+    |- tsconfig.json    // configuração do TypeScript
+
+/frontend
+    |- app.css          // estilos da página
+    |- index.html       // página principal
+    |- script.js        // este arquivo com as funções JS
+*/
